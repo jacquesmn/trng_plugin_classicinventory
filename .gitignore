@@ -1,0 +1,12 @@
+.vs/
+ipch/
+packages/
+Debug/
+Release/
+CodeAnalyst/
+*.TMP
+*.user
+*.suo
+*.ncb
+*.sdf
+*.opensdf
