@@ -2294,14 +2294,14 @@ void setup_ammo(ecs::EntityManager &entity_manager)
 	setup_tr4_ammo(item::ItemId::REVOLVER, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, entity_manager);
 	setup_tr4_ammo(item::ItemId::REVOLVER_LASERSIGHT_COMBO, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, entity_manager);
 	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
 	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
 	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
 	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
 	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_SUPER, entity_manager);
 	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_EXPLOSIVE, entity_manager);
+	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_SUPER, entity_manager);
 }
 
 void combo_combine(item::ComboData &combo_data)
