@@ -31,7 +31,6 @@ public:
 };
 
 struct CheatConfig : public ecs::Component {
-	int32_t item_id;
 	int32_t key_1;
 	int32_t key_2;
 	int32_t key_3;
@@ -48,11 +47,10 @@ struct CheatConfig : public ecs::Component {
 	bool active;
 
 	CheatConfig(
-		int32_t item_id,
-		int32_t key_1,
-		int32_t key_2,
-		int32_t key_3,
-		int32_t key_4,
+		int32_t key_1 = 0,
+		int32_t key_2 = 0,
+		int32_t key_3 = 0,
+		int32_t key_4 = 0,
 		int32_t key_5 = 0,
 		int32_t key_6 = 0,
 		int32_t key_7 = 0,
@@ -61,7 +59,6 @@ struct CheatConfig : public ecs::Component {
 		int32_t key_10 = 0
 	)
 		:
-		item_id(item_id),
 		key_1(key_1),
 		key_2(key_2),
 		key_3(key_3),
@@ -92,6 +89,8 @@ struct Cheat : public ecs::Component {
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
 void do_cheats(ecs::Entity &entity);
+
+bool facing_north();
 
 }
 }

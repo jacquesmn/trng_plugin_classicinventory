@@ -159,6 +159,8 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
   <ItemGroup>
     <None Include="Plugin_ClassicInventory.def" />
     <None Include="READ_ME.txt" />
+    <None Include="scripts\Plugin_ClassicInventory.script" />
+    <None Include="scripts\Plugin_ClassicInventory.trg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

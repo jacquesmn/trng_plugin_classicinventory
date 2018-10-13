@@ -4,6 +4,7 @@
 
 #include <algorithm>
 
+#include <trng_core.h>
 #include "inventory.h"
 #include "item.h"
 #include "state.h"
@@ -18,20 +19,25 @@ CheatSystem::CheatSystem(input::InputState &input_state)
 
 void CheatSystem::init(ecs::EntityManager & entity_manager, ecs::SystemManager & system_manager)
 {
-	const auto entity = entity_manager.find_entity_with_component<CheatConfig>();
-	if (!entity) {
-		return;
-	}
+	const auto cheat_entities = entity_manager.find_entities_with_component<CheatConfig>();
 
 	// turn on cheats
-	auto cheat_configs = entity->get_components<CheatConfig>();
-	std::for_each(cheat_configs.begin(), cheat_configs.end(), [](CheatConfig *config) -> void {
-		config->active = true;
-	});
+	for (auto it = cheat_entities.begin(); it != cheat_entities.end(); ++it) {
+		auto &cheat_entity = **it;
+		auto cheat_configs = cheat_entity.get_components<CheatConfig>();
+
+		std::for_each(cheat_configs.begin(), cheat_configs.end(), [](CheatConfig *config) -> void {
+			config->active = true;
+		});
+	}
 }
 
 void CheatSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
 {
+	if (!input_state.has_input()) {
+		return;
+	}
+
 	const auto ring_item_selected = state::get_selected_item(entity_manager);
 	if (!ring_item_selected) {
 		return;
@@ -43,18 +49,12 @@ void CheatSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager 
 	}
 	const auto &item_data = *item_selected.get_component<item::ItemData>();
 
-	const auto entity = entity_manager.find_entity_with_component<CheatConfig>();
-	if (!entity) {
-		return;
-	}
-
 	// find all cheat configs for current selected item and key_combo
 	const auto key_active_or_zero = [&](int32_t key) -> bool {
 		return key == 0 || input_state.key_active(key);
 	};
-	auto cheat_configs = entity->get_components<CheatConfig>([&](CheatConfig &config) -> bool {
-		return config.item_id == item_data.item_id
-			&& key_active_or_zero(config.key_1)
+	auto cheat_configs = item_selected.get_components<CheatConfig>([&](CheatConfig &config) -> bool {
+		return key_active_or_zero(config.key_1)
 			&& key_active_or_zero(config.key_2)
 			&& key_active_or_zero(config.key_3)
 			&& key_active_or_zero(config.key_4)
@@ -92,6 +92,11 @@ void do_cheats(ecs::Entity &entity)
 	});
 
 	entity.remove_components<cheat::Cheat>();
+}
+
+bool facing_north()
+{
+	return Trng.pGlobTomb4->pAdr->pLara->OrientationH == 0;
 }
 
 }

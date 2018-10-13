@@ -184,5 +184,7 @@
     <None Include="Plugin_ClassicInventory.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="scripts\Plugin_ClassicInventory.script" />
+    <None Include="scripts\Plugin_ClassicInventory.trg" />
   </ItemGroup>
 </Project>
