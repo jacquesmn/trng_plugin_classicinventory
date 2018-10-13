@@ -15,7 +15,9 @@ typedef struct StrSavegameGlobalData {
 	// note: the size of this structure should be always even (if you add BYTE variable, remember to compensate that 
 	//       with another BYTE vairable or placefolder)
 
-	
+	int inventory_item_quantities[512];
+
+	int placeholder_inventory_item_quantities[512];
 }SavegameGlobalDataFields;
 
 typedef struct StrSavegameLocalData {
@@ -23,6 +25,23 @@ typedef struct StrSavegameLocalData {
 	// define here your variables that you wish were saved (and then restored) to/from savegame in LOCAL section (one for each different level)
 	// note: the size of this structure should be always even (if you add BYTE variable, compensate it with another BYTE vairable or placefolder)
 
+	int inventory_ring_id_selected;
+	int inventory_item_id_selected;
+	int inventory_item_id_used;
+
+	int placeholder_inventory_ring_id_selected;
+	int placeholder_inventory_item_id_selected;
+	int placeholder_inventory_item_id_used;
+
+	StrSavegameLocalData()
+		:
+		inventory_ring_id_selected(-1),
+		inventory_item_id_selected(-1),
+		inventory_item_id_used(-1),
+		placeholder_inventory_ring_id_selected(-1),
+		placeholder_inventory_item_id_selected(-1),
+		placeholder_inventory_item_id_used(-1)
+	{}
 }SavegameLocalDataFields;
 
 

@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8CA27C00-D318-4243-845C-6F3BEBED1489}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PlugIn_trng</RootNamespace>
+    <RootNamespace>Plugin_ClassicInventory</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -51,9 +51,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_TRNG_EXPORTS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_CLASSICINVENTORY_EXPORTS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
       <ExpandAttributedSource>true</ExpandAttributedSource>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -75,7 +76,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_TRNG_EXPORTS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_CLASSICINVENTORY_EXPORTS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <Link>
@@ -92,20 +93,61 @@
     <ClInclude Include="functions.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="macros_mine.h" />
+    <ClInclude Include="src\classicinventory\action.h" />
+    <ClInclude Include="src\classicinventory\camera.h" />
+    <ClInclude Include="src\classicinventory\cheat.h" />
+    <ClInclude Include="src\classicinventory\controller.h" />
+    <ClInclude Include="src\classicinventory\core.h" />
+    <ClInclude Include="src\classicinventory\ecs.h" />
+    <ClInclude Include="src\classicinventory\input.h" />
+    <ClInclude Include="src\classicinventory\inventory.h" />
+    <ClInclude Include="src\classicinventory\item.h" />
+    <ClInclude Include="src\classicinventory\motion.h" />
+    <ClInclude Include="src\classicinventory\render.h" />
+    <ClInclude Include="src\classicinventory\ring.h" />
+    <ClInclude Include="src\classicinventory\script.h" />
+    <ClInclude Include="src\classicinventory\setup.h" />
+    <ClInclude Include="src\classicinventory\sound.h" />
+    <ClInclude Include="src\classicinventory\special.h" />
+    <ClInclude Include="src\classicinventory\state.h" />
+    <ClInclude Include="src\classicinventory\trigger.h" />
+    <ClInclude Include="src\trng_core.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="structures.h" />
     <ClInclude Include="structures_mine.h" />
+    <ClInclude Include="targetver.h" />
     <ClInclude Include="Tomb4Discoveries_mine.h" />
     <ClInclude Include="Tomb_NextGeneration.h" />
     <ClInclude Include="trng.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PlugIn_trng.cpp" />
+    <ClCompile Include="Plugin_ClassicInventory.cpp" />
+    <ClCompile Include="src\classicinventory\action.cpp" />
+    <ClCompile Include="src\classicinventory\camera.cpp" />
+    <ClCompile Include="src\classicinventory\cheat.cpp" />
+    <ClCompile Include="src\classicinventory\controller.cpp" />
+    <ClCompile Include="src\classicinventory\core.cpp" />
+    <ClCompile Include="src\classicinventory\ecs.cpp" />
+    <ClCompile Include="src\classicinventory\input.cpp" />
+    <ClCompile Include="src\classicinventory\inventory.cpp" />
+    <ClCompile Include="src\classicinventory\item.cpp" />
+    <ClCompile Include="src\classicinventory\motion.cpp" />
+    <ClCompile Include="src\classicinventory\render.cpp" />
+    <ClCompile Include="src\classicinventory\script.cpp" />
+    <ClCompile Include="src\classicinventory\setup.cpp" />
+    <ClCompile Include="src\classicinventory\sound.cpp" />
+    <ClCompile Include="src\classicinventory\special.cpp" />
+    <ClCompile Include="src\classicinventory\state.cpp" />
+    <ClCompile Include="src\classicinventory\trigger.cpp" />
     <ClCompile Include="StdAfx.cpp" />
     <ClCompile Include="trng.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="PlugIn_trng.rc" />
+    <ResourceCompile Include="Plugin_ClassicInventory.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Plugin_ClassicInventory.def" />
+    <None Include="READ_ME.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,6 +4,34 @@
 // in this source you can also type your declaration of tomb raider function
 // like it happens for "functions.h" source
 
+#define CUST_CINV_RING					1
+#define CUST_CINV_ITEM					2
+#define CUST_CINV_ITEM_RING				3
+#define CUST_CINV_ITEM_MODEL			4
+#define CUST_CINV_ITEM_DISPLAY			5
+#define CUST_CINV_ITEM_QUANTITY			6
+#define CUST_CINV_ITEM_ANIMATION		7
+#define CUST_CINV_ITEM_ACTION			8
+#define CUST_CINV_ITEM_SFX				9
+#define CUST_CINV_DURATION				10
+#define CUST_CINV_DISPLAY				11
+#define CUST_CINV_SFX					12
+#define CUST_CINV_TEXT					13
+#define CUST_CINV_CAMERA				14
+#define CUST_CINV_LIGHTING				15
+#define CUST_CINV_CHEATS				16
+#define CUST_CINV_AMMO					17
+#define CUST_CINV_COMBO					18
+#define CUST_CINV_EXAMINE				19
+#define CUST_CINV_HEALTH				20
+#define CUST_CINV_COMPASS				21
+#define CUST_CINV_STOPWATCH				22
+#define CUST_CINV_PASSPORT				23
+#define CUST_CINV_MAP					24
+
+#define CINV_FALSE						0
+#define CINV_TRUE						1
+
 // -------- START PRESET CONSTANTS ---------------------------------
 // please don't remove the constants in this "PRESET CONSTANT" zone. 
 // They will be used by some preset function in your plugin source
