@@ -54,7 +54,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_CLASSICINVENTORY_EXPORTS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
       <ExpandAttributedSource>true</ExpandAttributedSource>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -67,6 +67,11 @@
       <Version>1.0.0</Version>
       <PreventDllBinding>true</PreventDllBinding>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /y "$(ProjectDir)$(Configuration)\$(TargetFileName)" "D:\Misc\TRLE\sotm"
+copy /y "$(SolutionDir)scripts\$(TargetName).script", "$(USERPROFILE)\Documents\NG_Center"
+copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -78,6 +83,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_CLASSICINVENTORY_EXPORTS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -85,6 +91,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /y "$(ProjectDir)$(Configuration)\$(TargetFileName)" "D:\Misc\TRLE\sotm"
+copy /y "$(SolutionDir)scripts\$(TargetName).script", "$(USERPROFILE)\Documents\NG_Center"
+copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="bass.h" />

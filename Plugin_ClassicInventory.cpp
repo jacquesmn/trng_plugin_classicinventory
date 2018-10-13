@@ -630,23 +630,6 @@ void cbCycleBegin(void)
 // you have to return a RET_CYCLE_ value
 int cbCycleEnd(void)
 {
-	Get(enumGET.INFO_LARA, 0, 0);
-	if (GET.LaraInfo.SkipPhaseFlags == enumSKIP.NONE || GET.LaraInfo.SkipPhaseFlags == enumSKIP.FIXED_CAMERA) {
-		int angle = 192, // unit by which is multiplied the desired FOV value
-			w = Trng.pGlobTomb4->ScreenSizeX,
-			h = Trng.pGlobTomb4->ScreenSizeY,
-			fov;
-		double ratio = (double)w / (double)h;
-
-		// default (4/3) FOV is 80
-		// widescreen (16/9) FOV should be something around 93
-
-		fov = (int)((ratio * 30) + 40); // formula that makes the FOV follow the rules mentioned above
-		SendToLog("Resolution is %d / %d - aspect ratio is %d - fov is %d", w, h, ratio, fov);
-
-		AlterFOV(fov * angle);
-	}
-
 	return RET_CYCLE_CONTINUE;
 }
 

@@ -1,6 +1,7 @@
 .vs/
 ipch/
 packages/
+build/
 Debug/
 Release/
 CodeAnalyst/
