@@ -6,15 +6,6 @@
 namespace classicinventory {
 namespace action {
 
-class ActionSystem : public ecs::System {
-public:
-	void init(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
-
-	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
-
-	void cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
-};
-
 bool use_health(ecs::Entity &item);
 bool use_flare(ecs::Entity &item);
 bool use_binoculars(ecs::Entity &item);

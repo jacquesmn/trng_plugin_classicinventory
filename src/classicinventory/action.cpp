@@ -13,16 +13,7 @@ extern StrMyData MyData;
 namespace classicinventory {
 namespace action {
 
-void ActionSystem::init(ecs::EntityManager & entity_manager, ecs::SystemManager &system_manager)
-{}
-
-void ActionSystem::update(ecs::EntityManager & entity_manager, ecs::SystemManager &system_manager)
-{}
-
-void ActionSystem::cleanup(ecs::EntityManager & entity_manager, ecs::SystemManager &system_manager)
-{}
-
-bool use_health(ecs::Entity & item)
+bool use_health(ecs::Entity &item)
 {
 	if (!item.has_component<item::HealthData>()) {
 		return false;
@@ -301,7 +292,7 @@ bool load_game()
 
 	if (save_number >= 0) {
 		// loaded game
-		*Trng.pGlobTomb4->pAdr->pTestLoadOrNewLevel = true;
+		*Trng.pGlobTomb4->pAdr->pTestLoadOrNewLevel = 1;
 
 		return true;
 	}
@@ -323,7 +314,11 @@ bool save_game()
 
 bool exit_to_title()
 {
-	*Trng.pGlobTomb4->pAdr->pTestLoadOrNewLevel = true;
+	int32_t &Savegame_1E7_NumeroLivello = *reinterpret_cast<int32_t*>(0x7F7730);
+	
+	Savegame_1E7_NumeroLivello = 0;
+
+	*Trng.pGlobTomb4->pAdr->pTestLoadOrNewLevel = 1;
 
 	return true;
 }
