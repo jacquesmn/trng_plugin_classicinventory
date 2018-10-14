@@ -1399,13 +1399,13 @@ State* ItemDeselectState::update(ecs::EntityManager &entity_manager)
 									item_display_idle->orient.z,
 									duration_frames
 								);
-								item_active.add_component(new motion::Motion(
-									item_display->tilt,
-									item_display->tilt,
-									item_display_idle->tilt,
-									duration_frames
-								));
 							}
+							item_active.add_component(new motion::Motion(
+								item_display->tilt,
+								item_display->tilt,
+								item_display_idle->tilt,
+								duration_frames
+							));
 							item_active.add_component(new motion::Motion(
 								item_display->scale,
 								item_display->scale,

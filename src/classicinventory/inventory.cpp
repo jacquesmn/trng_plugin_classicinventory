@@ -46,7 +46,8 @@ void build_inventory(
 	for (auto ring_it = rings.begin(); ring_it != rings.end(); ++ring_it) {
 		auto &ring = **ring_it;
 
-		if (!ring.has_component<ring::RingState>()) {
+		if (!ring.has_component<ring::RingData>()
+			|| !ring.has_component<ring::RingState>()) {
 			continue;
 		}
 
@@ -58,6 +59,8 @@ void build_inventory(
 		});
 
 		build_ring(ring, ring_state, items, &item_id, &ammos_with_weapon);
+
+		fade_in_ring(ring, 0);
 	}
 
 	// now link the rings together for easy navigation

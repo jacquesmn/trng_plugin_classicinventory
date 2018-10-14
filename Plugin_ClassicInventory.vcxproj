@@ -161,6 +161,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
     <None Include=".gitignore" />
     <None Include="Plugin_ClassicInventory.aps" />
     <None Include="Plugin_ClassicInventory.def" />
+    <None Include="Plugin_ClassicInventory.sln.DotSettings" />
     <None Include="READ_ME.txt" />
     <None Include="scripts\Plugin_ClassicInventory.script" />
     <None Include="scripts\Plugin_ClassicInventory.trg">
@@ -170,6 +171,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ExcludedFromBuild>
     </None>
+    <None Include="src\LICENSE.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
