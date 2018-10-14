@@ -395,7 +395,7 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 	});
 
 	// spin selected item
-	const auto inventory_duration = get_inventory_duration(entity_manager);
+	const auto inventory_duration = inventory::get_inventory_duration(entity_manager);
 	const auto item_selected = get_selected_item(entity_manager);
 
 	if (item_selected && inventory_duration) {
@@ -403,8 +403,27 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 	}
 }
 
+State* IdleState::update(ecs::EntityManager & entity_manager)
+{
+	const auto inventory_state = inventory::get_inventory_state(entity_manager);
+
+	if (inventory_state && inventory_state->activate_selected_item_on_open) {
+		inventory_state->activate_selected_item_on_open = false;
+
+		return new ItemSelectState();
+	}
+
+	return this;
+}
+
 State* IdleState::input(input::InputState &input_state, ecs::EntityManager &entity_manager)
 {
+	const auto inventory_state = inventory::get_inventory_state(entity_manager);
+
+	if (input_state.command_first_press(enumCMD.ACTION) || input_state.command_first_press(enumCMD.ENTER)) {
+		return new ItemSelectState();
+	}
+
 	if (input_state.command_first_press(enumCMD.INVENTORY)) {
 		return new ClosingState();
 	}
@@ -422,18 +441,12 @@ State* IdleState::input(input::InputState &input_state, ecs::EntityManager &enti
 	}
 
 	if (input_state.command_first_press(enumCMD.UP)) {
-		const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
+		if (inventory_state && inventory_state->ring && inventory_state->ring->next) {
+			const auto ring_target = inventory_state->ring->next;
 
-		if (inventory) {
-			const auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
-
-			if (inventory_state.ring && inventory_state.ring->next) {
-				const auto ring_target = inventory_state.ring->next;
-
-				return new RingChangeState(RingChangeState::UP, [=]() -> inventory::InventoryRing* {return ring_target; }, []() -> State* {
-					return new IdleState();
-				});
-			}
+			return new RingChangeState(RingChangeState::UP, [=]() -> inventory::InventoryRing* {return ring_target; }, []() -> State* {
+				return new IdleState();
+			});
 		}
 	}
 
@@ -451,10 +464,6 @@ State* IdleState::input(input::InputState &input_state, ecs::EntityManager &enti
 				});
 			}
 		}
-	}
-
-	if (input_state.command_first_press(enumCMD.ACTION) || input_state.command_first_press(enumCMD.ENTER)) {
-		return new ItemSelectState();
 	}
 
 	if (input_state.command_first_press(enumCMD.ROLL)) {
@@ -1098,7 +1107,7 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 							if (action::save_game()) {
 								return new ItemDeselectState([]() -> State* {
 									return new ClosingState(false);
-								}, false, false);
+								}, false, false, false);
 							}
 						}
 						else if (active_action->type == item::ItemActionType::STATISTICS) {
@@ -1115,14 +1124,14 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 
 							return new ItemDeselectState([]() -> State* {
 								return new ClosingState(false);
-							}, false, false);
+							}, false, false, false);
 						}
 						else {
 							inventory_state.item_used = inventory_state.item_active;
 
 							return new ItemDeselectState([]() -> State* {
 								return new ClosingState(false);
-							}, false, false);
+							}, false, false, false);
 						}
 
 						// change to context ring for selected context action
@@ -1224,12 +1233,14 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 ItemDeselectState::ItemDeselectState(
 	std::function<State*()> get_next_state,
 	bool play_sfx,
-	bool play_animations
+	bool play_animations,
+	bool restore_orientation
 )
 	:
 	get_next_state(get_next_state),
 	play_sfx(play_sfx),
 	play_animations(play_animations),
+	restore_orientation(restore_orientation),
 	motions_done(false)
 {}
 
@@ -1366,33 +1377,35 @@ State* ItemDeselectState::update(ecs::EntityManager &entity_manager)
 								item_display_idle->pos.z,
 								duration_frames
 							));
-							add_motion_rot(
-								item_active,
-								item_display->orient.x,
-								item_display->orient.x,
-								item_display_idle->orient.x,
-								duration_frames
-							);
-							add_motion_rot(
-								item_active,
-								item_display->orient.y,
-								item_display->orient.y,
-								item_display_idle->orient.y,
-								duration_frames
-							);
-							add_motion_rot(
-								item_active,
-								item_display->orient.z,
-								item_display->orient.z,
-								item_display_idle->orient.z,
-								duration_frames
-							);
-							item_active.add_component(new motion::Motion(
-								item_display->tilt,
-								item_display->tilt,
-								item_display_idle->tilt,
-								duration_frames
-							));
+							if (restore_orientation) {
+								add_motion_rot(
+									item_active,
+									item_display->orient.x,
+									item_display->orient.x,
+									item_display_idle->orient.x,
+									duration_frames
+								);
+								add_motion_rot(
+									item_active,
+									item_display->orient.y,
+									item_display->orient.y,
+									item_display_idle->orient.y,
+									duration_frames
+								);
+								add_motion_rot(
+									item_active,
+									item_display->orient.z,
+									item_display->orient.z,
+									item_display_idle->orient.z,
+									duration_frames
+								);
+								item_active.add_component(new motion::Motion(
+									item_display->tilt,
+									item_display->tilt,
+									item_display_idle->tilt,
+									duration_frames
+								));
+							}
 							item_active.add_component(new motion::Motion(
 								item_display->scale,
 								item_display->scale,
@@ -1491,7 +1504,7 @@ void AmmoContextState::start(ecs::EntityManager &entity_manager)
 State* AmmoContextState::update(ecs::EntityManager &entity_manager)
 {
 	// spin selected item
-	const auto inventory_duration = get_inventory_duration(entity_manager);
+	const auto inventory_duration = inventory::get_inventory_duration(entity_manager);
 	const auto item_selected = get_selected_item(entity_manager);
 
 	if (item_selected && inventory_duration) {
@@ -1937,7 +1950,7 @@ void ComboContextState::start(ecs::EntityManager &entity_manager)
 State* ComboContextState::update(ecs::EntityManager &entity_manager)
 {
 	// spin selected item
-	const auto inventory_duration = get_inventory_duration(entity_manager);
+	const auto inventory_duration = inventory::get_inventory_duration(entity_manager);
 	const auto item_selected = get_selected_item(entity_manager);
 
 	if (item_selected && inventory_duration) {
@@ -3069,7 +3082,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 								get_post_closing_state = []() -> State* {
 									return new ItemDeselectState([]() -> State* {
 										return new ClosingState(false);
-									}, false, false);
+									}, false, false, false);
 								};
 								closing = true;
 							}
@@ -3080,7 +3093,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 							get_post_closing_state = []() -> State* {
 								return new ItemDeselectState([]() -> State* {
 									return new ClosingState(false);
-								}, false, false);
+								}, false, false, false);
 							};
 							closing = true;
 						}
@@ -3261,7 +3274,7 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 
 							return new ItemDeselectState([]() -> State* {
 								return new ClosingState(false);
-							}, false, false);
+							}, false, false, false);
 						}
 					}
 				}
@@ -3318,6 +3331,29 @@ void MapState::update_map_marker(
 		enumFTS.ALIGN_CENTER)
 	);
 
+	// add text for navigation
+	if (map_data.markers.size() > 1) {
+		const auto glyph_left = "\x84";
+		const auto glyph_right = "\x86";
+
+		item.add_component(new render::ScreenText(
+			glyph_left,
+			50,
+			900,
+			0,
+			enumFC.LIGHT_GRAY,
+			enumFTS.ALIGN_CENTER)
+		);
+		item.add_component(new render::ScreenText(
+			glyph_right,
+			950,
+			900,
+			0,
+			enumFC.LIGHT_GRAY,
+			enumFTS.ALIGN_CENTER)
+		);
+	}
+
 	// orient map to selected marker
 	add_motion_rot(
 		item,
@@ -3341,7 +3377,7 @@ void MapState::update_map_marker(
 		duration_frames
 	);
 
-	// set active item_display config to same orientation for future activations
+	// set item_display configs to same orientation for future activations
 	auto item_display_active = item::get_item_display_config(item, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.x = marker.map_orient.x;
@@ -3357,7 +3393,7 @@ CheatState::CheatState(int32_t entity_id)
 
 State* CheatState::update(ecs::EntityManager &entity_manager)
 {
-	auto inventory_state = get_inventory_state(entity_manager);
+	auto inventory_state = inventory::get_inventory_state(entity_manager);
 
 	if (inventory_state) {
 		const auto entity = entity_manager.get_entity(entity_id);
@@ -3371,7 +3407,7 @@ State* CheatState::update(ecs::EntityManager &entity_manager)
 			// rebuild inventory
 			int32_t ring_id = ring::RingId::INVENTORY;
 			int32_t item_id = item::ItemId::NONE;
-			
+
 			const auto ring_item_selected = get_selected_item(entity_manager);
 			if (ring_item_selected) {
 				auto &ring = ring_item_selected->ring;
@@ -3632,26 +3668,6 @@ std::vector<ecs::Entity*> get_entities_in_motion(ecs::EntityManager &entity_mana
 	return entity_manager.find_entities_with_component<motion::Motion>([](const motion::Motion &motion) -> bool {
 		return motion.active && !motion.loop && !motion.restoring && !motion.background;
 	});
-}
-
-inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager)
-{
-	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
-	if (inventory) {
-		return inventory->get_component<inventory::InventoryState>();
-	}
-
-	return nullptr;
-}
-
-inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager)
-{
-	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryDuration>();
-	if (inventory) {
-		return inventory->get_component<inventory::InventoryDuration>();
-	}
-
-	return nullptr;
 }
 
 ring::RingItem* get_selected_item(ecs::EntityManager & entity_manager)

@@ -8,6 +8,8 @@ namespace trigger {
 
 void flipeffect_increase_item_qty(int32_t item_id, int32_t qty, ecs::EntityManager &entity_manager);
 
+void flipeffect_popup_inventory_activate_item(int32_t item_id, ecs::EntityManager &entity_manager);
+
 }
 }
 

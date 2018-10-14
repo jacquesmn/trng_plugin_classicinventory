@@ -1,0 +1,96 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutoCompleteSmartCompletion/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/ImportItemsInBasicCompletion/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/AutopopupEnabled/@EntryValue">False</s:Boolean>
+	<s:String x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/CppAutopopupEnabled/AfterDot/@EntryValue">NoAutopopup</s:String>
+	<s:String x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/CppAutopopupEnabled/AfterDoubleColon/@EntryValue">NoAutopopup</s:String>
+	<s:String x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/CppAutopopupEnabled/InsideInclude/@EntryValue">NoAutopopup</s:String>
+	<s:String x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/CppAutopopupEnabled/OnIdent/@EntryValue">NoAutopopup</s:String>
+	<s:String x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/ProtobufAutopopupEnabled/AfterDot/@EntryValue">NoAutopopup</s:String>
+	<s:String x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/ProtobufAutopopupEnabled/AfterSpace/@EntryValue">NoAutopopup</s:String>
+	<s:String x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/ProtobufAutopopupEnabled/InImports/@EntryValue">NoAutopopup</s:String>
+	<s:String x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/AutopopupEnabled/ProtobufAutopopupEnabled/OnIdent/@EntryValue">NoAutopopup</s:String>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/CompletionFilters/EnableFilters/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/IntelliSenseCompletingCharacters/CompleteOnSpace/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/IntelliSenseCompletingCharacters/CppCompletingCharacters/CompleteOnSpace/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/LookupWindow/HighlightAddedItems/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/LookupWindow/NarrowList/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/LookupWindow/ShowSummary/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/LookupWindow/ShowTypes/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/ParameterInfo/AutopopupOn/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/ParameterInfo/ShowAllCandidates/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeEditing/Intellisense/ParameterInfo/ShowExtendedInfo/@EntryValue">False</s:Boolean>
+	<s:String x:Key="/Default/CodeInspection/CppClangTidy/Checks/@EntryValue">*,-hicpp-special-member-functions,-cppcoreguidelines-*,-hicpp-*,-modernize-use-equals-default,-modernize-pass-by-value,-modernize-loop-convert,-modernize-raw-string-literal</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CommentTypo/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppAssignedValueIsNeverUsed/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppClangTidyModernizeUseEmplace/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppExpressionWithoutSideEffects/@EntryIndexedValue">HINT</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppMemberFunctionMayBeStatic/@EntryIndexedValue">HINT</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppNonExplicitConvertingConstructor/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CppUnusedIncludeDirective/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=IdentifierTypo/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=StringLiteralTypo/@EntryIndexedValue">DO_NOT_SHOW</s:String>
+	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CppFormatting/ANONYMOUS_METHOD_DECLARATION_BRACES/@EntryValue">END_OF_LINE</s:String>
+	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CppFormatting/CASE_BLOCK_BRACES/@EntryValue">END_OF_LINE</s:String>
+	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CppFormatting/EMPTY_BLOCK_STYLE/@EntryValue">TOGETHER</s:String>
+	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CppFormatting/NAMESPACE_DECLARATION_BRACES/@EntryValue">END_OF_LINE</s:String>
+	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CppFormatting/OTHER_BRACES/@EntryValue">END_OF_LINE</s:String>
+	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CppFormatting/SIMPLE_BLOCK_STYLE/@EntryValue">LINE_BREAK</s:String>
+	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CppFormatting/TYPE_DECLARATION_BRACES/@EntryValue">END_OF_LINE</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/Generate/=CppConstructor/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/CodeStyle/Generate/=CppConstructor/Options/=AcceptParameterKind/@EntryIndexedValue">Value and copy into field</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=CppConstructor/Options/=AccessRight/@EntryIndexedValue">public</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=CppConstructor/Options/=DefaultEmptyConstructors/@EntryIndexedValue">True</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=CppConstructor/Options/=InsertExplicitSpecifier/@EntryIndexedValue">True</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=CppConstructor/Options/=UseConstParameterTypes/@EntryIndexedValue">False</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/Generate/=CppOverrides/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/CodeStyle/Generate/=CppOverrides/Options/=InsertOverrideSpecifier/@EntryIndexedValue">True</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=CppOverrides/Options/=InsertVirtualSpecifier/@EntryIndexedValue">False</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Rules/=Class_0020and_0020struct_0020fields/@EntryIndexedValue">&lt;NamingElement Priority="10"&gt;&lt;Descriptor Static="Indeterminate" Constexpr="Indeterminate" Const="Indeterminate" Volatile="Indeterminate" Accessibility="NOT_APPLICABLE"&gt;&lt;type Name="class field" /&gt;&lt;type Name="struct field" /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect="True" Prefix="" Suffix="" Style="aa_bb" /&gt;&lt;/NamingElement&gt;</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Rules/=Classes_0020and_0020structs/@EntryIndexedValue">&lt;NamingElement Priority="1"&gt;&lt;Descriptor Static="Indeterminate" Constexpr="Indeterminate" Const="Indeterminate" Volatile="Indeterminate" Accessibility="NOT_APPLICABLE"&gt;&lt;type Name="__interface" /&gt;&lt;type Name="class" /&gt;&lt;type Name="struct" /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect="True" Prefix="" Suffix="" Style="AaBb" /&gt;&lt;/NamingElement&gt;</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Rules/=Enum_0020members/@EntryIndexedValue">&lt;NamingElement Priority="13"&gt;&lt;Descriptor Static="Indeterminate" Constexpr="Indeterminate" Const="Indeterminate" Volatile="Indeterminate" Accessibility="NOT_APPLICABLE"&gt;&lt;type Name="enumerator" /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect="True" Prefix="" Suffix="" Style="AA_BB" /&gt;&lt;/NamingElement&gt;</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Rules/=Enums/@EntryIndexedValue">&lt;NamingElement Priority="2"&gt;&lt;Descriptor Static="Indeterminate" Constexpr="Indeterminate" Const="Indeterminate" Volatile="Indeterminate" Accessibility="NOT_APPLICABLE"&gt;&lt;type Name="enum" /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect="False" Prefix="" Suffix="" Style="aa_bb" /&gt;&lt;/NamingElement&gt;</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Rules/=Namespaces/@EntryIndexedValue">&lt;NamingElement Priority="16"&gt;&lt;Descriptor Static="Indeterminate" Constexpr="Indeterminate" Const="Indeterminate" Volatile="Indeterminate" Accessibility="NOT_APPLICABLE"&gt;&lt;type Name="namespace" /&gt;&lt;type Name="namespace alias" /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect="False" Prefix="" Suffix="" Style="AaBb" /&gt;&lt;/NamingElement&gt;</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Rules/=Typedefs/@EntryIndexedValue">&lt;NamingElement Priority="17"&gt;&lt;Descriptor Static="Indeterminate" Constexpr="Indeterminate" Const="Indeterminate" Volatile="Indeterminate" Accessibility="NOT_APPLICABLE"&gt;&lt;type Name="type alias" /&gt;&lt;type Name="typedef" /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect="True" Prefix="" Suffix="" Style="AaBb" /&gt;&lt;/NamingElement&gt;</s:String>
+	<s:Boolean x:Key="/Default/Environment/Editor/UseCamelHumps/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/Editor/MatchingBraceHighlighting/Position/@EntryValue">BOTH_SIDES</s:String>
+	<s:Boolean x:Key="/Default/Environment/Editor/QuickInfo/EnableQuickInfo/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/ExtensionManager/PackageSource/=_002ENET_0020Products_0020Gallery/IsEnabled/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/Feedback/ShouldPrompt/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/MemoryUsageIndicator/IsVisible/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=AutoRecoverer/@EntryIndexedValue">DO_NOTHING</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=Format/@EntryIndexedValue">DO_NOTHING</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=Roslyn_002Dswea/@EntryIndexedValue">DO_NOTHING</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=ShowAnnotations/@EntryIndexedValue">LIVE_MONITOR</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=SolExp_002DTrack/@EntryIndexedValue">DO_NOTHING</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=StartPage_002DIsDownloadRefreshEnabled/@EntryIndexedValue">LIVE_MONITOR</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=StartPage_002DOnEnvironmentStatup/@EntryIndexedValue">DO_NOTHING</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=SyncSettings/@EntryIndexedValue">LIVE_MONITOR</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=TextEditor_002DCodeLens/@EntryIndexedValue">LIVE_MONITOR</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=TextEditor_002DTrackChanges_002D2/@EntryIndexedValue">LIVE_MONITOR</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=VCS/@EntryIndexedValue">LIVE_MONITOR</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=VsBulb/@EntryIndexedValue">DO_NOTHING</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchBehaviour/=XAML_0020Designer/@EntryIndexedValue">LIVE_MONITOR</s:String>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchConflictResolutionMode/=AutoRecoverer/@EntryIndexedValue"></s:String>
+	<s:Boolean x:Key="/Default/Environment/PerformanceGuide/SwitchConflictResolutionMode/=AutoRecoverer/@EntryIndexRemoved">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchConflictResolutionMode/=Format/@EntryIndexedValue"></s:String>
+	<s:Boolean x:Key="/Default/Environment/PerformanceGuide/SwitchConflictResolutionMode/=Format/@EntryIndexRemoved">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchConflictResolutionMode/=SolExp_002DTrack/@EntryIndexedValue"></s:String>
+	<s:Boolean x:Key="/Default/Environment/PerformanceGuide/SwitchConflictResolutionMode/=SolExp_002DTrack/@EntryIndexRemoved">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/PerformanceGuide/SwitchConflictResolutionMode/=StartPage_002DOnEnvironmentStatup/@EntryIndexedValue"></s:String>
+	<s:Boolean x:Key="/Default/Environment/PerformanceGuide/SwitchConflictResolutionMode/=StartPage_002DOnEnvironmentStatup/@EntryIndexRemoved">True</s:Boolean>
+	<s:Int64 x:Key="/Default/Environment/SearchAndNavigation/DefaultOccurrencesGroupingIndices/=JetBrains_002EPsiFeatures_002EUIInteractive_002ERefactorings_002ECommonUI_002ERefactoringWindows_002EWinFormsControls_002EUsagesDescriptor/@EntryIndexedValue">12</s:Int64>
+	<s:Int64 x:Key="/Default/Environment/SearchAndNavigation/DefaultOccurrencesGroupingIndices/=JetBrains_002EReSharper_002EFeature_002EServices_002ENavigation_002EDescriptors_002ESearchUsagesDescriptor/@EntryIndexedValue">12</s:Int64>
+	<s:Int64 x:Key="/Default/Environment/SearchAndNavigation/DefaultOccurrencesGroupingIndices/=JetBrains_002EReSharper_002EFeatures_002ENavigation_002EFeatures_002EGoToDeclaredElement_002EGotoDeclaredElementsBrowserDescriptor/@EntryIndexedValue">12</s:Int64>
+	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EFeature_002EServices_002ECpp_002ECodeStyle_002ESettingsUpgrade_002EFunctionReturnStyleSettingsUpgrader/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EFeature_002EServices_002ECpp_002ECodeStyle_002ESettingsUpgrade_002ENamespaceIndentationSettingsUpgrader/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/TextControl/HighlightCurrentLine/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/UpdatesManger/LastUpdateCheck/@EntryValue">10/13/2018 08:03:11</s:String>
+	<s:String x:Key="/Default/Housekeeping/FeedbackReport/SelectedUserIdentificator/@EntryValue">anonymous</s:String>
+	<s:Boolean x:Key="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Housekeeping/IntellisenseHousekeeping/HintUsed/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/Housekeeping/OptionsDialog/SelectedPageId/@EntryValue">CppBracesLayoutPage</s:String>
+	<s:Boolean x:Key="/Default/Housekeeping/RefactoringsMru/UseInline/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/Housekeeping/RefactoringsMru/RenameRefactoring/DoSearchForTextInStrings/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/Housekeeping/UpgradeFromExceptionReport/UpgradePerformed/@EntryValue">True</s:Boolean></wpf:ResourceDictionary>

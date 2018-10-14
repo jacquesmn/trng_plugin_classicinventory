@@ -102,6 +102,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
     <ClInclude Include="Constants_mine.h" />
     <ClInclude Include="DefTomb4Funct.h" />
     <ClInclude Include="functions.h" />
+    <ClInclude Include="functions_mine.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="macros_mine.h" />
     <ClInclude Include="src\classicinventory\action.h" />
@@ -157,10 +158,18 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
     <ResourceCompile Include="Plugin_ClassicInventory.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="Plugin_ClassicInventory.aps" />
     <None Include="Plugin_ClassicInventory.def" />
     <None Include="READ_ME.txt" />
     <None Include="scripts\Plugin_ClassicInventory.script" />
-    <None Include="scripts\Plugin_ClassicInventory.trg" />
+    <None Include="scripts\Plugin_ClassicInventory.trg">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -29,7 +29,7 @@ void MotionSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager
 			++motion.frame;
 			motion.value += (motion.rate * motion.direction);
 
-			if (!motion.loop && motion.frame >= motion.frames) {
+			if (!motion.loop && (motion.frame >= motion.frames || motion.rate == 0)) {
 				motion.finish();
 			}
 		}

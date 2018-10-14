@@ -675,8 +675,8 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager & entity_manager)
 
 			// draw pickup on screen
 			RECT screen_pos;
-			screen_pos.left = core::round(pickup_display.position.x);
-			screen_pos.top = core::round(pickup_display.position.y);
+			screen_pos.left = core::round(pickup_display.position.x + item_display->pos.x);
+			screen_pos.top = core::round(pickup_display.position.y + item_display->pos.y);
 			ConvertMicroUnits(&screen_pos);
 
 			DrawObject2D(
@@ -686,7 +686,7 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager & entity_manager)
 				core::degrees_to_tr4_angle(item_display->orient.y + pickup_display.rotation.y),
 				core::degrees_to_tr4_angle(item_display->orient.x),
 				core::degrees_to_tr4_angle(item_display->orient.z),
-				core::round(0x300 * item_display->scale)
+				core::round(0x300 / item_display->scale)
 			);
 
 			if (pickup_display.rotation.y >= 360) {

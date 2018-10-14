@@ -89,6 +89,8 @@ class IdleState : public State {
 public:
 	void start(ecs::EntityManager& entity_manager) override;
 
+	State* update(ecs::EntityManager& entity_manager) override;
+
 	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
 };
 
@@ -172,13 +174,15 @@ private:
 	std::function<State*()> get_next_state;
 	bool play_sfx;
 	bool play_animations;
+	bool restore_orientation;
 	bool motions_done;
 
 public:
 	ItemDeselectState(
 		std::function<State*()> get_next_state,
 		bool play_sfx = true,
-		bool play_animations = true
+		bool play_animations = true,
+		bool restore_orientation = true
 	);
 
 	void start(ecs::EntityManager& entity_manager) override;
@@ -322,10 +326,6 @@ public:
 // ----------------------------
 
 std::vector<ecs::Entity*> get_entities_in_motion(ecs::EntityManager &entity_manager);
-
-inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager);
-
-inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager);
 
 ring::RingItem* get_selected_item(ecs::EntityManager &entity_manager);
 

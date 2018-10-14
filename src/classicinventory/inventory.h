@@ -132,12 +132,15 @@ struct InventoryState : public ecs::Component {
 	ring::RingItem *item_active;
 	ring::RingItem *item_used;
 
+	bool activate_selected_item_on_open;
+
 	InventoryState()
 		:
 		ring(nullptr),
 		ring_target(nullptr),
 		item_active(nullptr),
-		item_used(nullptr)
+		item_used(nullptr),
+		activate_selected_item_on_open(false)
 	{}
 
 	void change_ring() {
@@ -178,6 +181,10 @@ void restore_item_spin(ecs::Entity &item, uint32_t frames = 0, float speed = 1);
 bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item_b);
 
 std::string build_item_text(std::string item_name, item::ItemQuantity *item_qty = nullptr, bool force_qty = false);
+
+inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager);
+
+inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager);
 
 }
 }

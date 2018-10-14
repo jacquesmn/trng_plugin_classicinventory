@@ -611,5 +611,25 @@ std::string build_item_text(std::string item_name, item::ItemQuantity *item_qty,
 	return item_text.str();
 }
 
+inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager)
+{
+	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
+	if (inventory) {
+		return inventory->get_component<inventory::InventoryState>();
+	}
+
+	return nullptr;
+}
+
+inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager)
+{
+	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryDuration>();
+	if (inventory) {
+		return inventory->get_component<inventory::InventoryDuration>();
+	}
+
+	return nullptr;
+}
+
 }
 }

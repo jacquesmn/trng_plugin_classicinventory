@@ -1,5 +1,6 @@
 <START_TRIGGERWHAT_9_O_H>
 700:Inventory. Increase number of <&>
+701:Inventory. Popup inventory to activate <&>
 <END>
 
 <START_EFFECT_700_T_H>
@@ -251,3 +252,8 @@
 246:NEW00127
 247:NEW00128
 <END>
+
+<START_EFFECT_701_T_H>
+#SAME_OF#=EFFECT_700_T
+<END>
+ 

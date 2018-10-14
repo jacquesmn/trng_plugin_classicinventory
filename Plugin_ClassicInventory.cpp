@@ -464,6 +464,10 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 		const int32_t item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
 		trigger::flipeffect_increase_item_qty(item_id, 1, ecs::get_entity_manager());
 	}
+	else if (FlipIndex == 701) {
+		const int32_t item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
+		trigger::flipeffect_popup_inventory_activate_item(item_id, ecs::get_entity_manager());
+	}
 	else {
 		SendToLog("WARNING: Flipeffect trigger number %d has not been handled in cbFlipEffectMine() function", FlipIndex);
 	}

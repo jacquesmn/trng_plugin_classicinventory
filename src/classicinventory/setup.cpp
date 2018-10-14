@@ -50,6 +50,7 @@ void set_default_item_displays(ecs::Entity &item)
 	item_display_active.tilt = -35;
 
 	auto &item_display_context = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::CONTEXT, item_display_idle));
+	item_display_context.pos.y = -64;
 	item_display_context.pos.z = 256;
 	item_display_context.orient.x += -30;
 	item_display_context.tilt = 35;
@@ -4066,7 +4067,7 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory_display.camera_ring_change_pitch = 40;
 	inventory_display.camera_fov_closed = 80;
 	inventory_display.camera_fov_opened = 80;
-	inventory_display.item_base_size = 16384;
+	inventory_display.item_base_size = 20384;
 
 	auto &inventory_duration = inventory.add_component(new inventory::InventoryDuration());
 	inventory_duration.inventory_open_frames = 18;
