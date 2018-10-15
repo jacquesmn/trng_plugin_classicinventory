@@ -122,10 +122,11 @@ void Motion::restore(uint32_t frames)
 void Motion::resume(Motion::Direction direction, uint32_t frames)
 {
 	restoring = false;
-	
+
 	this->direction = direction;
 	this->frames = frames;
-	frame = core::round((value / end) * frames);
+
+	frame = core::round(abs((value - start) / (end - start)) * frames);
 
 	recalculate();
 }

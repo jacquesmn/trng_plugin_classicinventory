@@ -586,7 +586,7 @@ void restore_item_spin(ecs::Entity &item, uint32_t frames, float speed)
 	}
 }
 
-bool sort_items_by_sort_index(const ecs::Entity * item_a, const ecs::Entity * item_b)
+bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item_b)
 {
 	auto &item_ring_a = *item_a->get_component<item::ItemRing>();
 	auto &item_ring_b = *item_b->get_component<item::ItemRing>();

@@ -652,10 +652,10 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager & entity_manager)
 	bool pickup_done = false;
 
 	if (item) {
-		const auto item_model = item::get_item_model_config(*item, item::ItemModelType::PICKUP);
-		const auto item_display = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP);
+		const auto item_model_pickup = item::get_item_model_config(*item, item::ItemModelType::PICKUP);
+		const auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP);
 
-		if (!item_model || !item_display) {
+		if (!item_model_pickup || !item_display_pickup) {
 			pickup_done = true;
 		}
 		else {
@@ -674,20 +674,42 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager & entity_manager)
 			pickup_display.rotation.y += 3;
 
 			// draw pickup on screen
-			RECT screen_pos;
-			screen_pos.left = core::round(pickup_display.position.x + item_display->pos.x);
-			screen_pos.top = core::round(pickup_display.position.y + item_display->pos.y);
-			ConvertMicroUnits(&screen_pos);
+			if (item_model_pickup->sprite_id >= 0
+				&& item_model_pickup->size_x > 0
+				&& item_model_pickup->size_y > 0) {
+				RECT screen_pos;
+				screen_pos.left = core::round(pickup_display.position.x + item_display_pickup->pos.x);
+				screen_pos.top = core::round(pickup_display.position.y + item_display_pickup->pos.y);
+				screen_pos.right = item_model_pickup->size_x;
+				screen_pos.bottom = item_model_pickup->size_y;
+				ConvertMicroUnits(&screen_pos);
 
-			DrawObject2D(
-				item_model->slot_id,
-				screen_pos.left,
-				screen_pos.top,
-				core::degrees_to_tr4_angle(item_display->orient.y + pickup_display.rotation.y),
-				core::degrees_to_tr4_angle(item_display->orient.x),
-				core::degrees_to_tr4_angle(item_display->orient.z),
-				core::round(0x300 / item_display->scale)
-			);
+				const auto sprite_alpha = core::round(pickup_display.alpha);
+
+				DrawSprite2D(
+					&screen_pos,
+					item_model_pickup->slot_id,
+					item_model_pickup->sprite_id,
+					sprite_alpha,
+					RGB(sprite_alpha, sprite_alpha, sprite_alpha)
+				);
+			}
+			else {
+				RECT screen_pos;
+				screen_pos.left = core::round(pickup_display.position.x + item_display_pickup->pos.x);
+				screen_pos.top = core::round(pickup_display.position.y + item_display_pickup->pos.y);
+				ConvertMicroUnits(&screen_pos);
+
+				DrawObject2D(
+					item_model_pickup->slot_id,
+					screen_pos.left,
+					screen_pos.top,
+					core::degrees_to_tr4_angle(item_display_pickup->orient.y + pickup_display.rotation.y),
+					core::degrees_to_tr4_angle(item_display_pickup->orient.x),
+					core::degrees_to_tr4_angle(item_display_pickup->orient.z),
+					core::round(0x300 / item_display_pickup->scale)
+				);
+			}
 
 			if (pickup_display.rotation.y >= 360) {
 				pickup_done = true;

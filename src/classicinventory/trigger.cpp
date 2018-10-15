@@ -39,8 +39,7 @@ void flipeffect_increase_item_qty(
 
 	if (item_qty.increment(qty)) {
 		auto &pickup_display = inventory->add_component(new render::PickupDisplay(item_id));
-		pickup_display.position.x = 850;
-		pickup_display.position.y = 850;
+		pickup_display.alpha = 0;
 	}
 }
 

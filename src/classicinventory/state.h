@@ -175,6 +175,8 @@ private:
 	bool play_sfx;
 	bool play_animations;
 	bool restore_orientation;
+	bool restore_model;
+
 	bool motions_done;
 
 public:
@@ -182,7 +184,8 @@ public:
 		std::function<State*()> get_next_state,
 		bool play_sfx = true,
 		bool play_animations = true,
-		bool restore_orientation = true
+		bool restore_orientation = true,
+		bool restore_model = true
 	);
 
 	void start(ecs::EntityManager& entity_manager) override;

@@ -24,13 +24,13 @@ private:
 	void draw_inventory(ecs::EntityManager &entity_manager) const;
 
 	void draw_ring_item(
-		const ring::RingItem &ring_item, 
+		const ring::RingItem &ring_item,
 		const inventory::InventoryDisplay &inventory_display,
 		ecs::EntityManager &entity_manager
 	) const;
 
 	void draw_item(
-		ecs::Entity &item, 
+		ecs::Entity &item,
 		const inventory::InventoryDisplay &inventory_display,
 		ecs::EntityManager &entity_manager
 	) const;

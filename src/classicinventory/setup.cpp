@@ -3,7 +3,6 @@
 #include "setup.h"
 
 #include <algorithm>
-#include <map>
 
 #include <trng_core.h>
 #include "action.h"
@@ -12,7 +11,6 @@
 #include "inventory.h"
 #include "ring.h"
 #include "item.h"
-#include "motion.h"
 #include "render.h"
 #include "script.h"
 #include "sound.h"
@@ -37,7 +35,11 @@ void add_to_ring(
 		return;
 	}
 
-	item.add_component(new item::ItemRing(ring_id));
+	auto ring_items = entity_manager.find_entities_with_component<item::ItemRing>([&](const item::ItemRing &item_ring) -> bool {
+		return item_ring.ring_id == ring_id;
+	});
+
+	item.add_component(new item::ItemRing(ring_id, ring_items.size()));
 }
 
 void set_default_item_displays(ecs::Entity &item)
@@ -56,9 +58,25 @@ void set_default_item_displays(ecs::Entity &item)
 	item_display_context.tilt = 35;
 
 	auto &item_display_examine = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::EXAMINE, item_display_active));
+
 	auto &item_display_pickup = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::PICKUP, item_display_idle));
+	item_display_pickup.pos.x = 850;
+	item_display_pickup.pos.y = 850;
 
 	item.add_component(new item::ItemDisplay(item_display_idle));
+}
+
+item::ItemAction& add_item_action(
+	ecs::Entity &item,
+	script::ScriptString name = script::ScriptString(),
+	item::ItemActionType::Enum type = item::ItemActionType::USE
+)
+{
+	auto &item_action = item.add_component(new item::ItemAction(name, type));
+
+	item_action.sort_index = item.get_components<item::ItemAction>().size() - 1;
+
+	return item_action;
 }
 
 ecs::Entity* setup_tr4_item(
@@ -134,7 +152,8 @@ void setup_MEMCARD_LOAD_INV(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return 1; },
 		[](int32_t quantity) -> void {}
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::LOAD_GAME), item::ItemActionType::LOAD_GAME));
+
+	add_item_action(*item, script::ScriptString(script::StringIndex::LOAD_GAME), item::ItemActionType::LOAD_GAME);
 }
 
 void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
@@ -149,7 +168,7 @@ void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {}
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::SAVE_GAME), item::ItemActionType::SAVE_GAME));
+	add_item_action(*item, script::ScriptString(script::StringIndex::SAVE_GAME), item::ItemActionType::SAVE_GAME);
 }
 
 void setup_COMPASS(ecs::EntityManager &entity_manager)
@@ -182,11 +201,13 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall; },
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall = quantity; }
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() {
 		if (action::use_health(*item)) {
 			DetectedGlobalTriggerEvent(GT_USED_LITTLE_MEDIPACK, -1, false);
 		}
-	}));
+	};
 
 	item->add_component(new item::HealthData(500, 0, 116, 31));
 }
@@ -202,11 +223,13 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge; },
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge = quantity; }
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() {
 		if (action::use_health(*item)) {
 			DetectedGlobalTriggerEvent(GT_USED_BIG_MEDIPACK, -1, false);
 		}
-	}));
+	};
 
 	item->add_component(new item::HealthData(1000, 0, 116, 31));
 }
@@ -222,9 +245,11 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->Flares; },
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->Flares = quantity; }
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() {
 		action::use_flare(*item);
-	}));
+	};
 }
 
 void setup_BINOCULARS(ecs::EntityManager &entity_manager)
@@ -240,9 +265,11 @@ void setup_BINOCULARS(ecs::EntityManager &entity_manager)
 		1,
 		0
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() {
 		action::use_binoculars(*item);
-	}));
+	};
 }
 
 void setup_CROWBAR(ecs::EntityManager &entity_manager)
@@ -258,7 +285,8 @@ void setup_CROWBAR(ecs::EntityManager &entity_manager)
 		1,
 		0
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE));
+
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PISTOLS(ecs::EntityManager &entity_manager)
@@ -272,9 +300,11 @@ void setup_PISTOLS(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_PRESENT) ? 1 : 0; },
 		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_PRESENT, quantity != 0); }
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
+	item_action.action = [=]() {
 		action::equip_weapon(*item);
-	}));
+	};
 }
 
 void setup_SHOTGUN(ecs::EntityManager &entity_manager)
@@ -288,9 +318,11 @@ void setup_SHOTGUN(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_PRESENT) ? 1 : 0; },
 		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_PRESENT, quantity != 0); }
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
+	item_action.action = [=]() {
 		action::equip_weapon(*item);
-	}));
+	};
 }
 
 void setup_UZI(ecs::EntityManager &entity_manager)
@@ -304,9 +336,11 @@ void setup_UZI(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_PRESENT) ? 1 : 0; },
 		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_PRESENT, quantity != 0); }
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
+	item_action.action = [=]() {
 		action::equip_weapon(*item);
-	}));
+	};
 }
 
 void setup_REVOLVER(ecs::EntityManager &entity_manager)
@@ -321,9 +355,11 @@ void setup_REVOLVER(ecs::EntityManager &entity_manager)
 		[=]() -> int32_t {return core::bit_set(*weapon_qty, FWEAP_PRESENT) && !core::bit_set(*weapon_qty, FWEAP_LASERSIGHT) ? 1 : 0; },
 		[=](int32_t quantity) -> void {core::set_bit(*weapon_qty, FWEAP_PRESENT, quantity != 0); }
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
+	item_action.action = [=]() {
 		action::equip_weapon(*item);
-	}));
+	};
 }
 
 void setup_REVOLVER_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
@@ -333,20 +369,22 @@ void setup_REVOLVER_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_PRESENT | FWEAP_LASERSIGHT) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_PRESENT | FWEAP_LASERSIGHT, quantity != 0); }
-	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP, [=]() {
-		action::equip_weapon(*item);
-	}));
-
 	item->get_component<item::ItemData>()->name = script::ScriptString(57);
 
 	const auto item_models = item->get_components<item::ItemModelConfig>();
 	std::for_each(item_models.begin(), item_models.end(), [](item::ItemModelConfig *config) -> void {
 		config->mesh_mask = 0x0B;
 	});
+
+	item->add_component(new item::ItemQuantity(
+		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_PRESENT | FWEAP_LASERSIGHT) ? 1 : 0; },
+		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_PRESENT | FWEAP_LASERSIGHT, quantity != 0); }
+	));
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
+	item_action.action = [=]() {
+		action::equip_weapon(*item);
+	};
 }
 
 void setup_CROSSBOW(ecs::EntityManager &entity_manager)
@@ -362,9 +400,10 @@ void setup_CROSSBOW(ecs::EntityManager &entity_manager)
 		[=](int32_t quantity) -> void {core::set_bit(*weapon_qty, FWEAP_PRESENT, quantity != 0); }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP, [=]() {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
+	item_action.action = [=]() {
 		action::equip_weapon(*item);
-	}));
+	};
 }
 
 void setup_CROSSBOW_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
@@ -374,20 +413,22 @@ void setup_CROSSBOW_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_PRESENT | FWEAP_LASERSIGHT) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_PRESENT | FWEAP_LASERSIGHT, quantity != 0); }
-	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP, [=]() {
-		action::equip_weapon(*item);
-	}));
-
 	item->get_component<item::ItemData>()->name = script::ScriptString(59);
 
 	const auto item_models = item->get_components<item::ItemModelConfig>();
 	std::for_each(item_models.begin(), item_models.end(), [](item::ItemModelConfig *config) -> void {
 		config->mesh_mask = 0x0B;
 	});
+
+	item->add_component(new item::ItemQuantity(
+		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_PRESENT | FWEAP_LASERSIGHT) ? 1 : 0; },
+		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_PRESENT | FWEAP_LASERSIGHT, quantity != 0); }
+	));
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
+	item_action.action = [=]() {
+		action::equip_weapon(*item);
+	};
 }
 
 void setup_GRENADE_GUN(ecs::EntityManager &entity_manager)
@@ -401,9 +442,11 @@ void setup_GRENADE_GUN(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_PRESENT) ? 1 : 0; },
 		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_PRESENT, quantity != 0); }
 	));
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP, [=]() {
+
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
+	item_action.action = [=]() {
 		action::equip_weapon(*item);
-	}));
+	};
 }
 
 void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
@@ -418,7 +461,7 @@ void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
@@ -433,7 +476,7 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
@@ -448,7 +491,7 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
@@ -463,7 +506,7 @@ void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
@@ -478,7 +521,7 @@ void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
@@ -493,7 +536,7 @@ void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
@@ -508,7 +551,7 @@ void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
@@ -523,7 +566,7 @@ void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
@@ -538,7 +581,7 @@ void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
@@ -553,7 +596,7 @@ void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
@@ -568,7 +611,7 @@ void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash = quantity; }
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_LASERSIGHT(ecs::EntityManager &entity_manager)
@@ -585,7 +628,7 @@ void setup_LASERSIGHT(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE1(ecs::EntityManager &entity_manager)
@@ -602,7 +645,7 @@ void setup_PUZZLE1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE2(ecs::EntityManager &entity_manager)
@@ -619,7 +662,7 @@ void setup_PUZZLE2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE3(ecs::EntityManager &entity_manager)
@@ -636,7 +679,7 @@ void setup_PUZZLE3(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE4(ecs::EntityManager &entity_manager)
@@ -653,7 +696,7 @@ void setup_PUZZLE4(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE5(ecs::EntityManager &entity_manager)
@@ -670,7 +713,7 @@ void setup_PUZZLE5(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE6(ecs::EntityManager &entity_manager)
@@ -687,7 +730,7 @@ void setup_PUZZLE6(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE7(ecs::EntityManager &entity_manager)
@@ -704,7 +747,7 @@ void setup_PUZZLE7(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE8(ecs::EntityManager &entity_manager)
@@ -721,7 +764,7 @@ void setup_PUZZLE8(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE9(ecs::EntityManager &entity_manager)
@@ -738,7 +781,7 @@ void setup_PUZZLE9(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE10(ecs::EntityManager &entity_manager)
@@ -755,7 +798,7 @@ void setup_PUZZLE10(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE11(ecs::EntityManager &entity_manager)
@@ -772,7 +815,7 @@ void setup_PUZZLE11(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE12(ecs::EntityManager &entity_manager)
@@ -789,7 +832,7 @@ void setup_PUZZLE12(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE1_COMBO1(ecs::EntityManager &entity_manager)
@@ -806,7 +849,7 @@ void setup_PUZZLE1_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE1_COMBO2(ecs::EntityManager &entity_manager)
@@ -823,7 +866,7 @@ void setup_PUZZLE1_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE2_COMBO1(ecs::EntityManager &entity_manager)
@@ -840,7 +883,7 @@ void setup_PUZZLE2_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE2_COMBO2(ecs::EntityManager &entity_manager)
@@ -857,7 +900,7 @@ void setup_PUZZLE2_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE3_COMBO1(ecs::EntityManager &entity_manager)
@@ -874,7 +917,7 @@ void setup_PUZZLE3_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE3_COMBO2(ecs::EntityManager &entity_manager)
@@ -891,7 +934,7 @@ void setup_PUZZLE3_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE4_COMBO1(ecs::EntityManager &entity_manager)
@@ -908,7 +951,7 @@ void setup_PUZZLE4_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE4_COMBO2(ecs::EntityManager &entity_manager)
@@ -925,7 +968,7 @@ void setup_PUZZLE4_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE5_COMBO1(ecs::EntityManager &entity_manager)
@@ -942,7 +985,7 @@ void setup_PUZZLE5_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE5_COMBO2(ecs::EntityManager &entity_manager)
@@ -959,7 +1002,7 @@ void setup_PUZZLE5_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE6_COMBO1(ecs::EntityManager &entity_manager)
@@ -976,7 +1019,7 @@ void setup_PUZZLE6_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE6_COMBO2(ecs::EntityManager &entity_manager)
@@ -993,7 +1036,7 @@ void setup_PUZZLE6_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE7_COMBO1(ecs::EntityManager &entity_manager)
@@ -1010,7 +1053,7 @@ void setup_PUZZLE7_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE7_COMBO2(ecs::EntityManager &entity_manager)
@@ -1027,7 +1070,7 @@ void setup_PUZZLE7_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE8_COMBO1(ecs::EntityManager &entity_manager)
@@ -1044,7 +1087,7 @@ void setup_PUZZLE8_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PUZZLE8_COMBO2(ecs::EntityManager &entity_manager)
@@ -1061,7 +1104,7 @@ void setup_PUZZLE8_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY1(ecs::EntityManager &entity_manager)
@@ -1078,7 +1121,7 @@ void setup_KEY1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY2(ecs::EntityManager &entity_manager)
@@ -1095,7 +1138,7 @@ void setup_KEY2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY3(ecs::EntityManager &entity_manager)
@@ -1112,7 +1155,7 @@ void setup_KEY3(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY4(ecs::EntityManager &entity_manager)
@@ -1129,7 +1172,7 @@ void setup_KEY4(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY5(ecs::EntityManager &entity_manager)
@@ -1146,7 +1189,7 @@ void setup_KEY5(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY6(ecs::EntityManager &entity_manager)
@@ -1163,7 +1206,7 @@ void setup_KEY6(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY7(ecs::EntityManager &entity_manager)
@@ -1180,7 +1223,7 @@ void setup_KEY7(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY8(ecs::EntityManager &entity_manager)
@@ -1197,7 +1240,7 @@ void setup_KEY8(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY9(ecs::EntityManager &entity_manager)
@@ -1214,7 +1257,7 @@ void setup_KEY9(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY10(ecs::EntityManager &entity_manager)
@@ -1231,7 +1274,7 @@ void setup_KEY10(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY11(ecs::EntityManager &entity_manager)
@@ -1248,7 +1291,7 @@ void setup_KEY11(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY12(ecs::EntityManager &entity_manager)
@@ -1265,7 +1308,7 @@ void setup_KEY12(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY1_COMBO1(ecs::EntityManager &entity_manager)
@@ -1282,7 +1325,7 @@ void setup_KEY1_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY1_COMBO2(ecs::EntityManager &entity_manager)
@@ -1299,7 +1342,7 @@ void setup_KEY1_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY2_COMBO1(ecs::EntityManager &entity_manager)
@@ -1316,7 +1359,7 @@ void setup_KEY2_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY2_COMBO2(ecs::EntityManager &entity_manager)
@@ -1333,7 +1376,7 @@ void setup_KEY2_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY3_COMBO1(ecs::EntityManager &entity_manager)
@@ -1350,7 +1393,7 @@ void setup_KEY3_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY3_COMBO2(ecs::EntityManager &entity_manager)
@@ -1367,7 +1410,7 @@ void setup_KEY3_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY4_COMBO1(ecs::EntityManager &entity_manager)
@@ -1384,7 +1427,7 @@ void setup_KEY4_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY4_COMBO2(ecs::EntityManager &entity_manager)
@@ -1401,7 +1444,7 @@ void setup_KEY4_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY5_COMBO1(ecs::EntityManager &entity_manager)
@@ -1418,7 +1461,7 @@ void setup_KEY5_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY5_COMBO2(ecs::EntityManager &entity_manager)
@@ -1435,7 +1478,7 @@ void setup_KEY5_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY6_COMBO1(ecs::EntityManager &entity_manager)
@@ -1452,7 +1495,7 @@ void setup_KEY6_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY6_COMBO2(ecs::EntityManager &entity_manager)
@@ -1469,7 +1512,7 @@ void setup_KEY6_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY7_COMBO1(ecs::EntityManager &entity_manager)
@@ -1486,7 +1529,7 @@ void setup_KEY7_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY7_COMBO2(ecs::EntityManager &entity_manager)
@@ -1503,7 +1546,7 @@ void setup_KEY7_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY8_COMBO1(ecs::EntityManager &entity_manager)
@@ -1520,7 +1563,7 @@ void setup_KEY8_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_KEY8_COMBO2(ecs::EntityManager &entity_manager)
@@ -1537,7 +1580,7 @@ void setup_KEY8_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP1(ecs::EntityManager &entity_manager)
@@ -1554,7 +1597,7 @@ void setup_PICKUP1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP2(ecs::EntityManager &entity_manager)
@@ -1571,7 +1614,7 @@ void setup_PICKUP2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP3(ecs::EntityManager &entity_manager)
@@ -1588,7 +1631,7 @@ void setup_PICKUP3(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP4(ecs::EntityManager &entity_manager)
@@ -1605,7 +1648,7 @@ void setup_PICKUP4(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP1_COMBO1(ecs::EntityManager &entity_manager)
@@ -1622,7 +1665,7 @@ void setup_PICKUP1_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP1_COMBO2(ecs::EntityManager &entity_manager)
@@ -1639,7 +1682,7 @@ void setup_PICKUP1_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP2_COMBO1(ecs::EntityManager &entity_manager)
@@ -1656,7 +1699,7 @@ void setup_PICKUP2_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP2_COMBO2(ecs::EntityManager &entity_manager)
@@ -1673,7 +1716,7 @@ void setup_PICKUP2_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP3_COMBO1(ecs::EntityManager &entity_manager)
@@ -1690,7 +1733,7 @@ void setup_PICKUP3_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP3_COMBO2(ecs::EntityManager &entity_manager)
@@ -1707,7 +1750,7 @@ void setup_PICKUP3_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP4_COMBO1(ecs::EntityManager &entity_manager)
@@ -1724,7 +1767,7 @@ void setup_PICKUP4_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_PICKUP4_COMBO2(ecs::EntityManager &entity_manager)
@@ -1741,7 +1784,7 @@ void setup_PICKUP4_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_QUEST1(ecs::EntityManager &entity_manager)
@@ -1758,7 +1801,7 @@ void setup_QUEST1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_QUEST2(ecs::EntityManager &entity_manager)
@@ -1775,7 +1818,7 @@ void setup_QUEST2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_QUEST3(ecs::EntityManager &entity_manager)
@@ -1792,7 +1835,7 @@ void setup_QUEST3(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_QUEST4(ecs::EntityManager &entity_manager)
@@ -1809,7 +1852,7 @@ void setup_QUEST4(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_QUEST5(ecs::EntityManager &entity_manager)
@@ -1826,7 +1869,7 @@ void setup_QUEST5(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_QUEST6(ecs::EntityManager &entity_manager)
@@ -1843,7 +1886,7 @@ void setup_QUEST6(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_EXAMINE1(ecs::EntityManager &entity_manager)
@@ -1860,7 +1903,7 @@ void setup_EXAMINE1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EXAMINE), item::ItemActionType::EXAMINE));
+	add_item_action(*item, script::ScriptString(script::StringIndex::EXAMINE), item::ItemActionType::EXAMINE);
 }
 
 void setup_EXAMINE2(ecs::EntityManager &entity_manager)
@@ -1877,7 +1920,7 @@ void setup_EXAMINE2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EXAMINE), item::ItemActionType::EXAMINE));
+	add_item_action(*item, script::ScriptString(script::StringIndex::EXAMINE), item::ItemActionType::EXAMINE);
 
 	item->add_component(new item::ExamineData(script::ScriptString(201), script::ScriptString(), script::ScriptString(202)));
 }
@@ -1896,7 +1939,7 @@ void setup_EXAMINE3(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EXAMINE), item::ItemActionType::EXAMINE));
+	add_item_action(*item, script::ScriptString(script::StringIndex::EXAMINE), item::ItemActionType::EXAMINE);
 
 	item->add_component(new item::ExamineData(script::ScriptString(), script::ScriptString(203), script::ScriptString()));
 }
@@ -1915,11 +1958,11 @@ void setup_WATERSKIN1_EMPTY(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN1_1(ecs::EntityManager &entity_manager)
@@ -1936,11 +1979,11 @@ void setup_WATERSKIN1_1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN1_2(ecs::EntityManager &entity_manager)
@@ -1957,11 +2000,11 @@ void setup_WATERSKIN1_2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN1_3(ecs::EntityManager &entity_manager)
@@ -1978,11 +2021,11 @@ void setup_WATERSKIN1_3(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN2_EMPTY(ecs::EntityManager &entity_manager)
@@ -1999,11 +2042,11 @@ void setup_WATERSKIN2_EMPTY(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN2_1(ecs::EntityManager &entity_manager)
@@ -2020,11 +2063,11 @@ void setup_WATERSKIN2_1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN2_2(ecs::EntityManager &entity_manager)
@@ -2041,11 +2084,11 @@ void setup_WATERSKIN2_2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN2_3(ecs::EntityManager &entity_manager)
@@ -2062,11 +2105,11 @@ void setup_WATERSKIN2_3(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN2_4(ecs::EntityManager &entity_manager)
@@ -2083,11 +2126,11 @@ void setup_WATERSKIN2_4(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_WATERSKIN2_5(ecs::EntityManager &entity_manager)
@@ -2104,11 +2147,11 @@ void setup_WATERSKIN2_5(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	auto &action_use = item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
-	action_use.action = [=]() -> void {
+	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	action_use.replace_default = false;
+	item_action.replace_default = false;
 }
 
 void setup_CLOCKWORK_BEETLE(ecs::EntityManager &entity_manager)
@@ -2125,7 +2168,7 @@ void setup_CLOCKWORK_BEETLE(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_CLOCKWORK_BEETLE_COMBO1(ecs::EntityManager &entity_manager)
@@ -2142,7 +2185,7 @@ void setup_CLOCKWORK_BEETLE_COMBO1(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_CLOCKWORK_BEETLE_COMBO2(ecs::EntityManager &entity_manager)
@@ -2159,7 +2202,7 @@ void setup_CLOCKWORK_BEETLE_COMBO2(ecs::EntityManager &entity_manager)
 		0
 	));
 
-	item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE)));
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 }
 
 void setup_items(ecs::EntityManager &entity_manager)
@@ -2295,14 +2338,14 @@ void setup_ammo(ecs::EntityManager &entity_manager)
 	setup_tr4_ammo(item::ItemId::REVOLVER, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, entity_manager);
 	setup_tr4_ammo(item::ItemId::REVOLVER_LASERSIGHT_COMBO, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, entity_manager);
 	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
 	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
 	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
 	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
 	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_EXPLOSIVE, entity_manager);
 	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_SUPER, entity_manager);
+	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_EXPLOSIVE, entity_manager);
 }
 
 void combo_combine(item::ComboData &combo_data)
@@ -2535,17 +2578,23 @@ void setup_ammo_and_combo_actions(ecs::EntityManager &entity_manager)
 	for (auto item_it = items.begin(); item_it != items.end(); ++item_it) {
 		auto &item = **item_it;
 
-		item.add_component(new item::ItemAction(script::ScriptString(script::StringIndex::CHOOSE_AMMO), item::ItemActionType::CHOOSE_AMMO, nullptr, [&item]() -> bool {
+		auto &item_action_ammo = add_item_action(item, script::ScriptString(script::StringIndex::CHOOSE_AMMO), item::ItemActionType::CHOOSE_AMMO);
+		item_action_ammo.action = nullptr;
+		item_action_ammo.enabled = [&item]() -> bool {
 			return action_enabled_ammo(item);
-		}));
+		};
 
-		item.add_component(new item::ItemAction(script::ScriptString(script::StringIndex::COMBINE), item::ItemActionType::COMBINE, nullptr, [&, inventory]() -> bool {
+		auto &item_action_combo = add_item_action(item, script::ScriptString(script::StringIndex::COMBINE), item::ItemActionType::COMBINE);
+		item_action_combo.action = nullptr;
+		item_action_combo.enabled = [&, inventory]() -> bool {
 			return action_enabled_combine(item, *inventory);
-		}));
+		};
 
-		item.add_component(new item::ItemAction(script::ScriptString(script::StringIndex::SEPARATE), item::ItemActionType::SEPARATE, nullptr, [&, inventory]() -> bool {
+		auto &item_action_separate = add_item_action(item, script::ScriptString(script::StringIndex::SEPARATE), item::ItemActionType::SEPARATE);
+		item_action_separate.action = nullptr;
+		item_action_separate.enabled = [&, inventory]() -> bool {
 			return action_enabled_separate(item, *inventory);
-		}));
+		};
 	}
 }
 
@@ -2831,7 +2880,7 @@ void customize_item_model(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 4) {
+	if (customize.NArguments < 7) {
 		return;
 	}
 
@@ -2846,9 +2895,12 @@ void customize_item_model(
 		return;
 	}
 
-	for (int32_t i = 1; i < customize.NArguments; i += 3) {
+	for (int32_t i = 1; i < customize.NArguments; i += 4) {
 		const auto type_id = customize.pVetArg[++cust_index];
 		const auto slot_id = customize.pVetArg[++cust_index];
+		const auto sprite_id = customize.pVetArg[++cust_index];
+		const auto size_x = customize.pVetArg[++cust_index];
+		const auto size_y = customize.pVetArg[++cust_index];
 		const auto mesh_mask = customize.pVetArg[++cust_index];
 
 		if (type_id < 1) {
@@ -2875,6 +2927,15 @@ void customize_item_model(
 		model_config->slot = slot;
 		model_config->slot_id = slot_id;
 
+		if (sprite_id >= 0) {
+			model_config->sprite_id = sprite_id;
+		}
+		if (size_x > 0) {
+			model_config->size_x = size_x;
+		}
+		if (size_y > 0) {
+			model_config->size_y = size_y;
+		}
 		if (mesh_mask >= 0) {
 			model_config->mesh_mask = mesh_mask;
 		}
@@ -3098,7 +3159,7 @@ void customize_item_action(
 			});
 		}
 		if (!item_action) {
-			item_action = &item->add_component(new item::ItemAction());
+			item_action = &add_item_action(*item);
 		}
 
 		item_action->type = static_cast<item::ItemActionType::Enum>(type);
@@ -3267,7 +3328,7 @@ void customize_examine(
 		return iaction.type == item::ItemActionType::EXAMINE;
 	});
 	if (!item_action) {
-		item_action = &item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::EXAMINE), item::ItemActionType::EXAMINE));
+		item_action = &add_item_action(*item, script::ScriptString(script::StringIndex::EXAMINE), item::ItemActionType::EXAMINE);
 	}
 
 	auto examine_data = item->get_component<item::ExamineData>();
@@ -3316,7 +3377,9 @@ void customize_health(
 		return iaction.type == item::ItemActionType::USE;
 	});
 	if (!item_action) {
-		item_action = &item->add_component(new item::ItemAction(script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE));
+		item_action = &add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+		// make it the first action
 		item_action->sort_index = -1;
 	}
 

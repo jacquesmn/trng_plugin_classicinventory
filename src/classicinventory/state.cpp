@@ -381,7 +381,7 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 		}
 	}
 
-	// change item displays
+	// change item models and displays
 	auto items = entity_manager.find_entities_with_component<item::ItemDisplay>();
 	std::for_each(items.begin(), items.end(), [](ecs::Entity *item) -> void {
 		item::change_item_display(*item, item::ItemDisplayType::IDLE,
@@ -392,6 +392,8 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 			false,
 			true
 		);
+
+		item::change_item_model(*item, item::ItemModelType::IDLE);
 	});
 
 	// spin selected item
@@ -780,6 +782,8 @@ void ItemSelectState::start(ecs::EntityManager &entity_manager)
 
 		inventory::restore_item_spin(item_active, duration_frames);
 
+		item::change_item_model(item_active, item::ItemModelType::ACTIVE);
+
 		// start animation, if any
 		if (item_active.has_component<item::ItemAnimation>()) {
 			const auto item_animation = item_active.get_component<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
@@ -1107,7 +1111,7 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 							if (action::save_game()) {
 								return new ItemDeselectState([]() -> State* {
 									return new ClosingState(false);
-								}, false, false, false);
+								}, false, false, false, false);
 							}
 						}
 						else if (active_action->type == item::ItemActionType::STATISTICS) {
@@ -1124,14 +1128,14 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 
 							return new ItemDeselectState([]() -> State* {
 								return new ClosingState(false);
-							}, false, false, false);
+							}, false, false, false, false);
 						}
 						else {
 							inventory_state.item_used = inventory_state.item_active;
 
 							return new ItemDeselectState([]() -> State* {
 								return new ClosingState(false);
-							}, false, false, false);
+							}, false, false, false, false);
 						}
 
 						// change to context ring for selected context action
@@ -1234,13 +1238,15 @@ ItemDeselectState::ItemDeselectState(
 	std::function<State*()> get_next_state,
 	bool play_sfx,
 	bool play_animations,
-	bool restore_orientation
+	bool restore_orientation,
+	bool restore_model
 )
 	:
 	get_next_state(get_next_state),
 	play_sfx(play_sfx),
 	play_animations(play_animations),
 	restore_orientation(restore_orientation),
+	restore_model(restore_model),
 	motions_done(false)
 {}
 
@@ -1301,6 +1307,16 @@ void ItemDeselectState::end(ecs::EntityManager & entity_manager)
 
 	// clear active item
 	inventory_state.item_active = nullptr;
+
+	// change item model
+	if (restore_model) {
+		auto ring_item_selected = get_selected_item(entity_manager);
+		if (ring_item_selected) {
+			reset_item_animation(ring_item_selected->item);
+
+			item::change_item_model(ring_item_selected->item, item::ItemModelType::IDLE);
+		}
+	}
 }
 
 State* ItemDeselectState::update(ecs::EntityManager &entity_manager)
@@ -1399,13 +1415,13 @@ State* ItemDeselectState::update(ecs::EntityManager &entity_manager)
 									item_display_idle->orient.z,
 									duration_frames
 								);
+								item_active.add_component(new motion::Motion(
+									item_display->tilt,
+									item_display->tilt,
+									item_display_idle->tilt,
+									duration_frames
+								));
 							}
-							item_active.add_component(new motion::Motion(
-								item_display->tilt,
-								item_display->tilt,
-								item_display_idle->tilt,
-								duration_frames
-							));
 							item_active.add_component(new motion::Motion(
 								item_display->scale,
 								item_display->scale,
@@ -3082,7 +3098,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 								get_post_closing_state = []() -> State* {
 									return new ItemDeselectState([]() -> State* {
 										return new ClosingState(false);
-									}, false, false, false);
+									}, false, false);
 								};
 								closing = true;
 							}
@@ -3093,7 +3109,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 							get_post_closing_state = []() -> State* {
 								return new ItemDeselectState([]() -> State* {
 									return new ClosingState(false);
-								}, false, false, false);
+								}, false, false);
 							};
 							closing = true;
 						}
@@ -3274,7 +3290,7 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 
 							return new ItemDeselectState([]() -> State* {
 								return new ClosingState(false);
-							}, false, false, false);
+							}, false, false, false, false);
 						}
 					}
 				}

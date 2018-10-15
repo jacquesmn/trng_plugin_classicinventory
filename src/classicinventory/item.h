@@ -211,6 +211,9 @@ struct ItemModelConfig : public ecs::Component {
 
 	StrSlot *slot;
 	int32_t slot_id;
+	int32_t sprite_id;
+	int32_t size_x;
+	int32_t size_y;
 	uint32_t mesh_mask;
 
 	ItemModelConfig(
@@ -223,6 +226,9 @@ struct ItemModelConfig : public ecs::Component {
 		type(type),
 		slot(&slot),
 		slot_id(slot_id),
+		sprite_id(-1),
+		size_x(0),
+		size_y(0),
 		mesh_mask(mesh_mask)
 	{}
 
@@ -234,6 +240,9 @@ struct ItemModelConfig : public ecs::Component {
 		type(type),
 		slot(config.slot),
 		slot_id(config.slot_id),
+		sprite_id(config.sprite_id),
+		size_x(config.size_x),
+		size_y(config.size_y),
 		mesh_mask(config.mesh_mask)
 	{}
 };

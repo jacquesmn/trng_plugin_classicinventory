@@ -3,7 +3,7 @@
 CUST_CINV_RING:1 ;Syntax: Customize=CUST_CINV_RING, RingId (CINV_RING_...), NameStringIndex >>----->
 CUST_CINV_ITEM:2 ;Syntax: Customize=CUST_CINV_ITEM, ItemId (CINV_ITEM_...), NameStringIndex, DescriptionStringIndex >>----->
 CUST_CINV_ITEM_RING:3 ;Syntax: Customize=CUST_CINV_ITEM_RING, ItemId (CINV_ITEM_...), RingId (CINV_RING_...), SortIndex >>----->
-CUST_CINV_ITEM_MODEL:4 ;Syntax: Customize=CUST_CINV_ITEM_MODEL, ItemId (CINV_ITEM_...), Type (CINV_MODEL_...), SlotId, MeshMask, {Type, Slot and Mask array} >>----->
+CUST_CINV_ITEM_MODEL:4 ;Syntax: Customize=CUST_CINV_ITEM_MODEL, ItemId (CINV_ITEM_...), Type (CINV_MODEL_...), SlotId, SpriteId, SizeX, SizeY, MeshMask, {Type, Slot, Sprite, Size and Mask array} >>----->
 CUST_CINV_ITEM_DISPLAY:5 ;Syntax: Customize=CUST_CINV_ITEM_DISPLAY, ItemId (CINV_ITEM_...), Type (CINV_DISPLAY_...), PosX, PosY, PosZ, PosIgnoreAnim (CINV_TRUE/FALSE), OrientX, OrientY, OrientZ, OrientIgnoreAnim (CINV_TRUE/FALSE), Tilt, Scale, {Type, Pos, Orient, Tilt and Scale array} >>----->
 CUST_CINV_ITEM_QUANTITY:6 ;Syntax: Customize=CUST_CINV_ITEM_QUANTITY, ItemId (CINV_ITEM_...), MinQuantity, MaxQuantity, GetQuantityTriggerGroupId, SetQuantityTriggerGroupId >>----->
 CUST_CINV_ITEM_ANIMATION:7 ;Syntax:Customize=CUST_CINV_ITEM_ANIMATION, ItemId (CINV_ITEM_...), Type (CINV_ANIM_...), AnimIndex, FrameStart, FrameEnd, WaitForMotions (CINV_TRUE/FALSE) {Type, Index, Start, End and Boolean array} >>----->
