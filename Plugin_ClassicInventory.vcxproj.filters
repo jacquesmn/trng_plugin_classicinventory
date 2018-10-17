@@ -193,5 +193,6 @@
     <None Include=".gitignore" />
     <None Include="Plugin_ClassicInventory.sln.DotSettings" />
     <None Include="src\LICENSE.md" />
+    <None Include="build\beta_recording.txt" />
   </ItemGroup>
 </Project>

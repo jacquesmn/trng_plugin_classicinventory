@@ -3240,12 +3240,10 @@ void customize_item_sfx(
 			});
 		}
 		if (!item_sfx) {
-			item_sfx = &item->add_component(new item::ItemSfx(type, sound_id));
+			item_sfx = &item->add_component(new item::ItemSfx(type));
 		}
 
-		if (sound_id >= 0) {
-			item_sfx->sound_id = sound_id;
-		}
+		item_sfx->sound_id = sound_id;
 	}
 }
 
@@ -3714,42 +3712,40 @@ void customize_sfx(
 	}
 	const auto type = sound::SfxType::Enum(type_id);
 
-	if (sound_id >= 0) {
-		switch (type) {
-		case sound::SfxType::INVENTORY_OPEN:
-			inventory_sfx.opening_sound_id = sound_id;
-			break;
-		case sound::SfxType::INVENTORY_CLOSE:
-			inventory_sfx.closing_sound_id = sound_id;
-			break;
-		case sound::SfxType::RING_ROTATE:
-			inventory_sfx.ring_rotate_sound_id = sound_id;
-			break;
-		case sound::SfxType::RING_CHANGE:
-			inventory_sfx.ring_change_sound_id = sound_id;
-			break;
-		case sound::SfxType::ITEM_SELECT:
-			inventory_sfx.item_select_sound_id = sound_id;
-			break;
-		case sound::SfxType::ITEM_CANCEL:
-			inventory_sfx.item_cancel_sound_id = sound_id;
-			break;
-		case sound::SfxType::MENU_CHANGE:
-			inventory_sfx.menu_change_sound_id = sound_id;
-			break;
-		case sound::SfxType::LOAD_AMMO:
-			inventory_sfx.ammo_load_sound_id = sound_id;
-			break;
-		case sound::SfxType::COMBINE:
-			inventory_sfx.combine_sound_id = sound_id;
-			break;
-		case sound::SfxType::SEPARATE:
-			inventory_sfx.separate_sound_id = sound_id;
-			break;
-		case sound::SfxType::FAIL:
-			inventory_sfx.fail_sound_id = sound_id;
-			break;
-		}
+	switch (type) {
+	case sound::SfxType::INVENTORY_OPEN:
+		inventory_sfx.opening_sound_id = sound_id;
+		break;
+	case sound::SfxType::INVENTORY_CLOSE:
+		inventory_sfx.closing_sound_id = sound_id;
+		break;
+	case sound::SfxType::RING_ROTATE:
+		inventory_sfx.ring_rotate_sound_id = sound_id;
+		break;
+	case sound::SfxType::RING_CHANGE:
+		inventory_sfx.ring_change_sound_id = sound_id;
+		break;
+	case sound::SfxType::ITEM_SELECT:
+		inventory_sfx.item_select_sound_id = sound_id;
+		break;
+	case sound::SfxType::ITEM_CANCEL:
+		inventory_sfx.item_cancel_sound_id = sound_id;
+		break;
+	case sound::SfxType::MENU_CHANGE:
+		inventory_sfx.menu_change_sound_id = sound_id;
+		break;
+	case sound::SfxType::LOAD_AMMO:
+		inventory_sfx.ammo_load_sound_id = sound_id;
+		break;
+	case sound::SfxType::COMBINE:
+		inventory_sfx.combine_sound_id = sound_id;
+		break;
+	case sound::SfxType::SEPARATE:
+		inventory_sfx.separate_sound_id = sound_id;
+		break;
+	case sound::SfxType::FAIL:
+		inventory_sfx.fail_sound_id = sound_id;
+		break;
 	}
 }
 

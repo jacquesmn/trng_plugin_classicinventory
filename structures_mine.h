@@ -4,6 +4,21 @@
 // TYPE_HERE: here you can type your structure definitions like it has been done
 // in the "structures.h" file for trng dll
 
+typedef struct StrSavegameLocalInventoryData {
+	int ring_id_selected;
+	int item_id_selected;
+	int item_id_used;
+
+	WORD map_marker_active[512];
+
+	StrSavegameLocalInventoryData()
+		:
+		ring_id_selected(-1),
+		item_id_selected(-1),
+		item_id_used(-1)
+	{}
+}SavegameLocalInventoryData;
+
 // --------------- PRESET STRUCTURE ZONE -----------------------------
 // Please, don't remove structures and fields you find in this "PRESET ZONE". They will be used by some
 // preset functions of your plugin sources
@@ -14,33 +29,20 @@ typedef struct StrSavegameGlobalData {
 	//           (only one for all levels)
 	// note: the size of this structure should be always even (if you add BYTE variable, remember to compensate that 
 	//       with another BYTE vairable or placefolder)
-
-	int inventory_item_quantities[512];
-
-	int placeholder_inventory_item_quantities[512];
 }SavegameGlobalDataFields;
 
 typedef struct StrSavegameLocalData {
 	// FOR_YOU:
 	// define here your variables that you wish were saved (and then restored) to/from savegame in LOCAL section (one for each different level)
 	// note: the size of this structure should be always even (if you add BYTE variable, compensate it with another BYTE vairable or placefolder)
+	SavegameLocalInventoryData inventory_data;
 
-	int inventory_ring_id_selected;
-	int inventory_item_id_selected;
-	int inventory_item_id_used;
-
-	int placeholder_inventory_ring_id_selected;
-	int placeholder_inventory_item_id_selected;
-	int placeholder_inventory_item_id_used;
+	SavegameLocalInventoryData placeholder_inventory_data;
 
 	StrSavegameLocalData()
 		:
-		inventory_ring_id_selected(-1),
-		inventory_item_id_selected(-1),
-		inventory_item_id_used(-1),
-		placeholder_inventory_ring_id_selected(-1),
-		placeholder_inventory_item_id_selected(-1),
-		placeholder_inventory_item_id_used(-1)
+		inventory_data(SavegameLocalInventoryData()),
+		placeholder_inventory_data(SavegameLocalInventoryData())
 	{}
 }SavegameLocalDataFields;
 

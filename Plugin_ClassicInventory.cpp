@@ -436,8 +436,8 @@ void cbInitLoadNewLevel(void)
 	MyData.LastProgrActionIndex = 0;
 
 	// init inventory state
-	MyData.Save.Local.inventory_ring_id_selected = ring::RingId::INVENTORY;
-	MyData.Save.Local.inventory_item_id_selected = item::ItemId::NONE;
+	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
+	MyData.Save.Local.inventory_data.item_id_selected = item::ItemId::NONE;
 
 	// here you can initialise other variables of MyData different than Local and progressive actions
 	// free resources allocate in previous level
@@ -460,13 +460,41 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 	// pasting togheter the timer+extra arguments:
 	TimerFull = Timer | (Extra << 8);
 
+	const auto item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
+
 	if (FlipIndex == 700) {
-		const int32_t item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
-		trigger::flipeffect_increase_item_qty(item_id, 1, ecs::get_entity_manager());
+		trigger::increase_item_qty(item_id, Extra, ecs::get_entity_manager());
 	}
 	else if (FlipIndex == 701) {
-		const int32_t item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
-		trigger::flipeffect_popup_inventory_activate_item(item_id, ecs::get_entity_manager());
+		trigger::decrease_item_qty(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 702) {
+		trigger::set_item_qty(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 703) {
+		trigger::set_item_qty(item_id, item::ITEM_QTY_UNLIMITED, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 704) {
+		trigger::set_item_qty(item_id, 0, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 705) {
+		trigger::popup_inventory_at_item(
+			item_id,
+			trigger::ItemSelectType::SELECT,
+			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
+			ecs::get_entity_manager()
+		);
+	}
+	else if (FlipIndex == 706) {
+		trigger::popup_inventory_at_item(
+			item_id,
+			trigger::ItemSelectType::ACTIVATE,
+			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
+			ecs::get_entity_manager()
+		);
+	}
+	else if (FlipIndex == 707) {
+		trigger::show_pickup_notifier(item_id, ecs::get_entity_manager());
 	}
 	else {
 		SendToLog("WARNING: Flipeffect trigger number %d has not been handled in cbFlipEffectMine() function", FlipIndex);

@@ -15,12 +15,12 @@ namespace inventory {
 
 namespace DurationType {
 enum Enum {
-	NONE = 0,
-	INVENTORY_OPEN,
+	INVENTORY_OPEN = 1,
 	RING_ROTATE,
 	RING_CHANGE,
 	ITEM_SELECT,
-	ITEM_SPIN
+	ITEM_SPIN,
+	NONE
 };
 }
 

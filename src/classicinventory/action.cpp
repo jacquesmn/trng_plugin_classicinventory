@@ -281,7 +281,7 @@ bool exchange_waterskins(ecs::Entity &item)
 		return false;
 	}
 
-	MyData.Save.Local.inventory_item_id_selected = exchanged_waterskin_item_id;
+	MyData.Save.Local.inventory_data.item_id_selected = exchanged_waterskin_item_id;
 
 	return true;
 }

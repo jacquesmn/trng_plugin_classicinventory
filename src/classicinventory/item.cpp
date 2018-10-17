@@ -51,6 +51,17 @@ bool ItemQuantity::decrement(int32_t qty) const {
 	return false;
 }
 
+bool ItemQuantity::set(int32_t qty) const
+{
+	if (qty >= quantity_min && qty <= quantity_max) {
+		set_quantity(qty);
+
+		return true;
+	}
+
+	return false;
+}
+
 bool ItemQuantity::unlimited() const {
 	if (!set_quantity) {
 		return false;

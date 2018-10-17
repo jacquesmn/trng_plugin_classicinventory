@@ -340,6 +340,7 @@ public:
 
 	bool increment(int32_t qty = 1) const;
 	bool decrement(int32_t qty = 1) const;
+	bool set(int32_t qty) const;
 	bool unlimited() const;
 	bool zero() const;
 };
@@ -406,7 +407,7 @@ struct ItemSfx : public ecs::Component {
 
 	ItemSfx(
 		sound::SfxType::Enum type,
-		int32_t sound_id
+		int32_t sound_id = -1
 	)
 		:
 		type(type),

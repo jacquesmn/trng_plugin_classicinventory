@@ -159,6 +159,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="build\beta_recording.txt" />
     <None Include="Plugin_ClassicInventory.aps" />
     <None Include="Plugin_ClassicInventory.def" />
     <None Include="Plugin_ClassicInventory.sln.DotSettings" />

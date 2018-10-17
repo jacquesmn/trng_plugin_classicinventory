@@ -52,7 +52,7 @@ void StateSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager
 	if (inventory_state.ring) {
 		const auto ring_data = inventory_state.ring->ring.get_component<ring::RingData>();
 		if (ring_data) {
-			MyData.Save.Local.inventory_ring_id_selected = ring_data->ring_id;
+			MyData.Save.Local.inventory_data.ring_id_selected = ring_data->ring_id;
 		}
 
 		const auto ring_state = inventory_state.ring->ring.get_component<ring::RingState>();
@@ -60,7 +60,7 @@ void StateSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager
 			auto &item = ring_state->item->item;
 			const auto item_data = item.get_component<item::ItemData>();
 			if (item_data) {
-				MyData.Save.Local.inventory_item_id_selected = item_data->item_id;
+				MyData.Save.Local.inventory_data.item_id_selected = item_data->item_id;
 
 				*tr4_item_selected = item::item_id_to_tr4_invobj(item_data->item_id);
 			}
@@ -74,7 +74,7 @@ void StateSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager
 		if (item_used.has_component<item::ItemData>()) {
 			auto &item_data = *item_used.get_component<item::ItemData>();
 
-			MyData.Save.Local.inventory_item_id_used = item_data.item_id;
+			MyData.Save.Local.inventory_data.item_id_used = item_data.item_id;
 
 			const auto tr4_slot_id = item::item_id_to_tr4_slot(item_data.item_id);
 
@@ -176,11 +176,11 @@ void OpeningState::start(ecs::EntityManager &entity_manager)
 		auto &item_data = *item->get_component<item::ItemData>();
 		auto &item_ring = *item->get_component<item::ItemRing>();
 
-		MyData.Save.Local.inventory_ring_id_selected = item_ring.ring_id;
-		MyData.Save.Local.inventory_item_id_selected = item_data.item_id;
+		MyData.Save.Local.inventory_data.ring_id_selected = item_ring.ring_id;
+		MyData.Save.Local.inventory_data.item_id_selected = item_data.item_id;
 	}
 
-	build_inventory(MyData.Save.Local.inventory_ring_id_selected, MyData.Save.Local.inventory_item_id_selected, inventory_state, entity_manager);
+	build_inventory(MyData.Save.Local.inventory_data.ring_id_selected, MyData.Save.Local.inventory_data.item_id_selected, inventory_state, entity_manager);
 
 	// initialize opening motions
 	if (inventory->has_component<inventory::InventoryDisplay>() && inventory->has_component<inventory::InventoryDuration>()) {
@@ -3187,11 +3187,17 @@ void MapState::start(ecs::EntityManager &entity_manager)
 	auto &item_display = *item_active.get_component<item::ItemDisplay>();
 
 	// associate markers with item actions
-	item::deactivate_item_actions(item_active);
-
 	auto item_actions = item_active.get_components<item::ItemAction>();
 	const auto action_count = item_actions.size();
 	const auto marker_count = map_data.markers.size();
+
+	// load saved marker index
+	const auto marker_index = MyData.Save.Local.inventory_data.map_marker_active[item_data.item_id];
+	if (marker_index >= 0 && marker_index < marker_count) {
+		map_data.marker_index = marker_index;
+	}
+
+	item::deactivate_item_actions(item_active);
 
 	for (uint32_t i = 0; i < marker_count; ++i) {
 		auto &marker = map_data.markers.at(i);
@@ -3399,6 +3405,12 @@ void MapState::update_map_marker(
 		item_display_active->orient.x = marker.map_orient.x;
 		item_display_active->orient.y = marker.map_orient.y;
 		item_display_active->orient.z = marker.map_orient.z;
+	}
+
+	// save the current marker index
+	const auto item_data = item.get_component<item::ItemData>();
+	if (item_data) {
+		MyData.Save.Local.inventory_data.map_marker_active[item_data->item_id] = map_data.marker_index;
 	}
 }
 
