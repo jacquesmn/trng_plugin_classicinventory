@@ -52,7 +52,6 @@ void set_default_item_displays(ecs::Entity &item)
 	item_display_active.tilt = -35;
 
 	auto &item_display_context = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::CONTEXT, item_display_idle));
-	item_display_context.pos.y = -64;
 	item_display_context.pos.z = 256;
 	item_display_context.orient.x += -30;
 	item_display_context.tilt = 35;
@@ -154,6 +153,11 @@ void setup_MEMCARD_LOAD_INV(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::LOAD_GAME), item::ItemActionType::LOAD_GAME);
+
+	const auto item_display_configs = item->get_components<item::ItemDisplayConfig>();
+	std::for_each(item_display_configs.begin(), item_display_configs.end(), [](item::ItemDisplayConfig *config) -> void {
+		config->scale = 0.25f;
+	});
 }
 
 void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
@@ -169,6 +173,11 @@ void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::SAVE_GAME), item::ItemActionType::SAVE_GAME);
+
+	const auto item_display_configs = item->get_components<item::ItemDisplayConfig>();
+	std::for_each(item_display_configs.begin(), item_display_configs.end(), [](item::ItemDisplayConfig *config) -> void {
+		config->scale = 0.25f;
+	});
 }
 
 void setup_COMPASS(ecs::EntityManager &entity_manager)
@@ -2653,10 +2662,10 @@ void setup_lighting(ecs::Entity &inventory)
 
 	if (room_brightest && room_brightest_index >= 0) {
 		inventory.add_component(new render::LightingLocation(
+			room_brightest_index,
 			room_brightest->OriginX + 512,
 			room_brightest->OrigYBottom,
-			room_brightest->OriginZ + 512,
-			room_brightest_index
+			room_brightest->OriginZ + 512
 		));
 	}
 }
@@ -3445,7 +3454,7 @@ void customize_compass(
 
 	auto compass_data = item->get_component<item::CompassData>();
 	if (!compass_data) {
-		compass_data = &item->add_component(new item::CompassData(0, core::Axis::X));
+		compass_data = &item->add_component(new item::CompassData(0, core::Axis::Y));
 	}
 
 	if (needle_mesh_index >= 0) {
@@ -3497,7 +3506,7 @@ void customize_stopwatch(
 
 	auto stopwatch_data = item->get_component<item::StopwatchData>();
 	if (!stopwatch_data) {
-		stopwatch_data = &item->add_component(new item::StopwatchData(0, core::Axis::X, 0, core::Axis::X, 0, core::Axis::X));
+		stopwatch_data = &item->add_component(new item::StopwatchData(0, core::Axis::Y, 0, core::Axis::Y, 0, core::Axis::Y));
 	}
 
 	if (hour_hand_mesh_index >= 0) {
@@ -3923,11 +3932,14 @@ void customize_lighting(
 
 	int32_t index = -1;
 
+	const auto room_index = customize.pVetArg[++index];
 	const auto cord_x = customize.pVetArg[++index];
 	const auto cord_y = customize.pVetArg[++index];
 	const auto cord_z = customize.pVetArg[++index];
-	const auto room_index = customize.pVetArg[++index];
 
+	if (room_index != -1) {
+		light_loc.room = room_index;
+	}
 	if (cord_x != -1) {
 		light_loc.x = cord_x;
 	}
@@ -3936,9 +3948,6 @@ void customize_lighting(
 	}
 	if (cord_z != -1) {
 		light_loc.z = cord_z;
-	}
-	if (room_index != -1) {
-		light_loc.room = room_index;
 	}
 }
 
@@ -4116,17 +4125,17 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 
 	auto &inventory_display = inventory.add_component(new inventory::InventoryDisplay());
 	inventory_display.ring_radius_closed = 0;
-	inventory_display.ring_radius_opened = 820;
+	inventory_display.ring_radius_opened = 710;
 	inventory_display.ring_orient_closed = core::Vector3D(0, 0, 0);
 	inventory_display.ring_orient_opened = core::Vector3D(0, 180, 0);
 	inventory_display.camera_pos_closed = core::Vector3D(0, -1500, 740);
-	inventory_display.camera_pos_opened = core::Vector3D(0, -260, 820);
-	inventory_display.camera_tgt_closed = core::Vector3D(0, -90, 0);
-	inventory_display.camera_tgt_opened = core::Vector3D(0, -90, 0);
+	inventory_display.camera_pos_opened = core::Vector3D(0, -210, 630);
+	inventory_display.camera_tgt_closed = core::Vector3D(0, -70, 0);
+	inventory_display.camera_tgt_opened = core::Vector3D(0, -70, 0);
 	inventory_display.camera_ring_change_pitch = 40;
 	inventory_display.camera_fov_closed = 80;
 	inventory_display.camera_fov_opened = 80;
-	inventory_display.item_base_size = 20384;
+	inventory_display.item_base_size = 16384;
 
 	auto &inventory_duration = inventory.add_component(new inventory::InventoryDuration());
 	inventory_duration.inventory_open_frames = 18;

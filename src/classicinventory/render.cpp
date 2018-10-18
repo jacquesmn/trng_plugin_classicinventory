@@ -264,6 +264,7 @@ void InventoryRenderSystem::draw_item(
 	uint16_t mesh_bit = 1;
 
 	for (int32_t mesh_index = 0; mesh_index < slot_tr4.TotMesh; ++mesh_index) {
+		// draw mesh if mesh-mask bit is set
 		bool draw_mesh = core::bit_set(mesh_bit, item_model->config->mesh_mask, true);
 
 		if (mesh_index > 0) {
@@ -356,7 +357,6 @@ void InventoryRenderSystem::draw_item(
 			}
 		}
 
-		// draw mesh if mesh-mask bit is set
 		if (draw_mesh) {
 			const auto mesh_tr4 = Trng.pGlobTomb4->pAdr->VetMeshPointer[slot_tr4.IndexFirstMesh + mesh_index * 2];
 
@@ -538,10 +538,10 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager & entity_manager) co
 	}
 	auto &light_loc = *entity->get_component<LightingLocation>();
 
-	if (light_loc.x == 0
+	if (light_loc.room == 0
+		&& light_loc.x == 0
 		&& light_loc.y == 0
-		&& light_loc.z == 0
-		&& light_loc.room == 0) {
+		&& light_loc.z == 0) {
 		return;
 	}
 
@@ -549,17 +549,17 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager & entity_manager) co
 	const auto lara = Trng.pGlobTomb4->pAdr->pLara;
 	bool &lara_in_water = *reinterpret_cast<bool*>(0x80EBB0);
 
+	light_loc.backup_room = lara->Room;
 	light_loc.backup_x = lara->CordX;
 	light_loc.backup_y = lara->CordY;
 	light_loc.backup_z = lara->CordZ;
-	light_loc.backup_room = lara->Room;
 	light_loc.backup_lara_in_water = lara_in_water;
 
 	// move Lara to lighting location
+	lara->Room = light_loc.room;
 	lara->CordX = light_loc.x;
 	lara->CordY = light_loc.y;
 	lara->CordZ = light_loc.z;
-	lara->Room = light_loc.room;
 
 	// set to false to prevent water effect when Lara touches water
 	lara_in_water = false;
@@ -577,10 +577,10 @@ void InventoryRenderSystem::restore_lighting(ecs::EntityManager & entity_manager
 	}
 	auto &light_loc = *entity->get_component<LightingLocation>();
 
-	if (light_loc.x == 0
+	if (light_loc.room == 0
+		&& light_loc.x == 0
 		&& light_loc.y == 0
-		&& light_loc.z == 0
-		&& light_loc.room == 0) {
+		&& light_loc.z == 0) {
 		return;
 	}
 
@@ -588,10 +588,10 @@ void InventoryRenderSystem::restore_lighting(ecs::EntityManager & entity_manager
 	const auto lara = Trng.pGlobTomb4->pAdr->pLara;
 	bool &lara_in_water = *reinterpret_cast<bool*>(0x80EBB0);
 
+	lara->Room = light_loc.backup_room;
 	lara->CordX = light_loc.backup_x;
 	lara->CordY = light_loc.backup_y;
 	lara->CordZ = light_loc.backup_z;
-	lara->Room = light_loc.backup_room;
 
 	lara_in_water = light_loc.backup_lara_in_water;
 
@@ -678,8 +678,8 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager & entity_manager)
 				&& item_model_pickup->size_x > 0
 				&& item_model_pickup->size_y > 0) {
 				RECT screen_pos;
-				screen_pos.left = core::round(pickup_display.position.x + item_display_pickup->pos.x);
-				screen_pos.top = core::round(pickup_display.position.y + item_display_pickup->pos.y);
+				screen_pos.left = core::round(item_display_pickup->pos.x);
+				screen_pos.top = core::round(item_display_pickup->pos.y);
 				screen_pos.right = item_model_pickup->size_x;
 				screen_pos.bottom = item_model_pickup->size_y;
 				ConvertMicroUnits(&screen_pos);
@@ -696,8 +696,8 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager & entity_manager)
 			}
 			else {
 				RECT screen_pos;
-				screen_pos.left = core::round(pickup_display.position.x + item_display_pickup->pos.x);
-				screen_pos.top = core::round(pickup_display.position.y + item_display_pickup->pos.y);
+				screen_pos.left = core::round(item_display_pickup->pos.x);
+				screen_pos.top = core::round(item_display_pickup->pos.y);
 				ConvertMicroUnits(&screen_pos);
 
 				DrawObject2D(

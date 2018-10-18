@@ -539,7 +539,7 @@ struct CompassData : public ecs::Component {
 
 	CompassData(
 		int32_t needle_mesh_index,
-		core::Axis::Enum needle_mesh_axis
+		core::Axis::Enum needle_mesh_axis = core::Axis::Y
 	)
 		:
 		needle_mesh_index(needle_mesh_index),

@@ -3113,6 +3113,25 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 							};
 							closing = true;
 						}
+						else {
+							item::deactivate_item_actions(item_active);
+							
+							action->active = true;
+
+							const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
+							if (inventory) {
+								auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
+
+								inventory_state.item_used = inventory_state.item_active;
+							}
+
+							get_post_closing_state = []() -> State* {
+								return new ItemDeselectState([]() -> State* {
+									return new ClosingState(false);
+								}, false, false);
+							};
+							closing = true;
+						}
 					}
 				}
 				// close passport
@@ -3192,7 +3211,7 @@ void MapState::start(ecs::EntityManager &entity_manager)
 	const auto marker_count = map_data.markers.size();
 
 	// load saved marker index
-	const auto marker_index = MyData.Save.Local.inventory_data.map_marker_active[item_data.item_id];
+	const auto marker_index = MyData.Save.Local.inventory_data.map_marker_active[item_data.item_id + abs(item::MIN_INVENTORY_ITEM_ID)];
 	if (marker_index >= 0 && marker_index < marker_count) {
 		map_data.marker_index = marker_index;
 	}
@@ -3410,7 +3429,7 @@ void MapState::update_map_marker(
 	// save the current marker index
 	const auto item_data = item.get_component<item::ItemData>();
 	if (item_data) {
-		MyData.Save.Local.inventory_data.map_marker_active[item_data->item_id] = map_data.marker_index;
+		MyData.Save.Local.inventory_data.map_marker_active[item_data->item_id + abs(item::MIN_INVENTORY_ITEM_ID)] = map_data.marker_index;
 	}
 }
 

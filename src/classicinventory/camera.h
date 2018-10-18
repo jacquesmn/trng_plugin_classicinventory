@@ -9,8 +9,6 @@ namespace camera {
 
 class InventoryCameraSystem : public ecs::System {
 public:
-	void init(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;
-
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 
 	void cleanup(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;

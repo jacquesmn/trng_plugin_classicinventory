@@ -82,28 +82,28 @@ public:
 };
 
 struct LightingLocation : public ecs::Component {
+	int32_t room;
 	int32_t x;
 	int32_t y;
 	int32_t z;
-	int32_t room;
 
+	int32_t backup_room;
 	int32_t backup_x;
 	int32_t backup_y;
 	int32_t backup_z;
-	int32_t backup_room;
 	bool backup_lara_in_water;
 
 	LightingLocation(
+		int32_t room = 0,
 		int32_t x = 0,
 		int32_t y = 0,
-		int32_t z = 0,
-		int32_t room = 0
+		int32_t z = 0
 	)
 		:
+		room(room),
 		x(x),
 		y(y),
-		z(z),
-		room(room)
+		z(z)
 	{}
 };
 
@@ -164,7 +164,6 @@ struct ScreenBar : public ecs::Component {
 
 struct PickupDisplay : public ecs::Component {
 	int32_t item_id;
-	core::Vector2D position;
 	core::Vector3D rotation;
 	float alpha;
 	bool active;
@@ -174,7 +173,6 @@ struct PickupDisplay : public ecs::Component {
 	)
 		:
 		item_id(item_id),
-		position(core::Vector2D()),
 		rotation(core::Vector3D()),
 		alpha(255),
 		active(true)
