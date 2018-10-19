@@ -1,3 +1,21 @@
+/*
+* Tomb Raider Next Generation Plugin - Classic Inventory
+* Copyright (C) 2018 Jacques Niemand
+*
+* This program is free software : you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include <StdAfx.h>
 
 #include "state.h"
@@ -92,8 +110,6 @@ void StateSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager
 				*Trng.pGlobTomb4->pAdr->pInventoryChosenItem = tr4_slot_id;
 			}
 		}
-
-		inventory_state.item_used = nullptr;
 	}
 }
 
@@ -166,6 +182,10 @@ void OpeningState::start(ecs::EntityManager &entity_manager)
 		return;
 	}
 	auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
+
+	// clear last used item
+	MyData.Save.Local.inventory_data.item_id_used = item::ItemId::NONE;
+	inventory_state.item_used = nullptr;
 
 	// set requested item as selected
 	const auto item_id = item::tr4_slot_to_item_id(*Trng.pGlobTomb4->pAdr->pInventoryRequiredSlotItem);

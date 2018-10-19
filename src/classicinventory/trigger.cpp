@@ -1,3 +1,21 @@
+/*
+* Tomb Raider Next Generation Plugin - Classic Inventory
+* Copyright (C) 2018 Jacques Niemand
+*
+* This program is free software : you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "StdAfx.h"
 
 #include "trigger.h"
@@ -14,7 +32,7 @@ extern StrMyData MyData;
 namespace classicinventory {
 namespace trigger {
 
-void increase_item_qty(
+void flipeffect_increase_item_qty(
 	int32_t item_id,
 	int32_t qty,
 	ecs::EntityManager &entity_manager
@@ -33,7 +51,7 @@ void increase_item_qty(
 	item_qty.increment(qty);
 }
 
-void decrease_item_qty(
+void flipeffect_decrease_item_qty(
 	int32_t item_id,
 	int32_t qty,
 	ecs::EntityManager &entity_manager
@@ -52,7 +70,7 @@ void decrease_item_qty(
 	item_qty.decrement(qty);
 }
 
-void set_item_qty(
+void flipeffect_set_item_qty(
 	int32_t item_id,
 	int32_t qty,
 	ecs::EntityManager &entity_manager
@@ -71,7 +89,7 @@ void set_item_qty(
 	item_qty.set(qty);
 }
 
-void popup_inventory_at_item(
+void flipeffect_popup_inventory_at_item(
 	int32_t item_id,
 	ItemSelectType::Enum select_type,
 	ItemMissingResponse::Enum missing_response,
@@ -79,8 +97,13 @@ void popup_inventory_at_item(
 )
 {
 	const auto item = item::get_item_by_item_id(item_id, entity_manager);
-	const auto item_qty = item->get_component<item::ItemQuantity>();
-	const auto item_ring = item->get_component<item::ItemRing>();
+
+	item::ItemQuantity *item_qty = nullptr;
+	item::ItemRing *item_ring = nullptr;
+	if (item) {
+		item_qty = item->get_component<item::ItemQuantity>();
+		item_ring = item->get_component<item::ItemRing>();
+	}
 
 	if (!item
 		|| !item_qty
@@ -107,7 +130,7 @@ void popup_inventory_at_item(
 	PerformFlipeffect(nullptr, 53, 14, 0);
 }
 
-void show_pickup_notifier(
+void flipeffect_show_pickup_notifier(
 	int32_t item_id,
 	ecs::EntityManager &entity_manager
 )
@@ -119,6 +142,50 @@ void show_pickup_notifier(
 
 	auto &pickup_display = inventory->add_component(new render::PickupDisplay(item_id));
 	pickup_display.alpha = 0;
+}
+
+bool condition_item_qty_at_least(
+	int32_t item_id,
+	int32_t qty,
+	ecs::EntityManager &entity_manager
+)
+{
+	auto item = item::get_item_by_item_id(item_id, entity_manager);
+	if (item) {
+		if (item->has_component<item::ItemQuantity>()) {
+			const auto item_qty = item->get_component<item::ItemQuantity>()->get_quantity();
+
+			return item_qty == item::ITEM_QTY_UNLIMITED || item_qty >= qty;
+		}
+	}
+
+	return false;
+}
+
+bool condition_item_qty_less_than(
+	int32_t item_id,
+	int32_t qty,
+	ecs::EntityManager &entity_manager
+)
+{
+	auto item = item::get_item_by_item_id(item_id, entity_manager);
+	if (item) {
+		if (item->has_component<item::ItemQuantity>()) {
+			const auto item_qty = item->get_component<item::ItemQuantity>()->get_quantity();
+
+			return item_qty != item::ITEM_QTY_UNLIMITED && item_qty < qty;
+		}
+	}
+
+	return false;
+}
+
+bool condition_item_just_used(
+	int32_t item_id,
+	ecs::EntityManager &entity_manager
+)
+{
+	return MyData.Save.Local.inventory_data.item_id_used == item_id;
 }
 
 }

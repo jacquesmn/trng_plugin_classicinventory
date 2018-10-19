@@ -292,8 +292,17 @@
 #SAME_OF#=EFFECT_700_T
 <END>
 
+<START_EFFECT_705_E_H>
+1: Silent if missing.
+2: Lara says no if missing.
+<END>
+
 <START_EFFECT_706_T_H>
 #SAME_OF#=EFFECT_700_T
+<END>
+
+<START_EFFECT_706_E_H>
+#SAME_OF#=EFFECT_705_E
 <END>
 
 <START_EFFECT_707_T_H>
@@ -302,18 +311,15 @@
 
 ; ----- CONDITION TRIGGERS -----
 <START_TRIGGERTYPE_12_T_H>
-100:Inventory. There are at least (E) <#>
-101:Inventory. There are less than (E) <#>
-102:Inventory. The item just used is <#>
-103:Condition. Always <#>
-<END>
-
-<START_CONDITION_100_O_H>
-#SAME_OF#=EFFECT_700_T
+100:Condition. Always (E)
+101:Inventory. There are at least (E) <#>
+102:Inventory. There are less than (E) <#>
+103:Inventory. The item just used is <#>
 <END>
 
 <START_CONDITION_100_B_H>
-#SEQUENCE_32#
+0:False
+1:True
 <END>
 
 <START_CONDITION_101_O_H>
@@ -328,7 +334,10 @@
 #SAME_OF#=EFFECT_700_T
 <END>
 
+<START_CONDITION_102_B_H>
+#SEQUENCE_32#
+<END>
+
 <START_CONDITION_103_O_H>
-0:False
-1:True
+#SAME_OF#=EFFECT_700_T
 <END>

@@ -451,34 +451,32 @@ void cbInitLoadNewLevel(void)
 // you have to elaborate it and then return a TRET_.. value (most common is TRET_PERFORM_ONCE_AND_GO)
 int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode)
 {
-	int RetValue;
-	WORD TimerFull;
+	int RetValue = enumTRET.PERFORM_ONCE_AND_GO;
 
-	RetValue = enumTRET.PERFORM_ONCE_AND_GO;
 	// if the flip has no Extra paremeter you can handle a Timer value with values upto 32767
 	// in this case you'll use the following TimerFull variable, where (with following code) we set a unique big number 
 	// pasting togheter the timer+extra arguments:
-	TimerFull = Timer | (Extra << 8);
+	WORD TimerFull = Timer | (Extra << 8);
 
 	const auto item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
 
 	if (FlipIndex == 700) {
-		trigger::increase_item_qty(item_id, Extra, ecs::get_entity_manager());
+		trigger::flipeffect_increase_item_qty(item_id, Extra, ecs::get_entity_manager());
 	}
 	else if (FlipIndex == 701) {
-		trigger::decrease_item_qty(item_id, Extra, ecs::get_entity_manager());
+		trigger::flipeffect_decrease_item_qty(item_id, Extra, ecs::get_entity_manager());
 	}
 	else if (FlipIndex == 702) {
-		trigger::set_item_qty(item_id, Extra, ecs::get_entity_manager());
+		trigger::flipeffect_set_item_qty(item_id, Extra, ecs::get_entity_manager());
 	}
 	else if (FlipIndex == 703) {
-		trigger::set_item_qty(item_id, item::ITEM_QTY_UNLIMITED, ecs::get_entity_manager());
+		trigger::flipeffect_set_item_qty(item_id, item::ITEM_QTY_UNLIMITED, ecs::get_entity_manager());
 	}
 	else if (FlipIndex == 704) {
-		trigger::set_item_qty(item_id, 0, ecs::get_entity_manager());
+		trigger::flipeffect_set_item_qty(item_id, 0, ecs::get_entity_manager());
 	}
 	else if (FlipIndex == 705) {
-		trigger::popup_inventory_at_item(
+		trigger::flipeffect_popup_inventory_at_item(
 			item_id,
 			trigger::ItemSelectType::SELECT,
 			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
@@ -486,7 +484,7 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 		);
 	}
 	else if (FlipIndex == 706) {
-		trigger::popup_inventory_at_item(
+		trigger::flipeffect_popup_inventory_at_item(
 			item_id,
 			trigger::ItemSelectType::ACTIVATE,
 			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
@@ -494,14 +492,17 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 		);
 	}
 	else if (FlipIndex == 707) {
-		trigger::show_pickup_notifier(item_id, ecs::get_entity_manager());
+		trigger::flipeffect_show_pickup_notifier(item_id, ecs::get_entity_manager());
 	}
 	else {
 		SendToLog("WARNING: Flipeffect trigger number %d has not been handled in cbFlipEffectMine() function", FlipIndex);
 	}
 
 	// if there was the one-shot button enabled, return TRET_PERFORM_NEVER_MORE
-	if (ActivationMode & enumSCANF.BUTTON_ONE_SHOT) RetValue = enumTRET.PERFORM_NEVER_MORE;
+	if (ActivationMode & enumSCANF.BUTTON_ONE_SHOT) {
+		RetValue = enumTRET.PERFORM_NEVER_MORE;
+	}
+
 	return RetValue;
 }
 // this procedure will be called everytime an action trigger of yours will be engaged 
@@ -534,22 +535,32 @@ int cbActionMine(WORD ActionIndex, int ItemIndex, WORD Extra, WORD ActivationMod
 // you have to elaborate it and then return a CTRET_.. value (most common is CTRET_ONLY_ONCE_ON_TRUE)
 int cbConditionMine(WORD ConditionIndex, int ItemIndex, WORD Extra, WORD ActivationMode)
 {
-	int RetValue;
+	int RetValue = CTRET_ONLY_ONCE_ON_TRUE;
 
-	RetValue = CTRET_ONLY_ONCE_ON_TRUE;
+	bool condition_met = false;
 
-	switch (ConditionIndex) {
-		// type here the code for your condition trigger, inserting the code in the section
-		// beginning with "case NumberOfAction:" and ending with row "break;"
-	case -1:
-		// note: remove this "case -1:" and its "break;" it has been added only to avoid warning messages about empty switch
-		break;
-	default:
-		SendToLog("WARNING: condition trigger number %d has not been handled in cbConditionMine() function", ConditionIndex);
-		break;
+	const auto item_id = ItemIndex - abs(item::MIN_INVENTORY_ITEM_ID);
 
-
+	if (ConditionIndex == 100) {
+		condition_met = Extra != 0;
 	}
+	else if (ConditionIndex == 101) {
+		condition_met = trigger::condition_item_qty_at_least(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (ConditionIndex == 102) {
+		condition_met = trigger::condition_item_qty_less_than(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (ConditionIndex == 103) {
+		condition_met = trigger::condition_item_just_used(item_id, ecs::get_entity_manager());
+	}
+	else {
+		SendToLog("WARNING: condition trigger number %d has not been handled in cbConditionMine() function", ConditionIndex);
+	}
+
+	if (condition_met) {
+		RetValue |= CTRET_IS_TRUE;
+	}
+
 	return RetValue;
 
 }
