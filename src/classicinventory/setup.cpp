@@ -2796,10 +2796,10 @@ void customize_ring(
 		return;
 	}
 
-	int32_t index = -1;
+	int32_t cust_index = -1;
 
-	const auto ring_id = customize.pVetArg[++index];
-	const auto name_stridex = customize.pVetArg[++index];
+	const auto ring_id = customize.pVetArg[++cust_index];
+	const auto name_stridex = customize.pVetArg[++cust_index];
 
 	auto ring = entity_manager.find_entity_with_component<ring::RingData>([&](const ring::RingData &ring_data) -> bool {
 		return ring_data.ring_id == ring_id;
@@ -2823,11 +2823,11 @@ void customize_item(
 		return;
 	}
 
-	int32_t index = -1;
+	int32_t cust_index = -1;
 
-	const auto item_id = customize.pVetArg[++index];
-	const auto name_stridex = customize.pVetArg[++index];
-	const auto desc_stridex = customize.pVetArg[++index];
+	const auto item_id = customize.pVetArg[++cust_index];
+	const auto name_stridex = customize.pVetArg[++cust_index];
+	const auto desc_stridex = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -2865,11 +2865,11 @@ void customize_item_ring(
 		return;
 	}
 
-	int32_t index = -1;
+	int32_t cust_index = -1;
 
-	const auto item_id = customize.pVetArg[++index];
-	const auto ring_id = customize.pVetArg[++index];
-	const auto sort_index = customize.pVetArg[++index];
+	const auto item_id = customize.pVetArg[++cust_index];
+	const auto ring_id = customize.pVetArg[++cust_index];
+	const auto sort_index = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -3061,13 +3061,13 @@ void customize_item_quantity(
 		return;
 	}
 
-	int32_t index = -1;
+	int32_t cust_index = -1;
 
-	const auto item_id = customize.pVetArg[++index];
-	const auto qty_min = customize.pVetArg[++index];
-	const auto qty_max = customize.pVetArg[++index];
-	const auto qty_get_tgroup = customize.pVetArg[++index];
-	const auto qty_set_tgroup = customize.pVetArg[++index];
+	const auto item_id = customize.pVetArg[++cust_index];
+	const auto qty_min = customize.pVetArg[++cust_index];
+	const auto qty_max = customize.pVetArg[++cust_index];
+	const auto qty_get_tgroup = customize.pVetArg[++cust_index];
+	const auto qty_set_tgroup = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -3948,12 +3948,12 @@ void customize_lighting(
 	}
 	auto &light_loc = *entity->get_component<render::LightingLocation>();
 
-	int32_t index = -1;
+	int32_t cust_index = -1;
 
-	const auto room_index = customize.pVetArg[++index];
-	const auto cord_x = customize.pVetArg[++index];
-	const auto cord_y = customize.pVetArg[++index];
-	const auto cord_z = customize.pVetArg[++index];
+	const auto room_index = customize.pVetArg[++cust_index];
+	const auto cord_x = customize.pVetArg[++cust_index];
+	const auto cord_y = customize.pVetArg[++cust_index];
+	const auto cord_z = customize.pVetArg[++cust_index];
 
 	if (room_index != -1) {
 		light_loc.room = room_index;
@@ -4046,6 +4046,30 @@ void customize_cheats(
 	}
 }
 
+void customize_debug(
+	const StrGenericCustomize &customize,
+	ecs::EntityManager &entity_manager
+)
+{
+	if (customize.NArguments < 1) {
+		return;
+	}
+
+	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryDebug>();
+	if (!inventory) {
+		return;
+	}
+	auto &inventory_debug = *inventory->get_component<inventory::InventoryDebug>();
+
+	int32_t cust_index = -1;
+
+	const auto enabled = customize.pVetArg[++cust_index];
+
+	if (enabled >= 0) {
+		inventory_debug.enabled = enabled == CINV_TRUE;
+	}
+}
+
 void customize_inventory(ecs::EntityManager &entity_manager)
 {
 	for (int32_t ring_id = ring::MIN_INVENTORY_RING_ID; ring_id <= ring::MAX_INVENTORY_RING_ID; ++ring_id) {
@@ -4133,6 +4157,9 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_CHEATS, -1)) {
 		customize_cheats(*GET.pCust, entity_manager);
 	}
+	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_DEBUG, -1)) {
+		customize_debug(*GET.pCust, entity_manager);
+	}
 }
 
 void setup_inventory(ecs::EntityManager &entity_manager)
@@ -4176,6 +4203,7 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory_sfx.fail_sound_id = 2;
 
 	inventory.add_component(new inventory::InventoryState());
+	inventory.add_component(new inventory::InventoryDebug());
 	inventory.add_component(new special::GameTime());
 
 	setup_lighting(inventory);

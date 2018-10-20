@@ -168,6 +168,15 @@ struct InventoryState : public ecs::Component {
 	}
 };
 
+struct InventoryDebug : public ecs::Component {
+	bool enabled;
+
+	InventoryDebug()
+		:
+		enabled(true)
+	{}
+};
+
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
@@ -203,6 +212,8 @@ std::string build_item_text(std::string item_name, item::ItemQuantity *item_qty 
 inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager);
 
 inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager);
+
+bool debug_enabled(ecs::EntityManager &entity_manager);
 
 }
 }

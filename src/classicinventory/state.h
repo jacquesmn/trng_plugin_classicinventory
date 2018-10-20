@@ -252,7 +252,6 @@ public:
 class ExamineState : public State {
 public:
 	void start(ecs::EntityManager& entity_manager) override;
-	void end(ecs::EntityManager& entity_manager) override;
 
 	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
 };
@@ -321,7 +320,18 @@ public:
 };
 
 class DebugState : public State {
+private:
+	ecs::Entity &item;
+	item::ItemDisplayType::Enum display_type;
+	std::function<State*()> get_next_state;
+
 public:
+	DebugState(
+		ecs::Entity &item,
+		item::ItemDisplayType::Enum display_type,
+		std::function<State*()> get_next_state
+	);
+
 	void start(ecs::EntityManager& entity_manager) override;
 	void end(ecs::EntityManager& entity_manager) override;
 

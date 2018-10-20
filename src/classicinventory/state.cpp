@@ -21,6 +21,7 @@
 #include "state.h"
 
 #include <algorithm>
+#include <bitset>
 #include <sstream>
 
 #include <trng_core.h>
@@ -489,7 +490,15 @@ State* IdleState::input(input::InputState &input_state, ecs::EntityManager &enti
 	}
 
 	if (input_state.command_first_press(enumCMD.ROLL)) {
-		return new DebugState();
+		if (inventory::debug_enabled(entity_manager)) {
+			auto ring_item_selected = get_selected_item(entity_manager);
+
+			if (ring_item_selected) {
+				return new DebugState(ring_item_selected->item, item::ItemDisplayType::IDLE, []() -> State* {
+					return new IdleState();
+				});
+			}
+		}
 	}
 
 	// handle active cheats
@@ -1242,6 +1251,14 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 						}
 					}
 				}
+
+				if (input_state.command_first_press(enumCMD.ROLL)) {
+					if (inventory::debug_enabled(entity_manager)) {
+						return new DebugState(item_active, item::ItemDisplayType::ACTIVE, []() -> State* {
+							return new ItemActiveState();
+						});
+					}
+				}
 			}
 		}
 	}
@@ -1662,6 +1679,18 @@ State* AmmoContextState::input(input::InputState &input_state, ecs::EntityManage
 						return new ItemActiveState();
 					});
 				}
+			}
+		}
+	}
+
+	if (input_state.command_first_press(enumCMD.ROLL)) {
+		if (inventory::debug_enabled(entity_manager)) {
+			auto ring_item_active = get_active_item(entity_manager);
+
+			if (ring_item_active) {
+				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, []() -> State* {
+					return new AmmoContextState();
+				});
 			}
 		}
 	}
@@ -2108,6 +2137,18 @@ State* ComboContextState::input(input::InputState &input_state, ecs::EntityManag
 						return new ItemActiveState();
 					});
 				}
+			}
+		}
+	}
+
+	if (input_state.command_first_press(enumCMD.ROLL)) {
+		if (inventory::debug_enabled(entity_manager)) {
+			auto ring_item_active = get_active_item(entity_manager);
+
+			if (ring_item_active) {
+				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, []() -> State* {
+					return new ComboContextState();
+				});
 			}
 		}
 	}
@@ -2591,120 +2632,6 @@ void ExamineState::start(ecs::EntityManager &entity_manager)
 	}
 }
 
-void ExamineState::end(ecs::EntityManager &entity_manager)
-{
-	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
-	if (!inventory) {
-		return;
-	}
-	auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
-
-	if (!inventory_state.item_active) {
-		return;
-	}
-	auto &item_active = inventory_state.item_active->item;
-
-	uint32_t duration_frames = 0;
-	const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
-	if (inventory_duration) {
-		duration_frames = inventory_duration->item_select_frames;
-	}
-
-	// restore item back to active position
-	const auto item_display = item_active.get_component<item::ItemDisplay>();
-	if (item_display) {
-		item::change_item_display(item_active, item::ItemDisplayType::ACTIVE,
-			true,
-			true,
-			true,
-			true,
-			true
-		);
-		const auto item_display_active = item_display->config;
-
-		if (item_display_active) {
-			item_active.add_component(new motion::Motion(
-				item_display->pos.x,
-				item_display->pos.x,
-				item_display_active->pos.x,
-				duration_frames
-			));
-			item_active.add_component(new motion::Motion(
-				item_display->pos.y,
-				item_display->pos.y,
-				item_display_active->pos.y,
-				duration_frames
-			));
-			item_active.add_component(new motion::Motion(
-				item_display->pos.z,
-				item_display->pos.z,
-				item_display_active->pos.z,
-				duration_frames
-			));
-			add_motion_rot(
-				item_active,
-				item_display->orient.x,
-				item_display->orient.x,
-				item_display_active->orient.x,
-				duration_frames
-			);
-			add_motion_rot(
-				item_active,
-				item_display->orient.y,
-				item_display->orient.y,
-				item_display_active->orient.y,
-				duration_frames
-			);
-			add_motion_rot(
-				item_active,
-				item_display->orient.z,
-				item_display->orient.z,
-				item_display_active->orient.z,
-				duration_frames
-			);
-			add_motion_rot(
-				item_active,
-				item_display->rot.x,
-				item_display->rot.x,
-				0,
-				duration_frames
-			);
-			add_motion_rot(
-				item_active,
-				item_display->rot.y,
-				item_display->rot.y,
-				0,
-				duration_frames
-			);
-			add_motion_rot(
-				item_active,
-				item_display->rot.z,
-				item_display->rot.z,
-				0,
-				duration_frames
-			);
-			item_active.add_component(new motion::Motion(
-				item_display->tilt,
-				item_display->tilt,
-				item_display_active->tilt,
-				duration_frames
-			));
-			item_active.add_component(new motion::Motion(
-				item_display->scale,
-				item_display->scale,
-				item_display_active->scale,
-				duration_frames
-			));
-		}
-
-		item_display->alpha_enabled = true;
-	}
-
-	inventory::fade_in_ring(inventory_state.ring->ring, core::round(duration_frames * 0.25f));
-
-	clear_hud(entity_manager);
-}
-
 State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &entity_manager)
 {
 	// wait for all relevant motions to finish
@@ -2712,12 +2639,130 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 
 	if (entities_in_motion.empty()) {
 		if (input_state.command_first_press(enumCMD.INVENTORY)) {
-			return new ItemActiveState();
+			const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
+
+			if (inventory) {
+				auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
+
+				if (inventory_state.item_active) {
+					auto &item_active = inventory_state.item_active->item;
+
+					uint32_t duration_frames = 0;
+					const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
+					if (inventory_duration) {
+						duration_frames = inventory_duration->item_select_frames;
+					}
+
+					// restore item back to active position
+					const auto item_display = item_active.get_component<item::ItemDisplay>();
+					if (item_display) {
+						item::change_item_display(item_active, item::ItemDisplayType::ACTIVE,
+							true,
+							true,
+							true,
+							true,
+							true
+						);
+						const auto item_display_active = item_display->config;
+
+						if (item_display_active) {
+							item_active.add_component(new motion::Motion(
+								item_display->pos.x,
+								item_display->pos.x,
+								item_display_active->pos.x,
+								duration_frames
+							));
+							item_active.add_component(new motion::Motion(
+								item_display->pos.y,
+								item_display->pos.y,
+								item_display_active->pos.y,
+								duration_frames
+							));
+							item_active.add_component(new motion::Motion(
+								item_display->pos.z,
+								item_display->pos.z,
+								item_display_active->pos.z,
+								duration_frames
+							));
+							add_motion_rot(
+								item_active,
+								item_display->orient.x,
+								item_display->orient.x,
+								item_display_active->orient.x,
+								duration_frames
+							);
+							add_motion_rot(
+								item_active,
+								item_display->orient.y,
+								item_display->orient.y,
+								item_display_active->orient.y,
+								duration_frames
+							);
+							add_motion_rot(
+								item_active,
+								item_display->orient.z,
+								item_display->orient.z,
+								item_display_active->orient.z,
+								duration_frames
+							);
+							add_motion_rot(
+								item_active,
+								item_display->rot.x,
+								item_display->rot.x,
+								0,
+								duration_frames
+							);
+							add_motion_rot(
+								item_active,
+								item_display->rot.y,
+								item_display->rot.y,
+								0,
+								duration_frames
+							);
+							add_motion_rot(
+								item_active,
+								item_display->rot.z,
+								item_display->rot.z,
+								0,
+								duration_frames
+							);
+							item_active.add_component(new motion::Motion(
+								item_display->tilt,
+								item_display->tilt,
+								item_display_active->tilt,
+								duration_frames
+							));
+							item_active.add_component(new motion::Motion(
+								item_display->scale,
+								item_display->scale,
+								item_display_active->scale,
+								duration_frames
+							));
+						}
+
+						item_display->alpha_enabled = true;
+					}
+
+					inventory::fade_in_ring(inventory_state.ring->ring, core::round(duration_frames * 0.25f));
+
+					clear_hud(entity_manager);
+
+					return new ItemActiveState();
+				}
+			}
 		}
 
 		auto ring_item_active = get_active_item(entity_manager);
 		if (ring_item_active) {
 			auto &item_active = ring_item_active->item;
+
+			if (input_state.command_first_press(enumCMD.ROLL)) {
+				if (inventory::debug_enabled(entity_manager)) {
+					return new DebugState(item_active, item::ItemDisplayType::EXAMINE, []() -> State* {
+						return new ExamineState();
+					});
+				}
+			}
 
 			if (item_active.has_component<item::ItemDisplay>()) {
 				auto &item_display = *item_active.get_component<item::ItemDisplay>();
@@ -3135,7 +3180,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 						}
 						else {
 							item::deactivate_item_actions(item_active);
-							
+
 							action->active = true;
 
 							const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
@@ -3157,6 +3202,14 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 				// close passport
 				else if (input_state.command_first_press(enumCMD.INVENTORY)) {
 					closing = true;
+				}
+				// debug
+				else if (input_state.command_first_press(enumCMD.ROLL)) {
+					if (inventory::debug_enabled(entity_manager)) {
+						return new DebugState(item_active, item::ItemDisplayType::ACTIVE, []() -> State* {
+							return new PassportState();
+						});
+					}
 				}
 
 				if (anim_to_play) {
@@ -3339,6 +3392,14 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 						}
 					}
 				}
+				// debug
+				else if (input_state.command_first_press(enumCMD.ROLL)) {
+					if (inventory::debug_enabled(entity_manager)) {
+						return new DebugState(item_active, item::ItemDisplayType::ACTIVE, []() -> State* {
+							return new MapState();
+						});
+					}
+				}
 
 				// change marker
 				if (marker_index != map_data.marker_index) {
@@ -3501,6 +3562,16 @@ State* CheatState::update(ecs::EntityManager &entity_manager)
 	return this;
 }
 
+DebugState::DebugState(
+	ecs::Entity &item,
+	item::ItemDisplayType::Enum display_type,
+	std::function<State*()> get_next_state)
+	:
+	item(item),
+	display_type(display_type),
+	get_next_state(get_next_state)
+{}
+
 void DebugState::start(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryData>();
@@ -3524,7 +3595,8 @@ void DebugState::start(ecs::EntityManager &entity_manager)
 	);
 
 	// add empty debug lines to be filled on update
-	for (uint8_t i = 0; i < 5; ++i) {
+	screen_y += 10;
+	for (uint8_t i = 0; i < 20; ++i) {
 		screen_y += line_height;
 
 		inventory->add_component(new render::ScreenText(
@@ -3555,58 +3627,164 @@ State* DebugState::update(ecs::EntityManager &entity_manager)
 	if (inventory) {
 		auto screen_texts = inventory->get_components<render::ScreenText>();
 
-		if (screen_texts.size() == 6) {
-			render::ScreenText *screen_text = nullptr;
+		uint32_t text_index = 0;
 
-			const auto camera = entity_manager.find_entity_with_component<camera::CameraView>();
-			if (camera) {
-				auto &camera_view = *camera->get_component<camera::CameraView>();
+		const auto camera = entity_manager.find_entity_with_component<camera::CameraView>();
+		if (camera) {
+			auto &camera_view = *camera->get_component<camera::CameraView>();
 
-				screen_text = screen_texts.at(1);
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
 				if (screen_text) {
-					std::ostringstream text(screen_text->text);
-					text << "Camera Pos Y: " << camera_view.position.y;
-					screen_text->text = text.str();
-				}
-
-				screen_text = screen_texts.at(2);
-				if (screen_text) {
-					std::ostringstream text(screen_text->text);
-					text << "Camera Pos Z: " << camera_view.position.z;
-					screen_text->text = text.str();
-				}
-
-				screen_text = screen_texts.at(3);
-				if (screen_text) {
-					std::ostringstream text(screen_text->text);
-					text << "Camera Tgt Y: " << camera_view.target.y;
+					std::ostringstream text("");
+					text << "Camera Pos:"
+						<< " X=" << camera_view.position.x << " (Left/Right)"
+						<< ", Y=" << camera_view.position.y << " (Home/PgUp)"
+						<< ", Z=" << camera_view.position.z << " (Up/Down)";
 					screen_text->text = text.str();
 				}
 			}
 
-			if (inventory->has_component<inventory::InventoryState>()) {
-				auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Camera Tgt:"
+						<< " X=" << camera_view.target.x << " (Ctrl+Left/Right)"
+						<< ", Y=" << camera_view.target.y << " (Ctrl+Home/PgUp)";
+					screen_text->text = text.str();
+				}
+			}
 
-				auto ring = inventory_state.ring;
-				if (ring && ring->ring.has_component<ring::RingDisplay>()) {
-					auto &ring_display = *ring->ring.get_component<ring::RingDisplay>();
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Camera FOV: " << camera_view.fov << " (Ins/Del)";
+					screen_text->text = text.str();
+				}
+			}
+		}
 
-					screen_text = screen_texts.at(4);
+		if (inventory->has_component<inventory::InventoryState>()) {
+			auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
+
+			auto ring = inventory_state.ring;
+			if (ring && ring->ring.has_component<ring::RingDisplay>()) {
+				auto &ring_display = *ring->ring.get_component<ring::RingDisplay>();
+
+				if (++text_index < screen_texts.size()) {
+					auto screen_text = screen_texts.at(text_index);
 					if (screen_text) {
-						std::ostringstream text(screen_text->text);
-						text << "Ring Radius: " << ring_display.radius;
+						std::ostringstream text("");
+						text << "Ring Radius: " << ring_display.radius << " (End/PgDn)";
 						screen_text->text = text.str();
 					}
 				}
 			}
+		}
 
-			if (inventory->has_component<inventory::InventoryDisplay>()) {
-				auto &inventory_display = *inventory->get_component<inventory::InventoryDisplay>();
+		if (inventory->has_component<inventory::InventoryDisplay>()) {
+			auto &inventory_display = *inventory->get_component<inventory::InventoryDisplay>();
 
-				screen_text = screen_texts.at(5);
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
 				if (screen_text) {
-					std::ostringstream text(screen_text->text);
-					text << "Item Base Size: " << inventory_display.item_base_size;
+					std::ostringstream text("");
+					text << "Item Base Size: " << inventory_display.item_base_size << " (Z/X)";
+					screen_text->text = text.str();
+				}
+			}
+		}
+
+		if (++text_index < screen_texts.size()) {
+			auto screen_text = screen_texts.at(text_index);
+			if (screen_text) {
+				std::string display_type_str;
+				switch (display_type) {
+				case item::ItemDisplayType::IDLE:
+					display_type_str = "Idle";
+					break;
+				case item::ItemDisplayType::ACTIVE:
+					display_type_str = "Active";
+					break;
+				case item::ItemDisplayType::CONTEXT:
+					display_type_str = "Context";
+					break;
+				case item::ItemDisplayType::EXAMINE:
+					display_type_str = "Examine";
+					break;
+				case item::ItemDisplayType::PICKUP:
+					display_type_str = "Pickup";
+					break;
+				default:;
+				}
+
+				std::ostringstream text("");
+				text << "Item Display: " << display_type_str;
+				screen_text->text = text.str();
+			}
+		}
+
+		if (item.has_component<item::ItemDisplay>() && item.has_component<item::ItemModel>()) {
+			auto &item_display = *item.get_component<item::ItemDisplay>();
+			auto &item_model = *item.get_component<item::ItemModel>();
+
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Item Model:"
+						<< " Slot=" << item_model.config->slot_id
+						<< ", Mesh-Mask=" << "0x" << std::hex << item_model.config->mesh_mask << std::dec
+						<< " (" << std::bitset<32>(int(item_model.config->mesh_mask)) << ")";
+					screen_text->text = text.str();
+				}
+			}
+
+			// keep item rotation zeroed
+			item_display.rot.x = 0;
+			item_display.rot.y = 0;
+			item_display.rot.z = 0;
+
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Item Pos:"
+						<< " X=" << item_display.pos.x << " (A/D)"
+						<< ", Y=" << item_display.pos.y << " (Q/E)"
+						<< ", Z=" << item_display.pos.z << " (W/S)";
+					screen_text->text = text.str();
+				}
+			}
+
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Item Orient:"
+						<< " X=" << item_display.orient.x << " (Ctrl+W/S)"
+						<< ", Y=" << item_display.orient.y << " (Ctrl+A/D)"
+						<< ", Z=" << item_display.orient.z << " (Ctrl+Q/E)";
+					screen_text->text = text.str();
+				}
+			}
+
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Item Tilt: " << item_display.tilt << " (R/F)";
+					screen_text->text = text.str();
+				}
+			}
+
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Item Scale: " << core::round(item_display.scale * 100) << " (T/G)";
 					screen_text->text = text.str();
 				}
 			}
@@ -3625,24 +3803,53 @@ State* DebugState::input(input::InputState &input_state, ecs::EntityManager &ent
 		auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
 		auto &camera_view = *camera->get_component<camera::CameraView>();
 
-		// move camera
-		if (input_state.command_active(enumCMD.UP)) {
-			camera_view.position.z -= 10;
+		// use scan codes in case commands are mapped to same keys
+
+		const bool ctrl_active = input_state.key_active(29);
+
+		if (!ctrl_active) {
+			// position camera
+			if (input_state.key_active(75)) { // LEFT arrow
+				camera_view.position.x -= 10;
+			}
+			if (input_state.key_active(77)) { // RIGHT arrow
+				camera_view.position.x += 10;
+			}
+			if (input_state.key_active(73)) { // PAGE UP
+				camera_view.position.y -= 10;
+			}
+			if (input_state.key_active(71)) { // HOME
+				camera_view.position.y += 10;
+			}
+			if (input_state.key_active(72)) { // UP arrow
+				camera_view.position.z -= 10;
+			}
+			if (input_state.key_active(80)) { // DOWN arrow
+				camera_view.position.z += 10;
+			}
 		}
-		if (input_state.command_active(enumCMD.DOWN)) {
-			camera_view.position.z += 10;
+		else {
+			// orientate camera
+			if (input_state.key_active(77)) { // RIGHT arrow
+				camera_view.target.x -= 10;
+			}
+			if (input_state.key_active(75)) { // LEFT arrow
+				camera_view.target.x += 10;
+			}
+			if (input_state.key_active(73)) { // PAGE UP
+				camera_view.target.y -= 10;
+			}
+			if (input_state.key_active(71)) { // HOME
+				camera_view.target.y += 10;
+			}
 		}
-		if (input_state.command_active(enumCMD.LEFT)) {
-			camera_view.position.y += 10;
+
+		// alter camera fov
+		if (input_state.key_active(83)) { // DELETE
+			camera_view.fov -= 1;
 		}
-		if (input_state.command_active(enumCMD.RIGHT)) {
-			camera_view.position.y -= 10;
-		}
-		if (input_state.command_active(enumCMD.LOOK)) {
-			camera_view.target.y += 10;
-		}
-		if (input_state.command_active(enumCMD.USE_FLARE)) {
-			camera_view.target.y -= 10;
+		if (input_state.key_active(82)) { // INSERT
+			camera_view.fov += 1;
 		}
 
 		// resize ring
@@ -3650,11 +3857,11 @@ State* DebugState::input(input::InputState &input_state, ecs::EntityManager &ent
 		if (ring && ring->ring.has_component<ring::RingDisplay>()) {
 			auto &ring_display = *ring->ring.get_component<ring::RingDisplay>();
 
-			if (input_state.command_active(enumCMD.WALK)) {
-				ring_display.radius += 10;
-			}
-			if (input_state.command_active(enumCMD.ACTION)) {
+			if (input_state.key_active(79)) { // END
 				ring_display.radius -= 10;
+			}
+			if (input_state.key_active(81)) { // PAGE DOWN
+				ring_display.radius += 10;
 			}
 		}
 
@@ -3662,17 +3869,91 @@ State* DebugState::input(input::InputState &input_state, ecs::EntityManager &ent
 		if (inventory->has_component<inventory::InventoryDisplay>()) {
 			auto &inventory_display = *inventory->get_component<inventory::InventoryDisplay>();
 
-			if (input_state.command_active(enumCMD.DRAW_WEAPON)) {
-				inventory_display.item_base_size += 100;
-			}
-			if (input_state.command_active(enumCMD.DASH)) {
+			if (input_state.key_active(44)) { // Z
 				inventory_display.item_base_size -= 100;
 			}
+			if (input_state.key_active(45)) { // X
+				inventory_display.item_base_size += 100;
+			}
+		}
+
+		auto item_display_config = item::get_item_display_config(item, display_type);
+		if (item_display_config) {
+			if (!ctrl_active) {
+				// position item
+				if (input_state.key_active(30)) { // A
+					item_display_config->pos.x -= 1;
+				}
+				if (input_state.key_active(32)) { // D
+					item_display_config->pos.x += 1;
+				}
+				if (input_state.key_active(18)) { // E
+					item_display_config->pos.y -= 1;
+				}
+				if (input_state.key_active(16)) { // Q
+					item_display_config->pos.y += 1;
+				}
+				if (input_state.key_active(31)) { // S
+					item_display_config->pos.z -= 1;
+				}
+				if (input_state.key_active(17)) { // W
+					item_display_config->pos.z += 1;
+				}
+			}
+			else {
+				// orientate item
+				if (input_state.key_active(17)) { // W
+					item_display_config->orient.x -= 1;
+				}
+				if (input_state.key_active(31)) { // S
+					item_display_config->orient.x += 1;
+				}
+				if (input_state.key_active(30)) { // A
+					item_display_config->orient.y -= 1;
+				}
+				if (input_state.key_active(32)) { // D
+					item_display_config->orient.y += 1;
+				}
+				if (input_state.key_active(16)) { // Q
+					item_display_config->orient.z -= 1;
+				}
+				if (input_state.key_active(18)) { // E
+					item_display_config->orient.z += 1;
+				}
+			}
+
+			// tilt item
+			if (input_state.key_active(19)) { // R
+				item_display_config->tilt -= 1;
+			}
+			if (input_state.key_active(33)) { // F
+				item_display_config->tilt += 1;
+			}
+
+			// scale item
+			if (input_state.key_active(20)) { // T
+				item_display_config->scale -= 0.01f;
+			}
+			if (input_state.key_active(34)) { // G
+				item_display_config->scale += 0.01f;
+			}
+
+			item::change_item_display(item, display_type,
+				false,
+				false,
+				false,
+				false,
+				false,
+				true,
+				true
+			);
 		}
 	}
 
-	if (input_state.command_first_press(enumCMD.INVENTORY)) {
-		return new IdleState();
+	if (input_state.key_first_press(1) || input_state.key_first_press(15)) { // ESCAPE or TAB
+		input_state.command_first_press(enumCMD.INVENTORY); // debounce for next state
+
+		return get_next_state();
 	}
 
 	return this;

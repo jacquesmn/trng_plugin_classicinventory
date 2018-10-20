@@ -632,24 +632,36 @@ std::string build_item_text(std::string item_name, item::ItemQuantity *item_qty,
 	return item_text.str();
 }
 
-inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager)
+InventoryState* get_inventory_state(ecs::EntityManager &entity_manager)
 {
-	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
+	const auto inventory = entity_manager.find_entity_with_component<InventoryState>();
 	if (inventory) {
-		return inventory->get_component<inventory::InventoryState>();
+		return inventory->get_component<InventoryState>();
 	}
 
 	return nullptr;
 }
 
-inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager)
+InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager)
 {
-	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryDuration>();
+	const auto inventory = entity_manager.find_entity_with_component<InventoryDuration>();
 	if (inventory) {
-		return inventory->get_component<inventory::InventoryDuration>();
+		return inventory->get_component<InventoryDuration>();
 	}
 
 	return nullptr;
+}
+
+bool debug_enabled(ecs::EntityManager &entity_manager)
+{
+	const auto inventory = entity_manager.find_entity_with_component<InventoryDuration>();
+	if (inventory && inventory->has_component<InventoryDebug>()) {
+		const auto &inventory_debug = *inventory->get_component<InventoryDebug>();
+
+		return inventory_debug.enabled;
+	}
+
+	return false;
 }
 
 }

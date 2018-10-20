@@ -438,6 +438,7 @@ void cbInitLoadNewLevel(void)
 	// init inventory state
 	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
 	MyData.Save.Local.inventory_data.item_id_selected = item::ItemId::NONE;
+	MyData.Save.Local.inventory_data.item_id_used = item::ItemId::NONE;
 
 	// here you can initialise other variables of MyData different than Local and progressive actions
 	// free resources allocate in previous level

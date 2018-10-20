@@ -28,6 +28,7 @@
 #define CUST_CINV_STOPWATCH				22
 #define CUST_CINV_PASSPORT				23
 #define CUST_CINV_MAP					24
+#define CUST_CINV_DEBUG					25
 
 #define CINV_FALSE						0
 #define CINV_TRUE						1
