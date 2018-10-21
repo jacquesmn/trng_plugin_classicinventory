@@ -8,29 +8,16 @@ Description
 This plugin replaces the TR4 sliding inventory with one resembling the "classic" TR1-3 ring.
 
 Not everything is exactly as in the originals. For example the save, load and options screens are still the same as TR4/TRNG.
+
 This is also just for the in-game inventory, the title screen hasn't been touched.
 
 Scripting
 ---------
 See the CUST_CINV_... constants in NG Center's Reference panel to see what's possible to customize through scripting.
 
-Flipeffect Triggers
--------------------
-700:Inventory. Increase the number of <&> by (E)
-701:Inventory. Decrease the number of <&> by (E)
-702:Inventory. Set the number of <&> to (E)
-703:Inventory. Set the number of <&> to unlimited
-704:Inventory. Set the number of <&> to zero
-705:Inventory. Pop up inventory to select <&> in (E) way
-706:Inventory. Pop up inventory to activate <&> in (E) way
-707:Inventory. Show pickup notifier for <&>
-
-Condition Triggers
-------------------
-100:Condition. Always (E)
-101:Inventory. There are at least (E) <#>
-102:Inventory. There are less than (E) <#>
-103:Inventory. The item just used is <#>
+Triggers and Conditions
+-----------------------
+See the Set Trigger Type window in NGLE for this plugin.
 
 
 Source code available on GitLab: <link>

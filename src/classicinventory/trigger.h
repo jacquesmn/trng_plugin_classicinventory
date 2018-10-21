@@ -44,10 +44,11 @@ void flipeffect_decrease_item_qty(int32_t item_id, int32_t qty, ecs::EntityManag
 
 void flipeffect_set_item_qty(int32_t item_id, int32_t qty, ecs::EntityManager &entity_manager);
 
-void flipeffect_popup_inventory_at_item(
+void flipeffect_open_inventory_at_item(
 	int32_t item_id,
 	ItemSelectType::Enum select_type,
 	ItemMissingResponse::Enum missing_response,
+	bool open_now,
 	ecs::EntityManager &entity_manager
 );
 
@@ -57,7 +58,9 @@ bool condition_item_qty_at_least(int32_t item_id, int32_t qty, ecs::EntityManage
 
 bool condition_item_qty_less_than(int32_t item_id, int32_t qty, ecs::EntityManager &entity_manager);
 
-bool condition_item_just_used(int32_t item_id, ecs::EntityManager &entity_manager);
+bool condition_item_is_selected(int32_t item_id, ecs::EntityManager &entity_manager);
+
+bool condition_item_last_used(int32_t item_id, ecs::EntityManager &entity_manager);
 
 }
 }

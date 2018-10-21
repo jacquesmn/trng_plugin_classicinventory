@@ -477,22 +477,33 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 		trigger::flipeffect_set_item_qty(item_id, 0, ecs::get_entity_manager());
 	}
 	else if (FlipIndex == 705) {
-		trigger::flipeffect_popup_inventory_at_item(
+		trigger::flipeffect_open_inventory_at_item(
 			item_id,
 			trigger::ItemSelectType::SELECT,
-			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
+			trigger::ItemMissingResponse::SILENCE,
+			false,
 			ecs::get_entity_manager()
 		);
 	}
 	else if (FlipIndex == 706) {
-		trigger::flipeffect_popup_inventory_at_item(
+		trigger::flipeffect_open_inventory_at_item(
 			item_id,
-			trigger::ItemSelectType::ACTIVATE,
+			trigger::ItemSelectType::SELECT,
 			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
+			true,
 			ecs::get_entity_manager()
 		);
 	}
 	else if (FlipIndex == 707) {
+		trigger::flipeffect_open_inventory_at_item(
+			item_id,
+			trigger::ItemSelectType::ACTIVATE,
+			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
+			true,
+			ecs::get_entity_manager()
+		);
+	}
+	else if (FlipIndex == 708) {
 		trigger::flipeffect_show_pickup_notifier(item_id, ecs::get_entity_manager());
 	}
 	else {
@@ -552,7 +563,10 @@ int cbConditionMine(WORD ConditionIndex, int ItemIndex, WORD Extra, WORD Activat
 		condition_met = trigger::condition_item_qty_less_than(item_id, Extra, ecs::get_entity_manager());
 	}
 	else if (ConditionIndex == 103) {
-		condition_met = trigger::condition_item_just_used(item_id, ecs::get_entity_manager());
+		condition_met = trigger::condition_item_is_selected(item_id, ecs::get_entity_manager());
+	}
+	else if (ConditionIndex == 104) {
+		condition_met = trigger::condition_item_last_used(item_id, ecs::get_entity_manager());
 	}
 	else {
 		SendToLog("WARNING: condition trigger number %d has not been handled in cbConditionMine() function", ConditionIndex);

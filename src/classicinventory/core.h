@@ -85,8 +85,8 @@ bool bit_set(T &value, uint32_t bit, bool partial = false)
 }
 
 float degrees_to_radians(float degrees);
-int16_t degrees_to_tr4_angle(float degrees);
-float tr4_angle_to_degrees(int16_t angle);
+uint16_t degrees_to_tr4_angle(float degrees);
+float tr4_angle_to_degrees(uint16_t angle);
 void wrap_angle(float &degrees);
 float angle_diff_smallest(float angle_a_degrees, float angle_b_degrees);
 int32_t round(float x);

@@ -3697,38 +3697,21 @@ State* DebugState::update(ecs::EntityManager &entity_manager)
 			}
 		}
 
-		if (++text_index < screen_texts.size()) {
-			auto screen_text = screen_texts.at(text_index);
-			if (screen_text) {
-				std::string display_type_str;
-				switch (display_type) {
-				case item::ItemDisplayType::IDLE:
-					display_type_str = "Idle";
-					break;
-				case item::ItemDisplayType::ACTIVE:
-					display_type_str = "Active";
-					break;
-				case item::ItemDisplayType::CONTEXT:
-					display_type_str = "Context";
-					break;
-				case item::ItemDisplayType::EXAMINE:
-					display_type_str = "Examine";
-					break;
-				case item::ItemDisplayType::PICKUP:
-					display_type_str = "Pickup";
-					break;
-				default:;
-				}
-
-				std::ostringstream text("");
-				text << "Item Display: " << display_type_str;
-				screen_text->text = text.str();
-			}
-		}
-
-		if (item.has_component<item::ItemDisplay>() && item.has_component<item::ItemModel>()) {
+		if (item.has_component<item::ItemData>()
+			&& item.has_component<item::ItemDisplay>()
+			&& item.has_component<item::ItemModel>()) {
+			auto &item_data = *item.get_component<item::ItemData>();
 			auto &item_display = *item.get_component<item::ItemDisplay>();
 			auto &item_model = *item.get_component<item::ItemModel>();
+
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Item Name: " << item_data.name.get_string();
+					screen_text->text = text.str();
+				}
+			}
 
 			if (++text_index < screen_texts.size()) {
 				auto screen_text = screen_texts.at(text_index);
@@ -3738,6 +3721,35 @@ State* DebugState::update(ecs::EntityManager &entity_manager)
 						<< " Slot=" << item_model.config->slot_id
 						<< ", Mesh-Mask=" << "0x" << std::hex << item_model.config->mesh_mask << std::dec
 						<< " (" << std::bitset<32>(int(item_model.config->mesh_mask)) << ")";
+					screen_text->text = text.str();
+				}
+			}
+
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::string display_type_str;
+					switch (display_type) {
+					case item::ItemDisplayType::IDLE:
+						display_type_str = "Idle";
+						break;
+					case item::ItemDisplayType::ACTIVE:
+						display_type_str = "Active";
+						break;
+					case item::ItemDisplayType::CONTEXT:
+						display_type_str = "Context";
+						break;
+					case item::ItemDisplayType::EXAMINE:
+						display_type_str = "Examine";
+						break;
+					case item::ItemDisplayType::PICKUP:
+						display_type_str = "Pickup";
+						break;
+					default:;
+					}
+
+					std::ostringstream text("");
+					text << "Item Display: " << display_type_str;
 					screen_text->text = text.str();
 				}
 			}

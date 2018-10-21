@@ -5,9 +5,10 @@
 702:Inventory. Set the number of <&> to (E)
 703:Inventory. Set the number of <&> to unlimited
 704:Inventory. Set the number of <&> to zero
-705:Inventory. Pop up inventory to select <&> in (E) way
-706:Inventory. Pop up inventory to activate <&> in (E) way
-707:Inventory. Show pickup notifier for <&>
+705:Inventory. Set <&> as selected for next inventory opening
+706:Inventory. Set <&> as selected and open inventory in (E) way
+707:Inventory. Set <&> as activated and open inventory in (E) way
+708:Inventory. Show pickup notifier for <&>
 <END>
 
 <START_EFFECT_700_T_H>
@@ -292,20 +293,24 @@
 #SAME_OF#=EFFECT_700_T
 <END>
 
-<START_EFFECT_705_E_H>
-1: Silent if missing.
-2: Lara says no if missing.
-<END>
-
 <START_EFFECT_706_T_H>
 #SAME_OF#=EFFECT_700_T
 <END>
 
 <START_EFFECT_706_E_H>
-#SAME_OF#=EFFECT_705_E
+1: Nothing happens if missing.
+2: Lara says no if missing.
 <END>
 
 <START_EFFECT_707_T_H>
+#SAME_OF#=EFFECT_700_T
+<END>
+
+<START_EFFECT_707_E_H>
+#SAME_OF#=EFFECT_706_E
+<END>
+
+<START_EFFECT_708_T_H>
 #SAME_OF#=EFFECT_700_T
 <END>
 
@@ -314,7 +319,8 @@
 100:Condition. Always (E)
 101:Inventory. There are at least (E) <#>
 102:Inventory. There are less than (E) <#>
-103:Inventory. The item just used is <#>
+103:Inventory. The item currently selected is <#>
+104:Inventory. The item last used was <#>
 <END>
 
 <START_CONDITION_100_B_H>
@@ -339,5 +345,9 @@
 <END>
 
 <START_CONDITION_103_O_H>
+#SAME_OF#=EFFECT_700_T
+<END>
+
+<START_CONDITION_104_O_H>
 #SAME_OF#=EFFECT_700_T
 <END>

@@ -33,12 +33,12 @@ float degrees_to_radians(float degrees)
 	return float(degrees) * float(M_PI / 180.f);
 }
 
-int16_t degrees_to_tr4_angle(float degrees)
+uint16_t degrees_to_tr4_angle(float degrees)
 {
 	return round(degrees * 65536.f / 360.f) & 0xffff;
 }
 
-float tr4_angle_to_degrees(int16_t angle)
+float tr4_angle_to_degrees(uint16_t angle)
 {
 	return ((angle & 0xffff) / 65536.f) * 360.f;
 }

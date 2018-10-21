@@ -89,10 +89,11 @@ void flipeffect_set_item_qty(
 	item_qty.set(qty);
 }
 
-void flipeffect_popup_inventory_at_item(
+void flipeffect_open_inventory_at_item(
 	int32_t item_id,
 	ItemSelectType::Enum select_type,
 	ItemMissingResponse::Enum missing_response,
+	bool open_now,
 	ecs::EntityManager &entity_manager
 )
 {
@@ -126,8 +127,10 @@ void flipeffect_popup_inventory_at_item(
 		}
 	}
 
-	// press inventory key
-	PerformFlipeffect(nullptr, 53, 14, 0);
+	if (open_now) {
+		// press inventory key
+		PerformFlipeffect(nullptr, 53, 14, 0);
+	}
 }
 
 void flipeffect_show_pickup_notifier(
@@ -180,7 +183,15 @@ bool condition_item_qty_less_than(
 	return false;
 }
 
-bool condition_item_just_used(
+bool condition_item_is_selected(
+	int32_t item_id,
+	ecs::EntityManager &entity_manager
+)
+{
+	return MyData.Save.Local.inventory_data.item_id_selected == item_id;
+}
+
+bool condition_item_last_used(
 	int32_t item_id,
 	ecs::EntityManager &entity_manager
 )

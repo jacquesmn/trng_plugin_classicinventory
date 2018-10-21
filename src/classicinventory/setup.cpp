@@ -66,13 +66,13 @@ void set_default_item_displays(ecs::Entity &item)
 
 	auto &item_display_active = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::ACTIVE, item_display_idle));
 	item_display_active.pos.z = -256;
-	item_display_active.orient.x += 30;
-	item_display_active.tilt = -35;
+	item_display_active.orient.x += 40;
+	item_display_active.tilt = -45;
 
 	auto &item_display_context = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::CONTEXT, item_display_idle));
 	item_display_context.pos.z = 256;
-	item_display_context.orient.x += -30;
-	item_display_context.tilt = 35;
+	item_display_context.orient.x += -40;
+	item_display_context.tilt = 45;
 
 	auto &item_display_examine = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::EXAMINE, item_display_active));
 
@@ -81,6 +81,20 @@ void set_default_item_displays(ecs::Entity &item)
 	item_display_pickup.pos.y = 850;
 
 	item.add_component(new item::ItemDisplay(item_display_idle));
+}
+
+void set_tr4_pickup_orientation(ecs::Entity &item, int32_t slot_id)
+{
+	auto display_pickup = item::get_item_display_config(item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (!display_pickup) {
+		return;
+	}
+
+	const auto &tr4_invobj = Trng.pGlobTomb4->pAdr->pVetStructInventoryItems[convert_obj_to_invobj(slot_id)];
+
+	display_pickup->orient.x = core::tr4_angle_to_degrees(tr4_invobj.OrientY);
+	display_pickup->orient.y = core::tr4_angle_to_degrees(tr4_invobj.OrientX);
+	display_pickup->orient.z = core::tr4_angle_to_degrees(tr4_invobj.OrientZ);
 }
 
 item::ItemAction& add_item_action(
@@ -172,10 +186,15 @@ void setup_MEMCARD_LOAD_INV(ecs::EntityManager &entity_manager)
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::LOAD_GAME), item::ItemActionType::LOAD_GAME);
 
-	const auto item_display_configs = item->get_components<item::ItemDisplayConfig>();
-	std::for_each(item_display_configs.begin(), item_display_configs.end(), [](item::ItemDisplayConfig *config) -> void {
-		config->scale = 0.25f;
-	});
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->scale = 0.25f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->scale = 0.25f;
+	}
 }
 
 void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
@@ -192,10 +211,15 @@ void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::SAVE_GAME), item::ItemActionType::SAVE_GAME);
 
-	const auto item_display_configs = item->get_components<item::ItemDisplayConfig>();
-	std::for_each(item_display_configs.begin(), item_display_configs.end(), [](item::ItemDisplayConfig *config) -> void {
-		config->scale = 0.25f;
-	});
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->scale = 0.25f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->scale = 0.25f;
+	}
 }
 
 void setup_COMPASS(ecs::EntityManager &entity_manager)
@@ -209,6 +233,16 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return 1; },
 		[](int32_t quantity) -> void {}
 	));
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -80;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 100;
+	}
 
 	auto &compass_data = item->add_component(new item::CompassData(1, core::Axis::Y));
 	compass_data.needle_oscill_amplitude_min = 3;
@@ -237,6 +271,18 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 	};
 
 	item->add_component(new item::HealthData(500, 0, 116, 31));
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -180;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.y = 135;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.SMALLMEDI_ITEM);
 }
 
 void setup_BIGMEDI(ecs::EntityManager &entity_manager)
@@ -258,6 +304,18 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 		}
 	};
 
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -50;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.y = -35;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.BIGMEDI_ITEM);
+
 	item->add_component(new item::HealthData(1000, 0, 116, 31));
 }
 
@@ -277,6 +335,23 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::use_flare(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -80;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.y = -90;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->pos.y = 800;
+	}
+	
+	set_tr4_pickup_orientation(*item, enumSLOT.FLARE_INV_ITEM);
 }
 
 void setup_BINOCULARS(ecs::EntityManager &entity_manager)
@@ -297,6 +372,20 @@ void setup_BINOCULARS(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::use_binoculars(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -30;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 30;
+		item_display_active->orient.y = 35;
+		item_display_active->orient.z = 6;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.BINOCULARS_ITEM);
 }
 
 void setup_CROWBAR(ecs::EntityManager &entity_manager)
@@ -314,6 +403,22 @@ void setup_CROWBAR(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->orient.x = 90;
+		item_display_active->orient.y = 35;
+		item_display_active->orient.z = -85;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->pos.y = 800;
+		item_display_pickup->scale = 0.75f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CROWBAR_ITEM);
 }
 
 void setup_PISTOLS(ecs::EntityManager &entity_manager)
@@ -332,6 +437,37 @@ void setup_PISTOLS(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::equip_weapon(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->scale = 0.8f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = -5;
+		item_display_active->pos.y = -20;
+		item_display_active->orient.x = 120;
+		item_display_active->orient.y = -210;
+		item_display_active->tilt = -35;
+		item_display_active->scale = 0.8f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = -5;
+		item_display_context->pos.y = -20;
+		item_display_context->orient.x = 45;
+		item_display_context->orient.y = -210;
+		item_display_context->scale = 0.8f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.75f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.PISTOLS_ITEM);
 }
 
 void setup_SHOTGUN(ecs::EntityManager &entity_manager)
@@ -350,6 +486,34 @@ void setup_SHOTGUN(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::equip_weapon(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -180;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->pos.y = 20;
+		item_display_active->pos.z = -350;
+		item_display_active->orient.x = -75;
+		item_display_active->orient.y = -2;
+		item_display_active->orient.z = -35;
+		item_display_active->tilt = -35;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 25;
+		item_display_context->pos.y = 20;
+		item_display_context->orient.x = -150;
+		item_display_context->orient.y = -2;
+		item_display_context->orient.z = -45;
+		item_display_context->tilt = 35;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.SHOTGUN_ITEM);
 }
 
 void setup_UZI(ecs::EntityManager &entity_manager)
@@ -368,6 +532,38 @@ void setup_UZI(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::equip_weapon(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -55;
+		item_display_idle->scale = 0.8f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 35;
+		item_display_active->pos.z = -270;
+		item_display_active->orient.x = -100;
+		item_display_active->orient.y = -220;
+		item_display_active->orient.z = 40;
+		item_display_active->scale = 0.8f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 35;
+		item_display_context->orient.x = -170;
+		item_display_context->orient.y = -220;
+		item_display_context->orient.z = 40;
+		item_display_context->scale = 0.8f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->pos.y = 800;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.UZI_ITEM);
 }
 
 void setup_REVOLVER(ecs::EntityManager &entity_manager)
@@ -387,6 +583,32 @@ void setup_REVOLVER(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::equip_weapon(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = 30;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->pos.z = -280;
+		item_display_active->orient.x = 135;
+		item_display_active->orient.y = -18;
+		item_display_active->orient.z = 225;
+		item_display_active->tilt = -35;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 25;
+		item_display_context->orient.x = 70;
+		item_display_context->orient.y = -18;
+		item_display_context->orient.z = 225;
+		item_display_context->tilt = 35;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.SIXSHOOTER_ITEM);
 }
 
 void setup_REVOLVER_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
@@ -412,6 +634,32 @@ void setup_REVOLVER_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::equip_weapon(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = 30;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->pos.z = -280;
+		item_display_active->orient.x = 135;
+		item_display_active->orient.y = -18;
+		item_display_active->orient.z = 225;
+		item_display_active->tilt = -35;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 25;
+		item_display_context->orient.x = 70;
+		item_display_context->orient.y = -18;
+		item_display_context->orient.z = 225;
+		item_display_context->tilt = 35;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.SIXSHOOTER_ITEM);
 }
 
 void setup_CROSSBOW(ecs::EntityManager &entity_manager)
@@ -431,6 +679,29 @@ void setup_CROSSBOW(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::equip_weapon(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = 90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 22;
+		item_display_active->orient.x = 5;
+		item_display_active->orient.y = -145;
+		item_display_active->orient.z = -20;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 22;
+		item_display_context->orient.x = -85;
+		item_display_context->orient.y = -145;
+		item_display_context->orient.z = -20;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CROSSBOW_ITEM);
 }
 
 void setup_CROSSBOW_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
@@ -456,6 +727,29 @@ void setup_CROSSBOW_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::equip_weapon(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = 90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 22;
+		item_display_active->orient.x = 5;
+		item_display_active->orient.y = -145;
+		item_display_active->orient.z = -20;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 22;
+		item_display_context->orient.x = -85;
+		item_display_context->orient.y = -145;
+		item_display_context->orient.z = -20;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CROSSBOW_ITEM);
 }
 
 void setup_GRENADE_GUN(ecs::EntityManager &entity_manager)
@@ -474,6 +768,31 @@ void setup_GRENADE_GUN(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::equip_weapon(*item);
 	};
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.x = 75;
+		item_display_idle->orient.y = 90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 30;
+		item_display_active->pos.z = -214;
+		item_display_active->orient.x = 20;
+		item_display_active->orient.y = -135;
+		item_display_active->orient.z = 70;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 30;
+		item_display_context->orient.x = -65;
+		item_display_context->orient.y = -135;
+		item_display_context->orient.z = 70;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.GRENADE_GUN_ITEM);
 }
 
 void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
@@ -489,6 +808,20 @@ void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 60;
+		item_display_active->orient.y = -128;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -30;
+		item_display_context->orient.y = -128;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.PISTOLS_AMMO_ITEM);
 }
 
 void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
@@ -504,6 +837,25 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -30;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 50;
+		item_display_active->orient.y = 90;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 90;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.SHOTGUN_AMMO1_ITEM);
 }
 
 void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
@@ -519,6 +871,25 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -30;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 50;
+		item_display_active->orient.y = 90;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 90;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.SHOTGUN_AMMO2_ITEM);
 }
 
 void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
@@ -534,6 +905,25 @@ void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = 10;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 60;
+		item_display_active->orient.y = -180;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -30;
+		item_display_context->orient.y = -180;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.UZI_AMMO_ITEM);
 }
 
 void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
@@ -549,6 +939,20 @@ void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 60;
+		item_display_active->orient.y = 180;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -30;
+		item_display_context->orient.y = 180;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.SIXSHOOTER_AMMO_ITEM);
 }
 
 void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
@@ -564,6 +968,30 @@ void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 55;
+		item_display_active->orient.y = 90;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 90;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->pos.y = 800;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CROSSBOW_AMMO1_ITEM);
 }
 
 void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
@@ -579,6 +1007,30 @@ void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 55;
+		item_display_active->orient.y = 90;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 90;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->pos.y = 800;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CROSSBOW_AMMO2_ITEM);
 }
 
 void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
@@ -594,6 +1046,30 @@ void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 55;
+		item_display_active->orient.y = 90;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 90;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->pos.y = 800;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CROSSBOW_AMMO3_ITEM);
 }
 
 void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
@@ -609,6 +1085,26 @@ void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -60;
+		item_display_idle->orient.y = 90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 55;
+		item_display_active->orient.y = 60;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 60;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.GRENADE_GUN_AMMO1_ITEM);
 }
 
 void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
@@ -624,6 +1120,26 @@ void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -60;
+		item_display_idle->orient.y = 90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 55;
+		item_display_active->orient.y = 60;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 60;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.GRENADE_GUN_AMMO2_ITEM);
 }
 
 void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
@@ -639,6 +1155,26 @@ void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->pos.y = -60;
+		item_display_idle->orient.y = 90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 55;
+		item_display_active->orient.y = 60;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 60;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.GRENADE_GUN_AMMO3_ITEM);
 }
 
 void setup_LASERSIGHT(ecs::EntityManager &entity_manager)
@@ -656,6 +1192,29 @@ void setup_LASERSIGHT(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = 90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 15;
+		item_display_active->orient.x = 30;
+		item_display_active->orient.y = -140;
+		item_display_active->orient.z = -10;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 15;
+		item_display_context->orient.x = -60;
+		item_display_context->orient.y = -140;
+		item_display_context->orient.z = -10;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.LASERSIGHT_ITEM);
 }
 
 void setup_PUZZLE1(ecs::EntityManager &entity_manager)
@@ -1990,6 +2549,35 @@ void setup_WATERSKIN1_EMPTY(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 10;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN1_EMPTY);
 }
 
 void setup_WATERSKIN1_1(ecs::EntityManager &entity_manager)
@@ -2011,6 +2599,35 @@ void setup_WATERSKIN1_1(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 10;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN1_1);
 }
 
 void setup_WATERSKIN1_2(ecs::EntityManager &entity_manager)
@@ -2032,6 +2649,35 @@ void setup_WATERSKIN1_2(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 10;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN1_2);
 }
 
 void setup_WATERSKIN1_3(ecs::EntityManager &entity_manager)
@@ -2053,6 +2699,35 @@ void setup_WATERSKIN1_3(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 10;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN1_3);
 }
 
 void setup_WATERSKIN2_EMPTY(ecs::EntityManager &entity_manager)
@@ -2074,6 +2749,35 @@ void setup_WATERSKIN2_EMPTY(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN2_EMPTY);
 }
 
 void setup_WATERSKIN2_1(ecs::EntityManager &entity_manager)
@@ -2095,6 +2799,35 @@ void setup_WATERSKIN2_1(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN2_1);
 }
 
 void setup_WATERSKIN2_2(ecs::EntityManager &entity_manager)
@@ -2116,6 +2849,35 @@ void setup_WATERSKIN2_2(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN2_2);
 }
 
 void setup_WATERSKIN2_3(ecs::EntityManager &entity_manager)
@@ -2137,6 +2899,35 @@ void setup_WATERSKIN2_3(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN2_3);
 }
 
 void setup_WATERSKIN2_4(ecs::EntityManager &entity_manager)
@@ -2158,6 +2949,35 @@ void setup_WATERSKIN2_4(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN2_4);
 }
 
 void setup_WATERSKIN2_5(ecs::EntityManager &entity_manager)
@@ -2179,6 +2999,35 @@ void setup_WATERSKIN2_5(ecs::EntityManager &entity_manager)
 		action::exchange_waterskins(*item);
 	};
 	item_action.replace_default = false;
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = -140;
+		item_display_idle->scale = 0.5f;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->pos.x = 25;
+		item_display_active->orient.x = -60;
+		item_display_active->orient.z = -45;
+		item_display_active->scale = 0.5f;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->pos.x = 10;
+		item_display_context->orient.x = -130;
+		item_display_context->orient.z = -45;
+		item_display_context->scale = 0.5f;
+	}
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.WATERSKIN2_5);
 }
 
 void setup_CLOCKWORK_BEETLE(ecs::EntityManager &entity_manager)
@@ -2196,6 +3045,26 @@ void setup_CLOCKWORK_BEETLE(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = 180;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 30;
+		item_display_active->orient.y = 150;
+		item_display_active->tilt = -40;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = 30;
+		item_display_context->orient.y = 150;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CLOCKWORK_BEETLE);
 }
 
 void setup_CLOCKWORK_BEETLE_COMBO1(ecs::EntityManager &entity_manager)
@@ -2213,6 +3082,26 @@ void setup_CLOCKWORK_BEETLE_COMBO1(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = 90;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 30;
+		item_display_active->orient.y = 45;
+		item_display_active->tilt = -30;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -40;
+		item_display_context->orient.y = 45;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CLOCKWORK_BEETLE_COMBO1);
 }
 
 void setup_CLOCKWORK_BEETLE_COMBO2(ecs::EntityManager &entity_manager)
@@ -2230,6 +3119,26 @@ void setup_CLOCKWORK_BEETLE_COMBO2(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
+	if (item_display_idle) {
+		item_display_idle->orient.y = 180;
+	}
+
+	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
+	if (item_display_active) {
+		item_display_active->orient.x = 30;
+		item_display_active->orient.y = 150;
+		item_display_active->tilt = -40;
+	}
+
+	auto item_display_context = item::get_item_display_config(*item, item::ItemDisplayType::CONTEXT, item::ItemDisplayType::CONTEXT);
+	if (item_display_context) {
+		item_display_context->orient.x = -50;
+		item_display_context->orient.y = 150;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.CLOCKWORK_BEETLE_COMBO2);
 }
 
 void setup_items(ecs::EntityManager &entity_manager)
@@ -4170,11 +5079,11 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 
 	auto &inventory_display = inventory.add_component(new inventory::InventoryDisplay());
 	inventory_display.ring_radius_closed = 0;
-	inventory_display.ring_radius_opened = 710;
+	inventory_display.ring_radius_opened = 800;
 	inventory_display.ring_orient_closed = core::Vector3D(0, 0, 0);
 	inventory_display.ring_orient_opened = core::Vector3D(0, 180, 0);
-	inventory_display.camera_pos_closed = core::Vector3D(0, -1500, 740);
-	inventory_display.camera_pos_opened = core::Vector3D(0, -210, 630);
+	inventory_display.camera_pos_closed = core::Vector3D(0, -1500, 800);
+	inventory_display.camera_pos_opened = core::Vector3D(0, -210, 700);
 	inventory_display.camera_tgt_closed = core::Vector3D(0, -70, 0);
 	inventory_display.camera_tgt_opened = core::Vector3D(0, -70, 0);
 	inventory_display.camera_ring_change_pitch = 40;
