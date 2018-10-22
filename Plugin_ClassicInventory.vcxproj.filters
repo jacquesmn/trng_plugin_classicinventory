@@ -114,6 +114,9 @@
     <ClInclude Include="functions_mine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\classicinventory\text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="trng.cpp">
@@ -174,6 +177,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\classicinventory\trigger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\classicinventory\text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

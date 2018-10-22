@@ -122,6 +122,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
     <ClInclude Include="src\classicinventory\sound.h" />
     <ClInclude Include="src\classicinventory\special.h" />
     <ClInclude Include="src\classicinventory\state.h" />
+    <ClInclude Include="src\classicinventory\text.h" />
     <ClInclude Include="src\classicinventory\trigger.h" />
     <ClInclude Include="src\trng_core.h" />
     <ClInclude Include="StdAfx.h" />
@@ -150,6 +151,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
     <ClCompile Include="src\classicinventory\sound.cpp" />
     <ClCompile Include="src\classicinventory\special.cpp" />
     <ClCompile Include="src\classicinventory\state.cpp" />
+    <ClCompile Include="src\classicinventory\text.cpp" />
     <ClCompile Include="src\classicinventory\trigger.cpp" />
     <ClCompile Include="StdAfx.cpp" />
     <ClCompile Include="trng.cpp" />

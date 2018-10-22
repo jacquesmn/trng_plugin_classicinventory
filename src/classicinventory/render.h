@@ -132,6 +132,7 @@ struct ScreenText : public ecs::Component {
 	int32_t flags_size;
 	int32_t flags_colour;
 	int32_t flags_align;
+	uint32_t line_height;
 
 	ScreenText(
 		std::string text,
@@ -139,7 +140,8 @@ struct ScreenText : public ecs::Component {
 		uint32_t y,
 		int32_t flags_size,
 		int32_t flags_colour,
-		int32_t flags_align
+		int32_t flags_align,
+		uint32_t line_height = 0
 	)
 		:
 		text(text),
@@ -147,7 +149,8 @@ struct ScreenText : public ecs::Component {
 		y(y),
 		flags_size(flags_size),
 		flags_colour(flags_colour),
-		flags_align(flags_align)
+		flags_align(flags_align),
+		line_height(line_height)
 	{}
 };
 

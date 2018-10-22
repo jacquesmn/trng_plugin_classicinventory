@@ -291,7 +291,7 @@ public:
 
 	State* update(ecs::EntityManager& entity_manager) override;
 
-	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
+	State* input(input::InputState &input_state, ecs::EntityManager &entity_manager) override;
 };
 
 class MapState : public State {
@@ -300,7 +300,8 @@ private:
 		ecs::Entity &item,
 		item::ItemDisplay &item_display,
 		item::MapData &map_data,
-		uint32_t duration_frames
+		uint32_t duration_frames,
+		ecs::EntityManager &entity_manager
 	);
 
 public:

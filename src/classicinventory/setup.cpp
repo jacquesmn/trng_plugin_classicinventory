@@ -33,6 +33,7 @@
 #include "script.h"
 #include "sound.h"
 #include "special.h"
+#include "text.h"
 
 extern TYPE_convert_obj_to_invobj convert_obj_to_invobj;
 extern TYPE_SoundEffect SoundEffect;
@@ -234,11 +235,6 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		[](int32_t quantity) -> void {}
 	));
 
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -80;
-	}
-
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.x = 100;
@@ -304,11 +300,6 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 		}
 	};
 
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -50;
-	}
-
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.y = -35;
@@ -336,11 +327,6 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 		action::use_flare(*item);
 	};
 
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -80;
-	}
-
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.y = -90;
@@ -350,7 +336,7 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 	if (item_display_pickup) {
 		item_display_pickup->pos.y = 800;
 	}
-	
+
 	set_tr4_pickup_orientation(*item, enumSLOT.FLARE_INV_ITEM);
 }
 
@@ -372,11 +358,6 @@ void setup_BINOCULARS(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() {
 		action::use_binoculars(*item);
 	};
-
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -30;
-	}
 
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
@@ -535,7 +516,6 @@ void setup_UZI(ecs::EntityManager &entity_manager)
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
-		item_display_idle->orient.y = -55;
 		item_display_idle->scale = 0.8f;
 	}
 
@@ -838,11 +818,6 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -30;
-	}
-
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.x = 50;
@@ -872,11 +847,6 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -30;
-	}
-
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.x = 50;
@@ -905,11 +875,6 @@ void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
-
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = 10;
-	}
 
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
@@ -969,11 +934,6 @@ void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -90;
-	}
-
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.x = 55;
@@ -1008,11 +968,6 @@ void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -90;
-	}
-
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.x = 55;
@@ -1046,11 +1001,6 @@ void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
-
-	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
-	if (item_display_idle) {
-		item_display_idle->pos.y = -90;
-	}
 
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
@@ -1088,7 +1038,6 @@ void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
-		item_display_idle->pos.y = -60;
 		item_display_idle->orient.y = 90;
 	}
 
@@ -1123,7 +1072,6 @@ void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
-		item_display_idle->pos.y = -60;
 		item_display_idle->orient.y = 90;
 	}
 
@@ -1158,7 +1106,6 @@ void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
-		item_display_idle->pos.y = -60;
 		item_display_idle->orient.y = 90;
 	}
 
@@ -3571,6 +3518,189 @@ void setup_camera(ecs::EntityManager &entity_manager)
 	camera.add_component(new camera::CameraView());
 }
 
+void setup_text(ecs::Entity &inventory)
+{
+	inventory.add_component(new text::TextConfig(
+		text::TextType::RING_NAME,
+		500,
+		100,
+		0,
+		enumFC.GOLD,
+		enumFTS.ALIGN_CENTER
+	));
+
+	inventory.add_component(new text::TextConfig(
+		text::TextType::ITEM_NAME_IDLE,
+		500,
+		900,
+		0,
+		enumFC.GOLD,
+		enumFTS.ALIGN_CENTER,
+		45
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::ITEM_DESC_IDLE,
+		500,
+		945,
+		enumFT.SIZE_ATOMIC_CHAR,
+		enumFC.GOLD,
+		enumFTS.ALIGN_CENTER,
+		40
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::ITEM_AMMO_IDLE,
+		500,
+		945,
+		enumFT.LITTLE_ALWAYS,
+		enumFC.GOLD,
+		enumFTS.ALIGN_CENTER,
+		40
+	));
+
+	inventory.add_component(new text::TextConfig(
+		text::TextType::ITEM_NAME_ACTIVE,
+		500,
+		100,
+		0,
+		enumFC.GOLD,
+		enumFTS.ALIGN_CENTER,
+		50
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::ITEM_DESC_ACTIVE,
+		500,
+		150,
+		enumFT.SIZE_ATOMIC_CHAR,
+		enumFC.GOLD,
+		enumFTS.ALIGN_CENTER,
+		50
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::ITEM_AMMO_ACTIVE,
+		500,
+		150,
+		enumFT.LITTLE_ALWAYS,
+		enumFC.GOLD,
+		enumFTS.ALIGN_CENTER,
+		50
+	));
+
+	inventory.add_component(new text::TextConfig(
+		text::TextType::EXAMINE_1,
+		500,
+		100,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER,
+		300
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::EXAMINE_2,
+		500,
+		400,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER,
+		300
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::EXAMINE_3,
+		500,
+		700,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER,
+		300
+	));
+
+	inventory.add_component(new text::TextConfig(
+		text::TextType::ACTION_MENU,
+		500,
+		600,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER,
+		70
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::ACTION_MENU_HIGHLIGHT,
+		500,
+		600,
+		0,
+		enumFC.WHITE_PULSE,
+		enumFTS.ALIGN_CENTER,
+		70
+	));
+
+	inventory.add_component(new text::TextConfig(
+		text::TextType::CONTEXT_ACTION,
+		500,
+		180,
+		0,
+		enumFC.WHITE_PULSE,
+		enumFTS.ALIGN_CENTER,
+		70
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::SPECIAL_ACTION,
+		500,
+		900,
+		0,
+		enumFC.WHITE_PULSE,
+		enumFTS.ALIGN_CENTER,
+		50
+	));
+
+	inventory.add_component(new text::TextConfig(
+		text::TextType::NAV_UP_LEFT,
+		50,
+		100,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::NAV_UP_RIGHT,
+		950,
+		100,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::NAV_DOWN_LEFT,
+		50,
+		900,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::NAV_DOWN_RIGHT,
+		950,
+		900,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::NAV_LEFT,
+		50,
+		900,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER
+	));
+	inventory.add_component(new text::TextConfig(
+		text::TextType::NAV_RIGHT,
+		950,
+		900,
+		0,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER
+	));
+}
+
 void setup_lighting(ecs::Entity &inventory)
 {
 	// find the brightest room to use as default lighting location
@@ -4685,6 +4815,62 @@ void customize_sfx(
 	}
 }
 
+void customize_text(
+	const StrGenericCustomize &customize,
+	ecs::EntityManager &entity_manager
+)
+{
+	if (customize.NArguments < 7) {
+		return;
+	}
+
+	auto inventory = entity_manager.find_entity_with_component<inventory::InventoryData>();
+	if (!inventory) {
+		return;
+	}
+
+	int32_t cust_index = -1;
+
+	const auto type_id = customize.pVetArg[++cust_index];
+	const auto screen_x = customize.pVetArg[++cust_index];
+	const auto screen_y = customize.pVetArg[++cust_index];
+	const auto size = customize.pVetArg[++cust_index];
+	const auto colour = customize.pVetArg[++cust_index];
+	const auto align = customize.pVetArg[++cust_index];
+	const auto line_height = customize.pVetArg[++cust_index];
+
+	if (type_id < 1) {
+		return;
+	}
+	const auto type = static_cast<text::TextType::Enum>(type_id);
+
+	auto text_config = inventory->get_component<text::TextConfig>([&](text::TextConfig &config) -> bool {
+		return config.type == type;
+	});
+	if (!text_config) {
+		text_config = &inventory->add_component(new text::TextConfig(type));
+	}
+
+	if (screen_x >= 0 && screen_x <= 1000) {
+		text_config->x = screen_x;
+	}
+	if (screen_y >= 0 && screen_y <= 1000) {
+		text_config->y = screen_y;
+	}
+	if (size != -1) {
+		text_config->size = size;
+	}
+	if (colour != -1) {
+		text_config->colour = colour;
+	}
+	if (align != -1) {
+		text_config->align = align;
+	}
+	if (line_height >= 0) {
+		text_config->line_height = line_height;
+	}
+}
+
 void customize_combo(
 	const StrGenericCustomize &customize,
 	ecs::EntityManager &entity_manager
@@ -5050,6 +5236,11 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 			customize_sfx(*GET.pCust, entity_manager);
 		}
 	}
+	for (int32_t type = 1; type < text::TextType::NONE; ++type) {
+		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_TEXT, type)) {
+			customize_text(*GET.pCust, entity_manager);
+		}
+	}
 
 	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_COMBO, -1)) {
 		customize_combo(*GET.pCust, entity_manager);
@@ -5115,6 +5306,7 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory.add_component(new inventory::InventoryDebug());
 	inventory.add_component(new special::GameTime());
 
+	setup_text(inventory);
 	setup_lighting(inventory);
 }
 

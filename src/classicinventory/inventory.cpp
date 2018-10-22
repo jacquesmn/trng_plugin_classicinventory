@@ -612,26 +612,6 @@ bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item
 	return item_ring_a.sort_index < item_ring_b.sort_index;
 }
 
-std::string build_item_text(std::string item_name, item::ItemQuantity *item_qty, bool force_qty)
-{
-	std::ostringstream item_text;
-
-	if (item_qty) {
-		const auto qty = item_qty->get_quantity();
-
-		if (qty == item::ITEM_QTY_UNLIMITED) {
-			item_text << "Unlimited ";
-		}
-		else if (qty > 1 || force_qty) {
-			item_text << qty << " x ";
-		}
-	}
-
-	item_text << item_name;
-
-	return item_text.str();
-}
-
 InventoryState* get_inventory_state(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<InventoryState>();

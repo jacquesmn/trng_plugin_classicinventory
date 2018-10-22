@@ -23,6 +23,7 @@
 
 #include <vector>
 
+#include <trng_core.h>
 #include "core.h"
 #include "ecs.h"
 #include "item.h"
@@ -122,10 +123,6 @@ struct InventorySfx : public ecs::Component {
 	{}
 };
 
-struct InventoryText : public ecs::Component {
-
-};
-
 struct InventoryRing : public ecs::Component {
 	ecs::Entity &ring;
 	InventoryRing *prev;
@@ -206,8 +203,6 @@ void rotate_ring(ecs::Entity &ring, uint32_t duration_frames, bool clockwise);
 void restore_item_spin(ecs::Entity &item, uint32_t frames = 0, float speed = 1);
 
 bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item_b);
-
-std::string build_item_text(std::string item_name, item::ItemQuantity *item_qty = nullptr, bool force_qty = false);
 
 inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager);
 

@@ -33,6 +33,7 @@
 #include "motion.h"
 #include "render.h"
 #include "script.h"
+#include "text.h"
 
 extern StrMyData MyData;
 extern TYPE_use_current_item use_current_item;
@@ -263,13 +264,11 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 
 			// add text for ring
 			if (add_inv_text) {
-				inventory->add_component(new render::ScreenText(
+				text::add_text(
+					*inventory,
+					text::TextType::RING_NAME,
 					ring_data.name.get_string(),
-					500,
-					100,
-					0,
-					enumFC.GOLD,
-					enumFTS.ALIGN_CENTER)
+					entity_manager
 				);
 			}
 
@@ -284,14 +283,43 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 						const auto &item_data = *item.get_component<item::ItemData>();
 						const auto item_qty = item.get_component<item::ItemQuantity>();
 
-						const uint32_t line_height = 50;
-						const uint32_t text_x = 500;
-						uint32_t text_y = 900;
+						// add text for item
+						text::add_text(
+							item,
+							text::TextType::ITEM_NAME_IDLE,
+							text::build_item_text(item_data.name.get_string(), item_qty, false),
+							entity_manager
+						);
 
-						// move text up a bit to make space for additional lines
+						// add text for ammo 
 						if (item.has_component<item::ItemAmmo>()) {
-							text_y -= line_height;
+							auto item_ammo = item.get_component<item::ItemAmmo>([](item::ItemAmmo &item_ammo) -> bool {
+								return item_ammo.loaded();
+							});
+							if (item_ammo) {
+								auto &ammo_item = item_ammo->ammo_item;
+								if (ammo_item.has_component<item::ItemData>()
+									&& ammo_item.has_component<item::ItemQuantity>()) {
+									const auto &ammo_data = *ammo_item.get_component<item::ItemData>();
+									const auto ammo_qty = ammo_item.get_component<item::ItemQuantity>();
+
+									text::add_text(
+										item,
+										text::TextType::ITEM_AMMO_IDLE,
+										text::build_item_text(ammo_data.name.get_string(), ammo_qty, true),
+										entity_manager
+									);
+								}
+							}
 						}
+
+						// add text for description
+						text::add_text(
+							item,
+							text::TextType::ITEM_DESC_IDLE,
+							item_data.description.get_string(),
+							entity_manager
+						);
 
 						// add health bar
 						if (item.has_component<item::HealthData>()) {
@@ -304,54 +332,9 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 								health_bar_cust.SizeY >= 0 ? (core::round((health_bar_cust.SizeY / 480.f) * 1000)) : 25,
 								core::round((Trng.pGlobTomb4->pAdr->pLara->Health / 1000.f) * 100.f),
 								health_bar_cust.Color2,
-								health_bar_cust.Color1));
+								health_bar_cust.Color1
+							));
 						}
-
-						// add text for item
-						item.add_component(new render::ScreenText(
-							inventory::build_item_text(item_data.name.get_string(), item_qty, false),
-							text_x,
-							text_y,
-							0,
-							enumFC.GOLD,
-							enumFTS.ALIGN_CENTER)
-						);
-
-						// add text for ammo 
-						if (item.has_component<item::ItemAmmo>()) {
-							auto item_ammo = item.get_component<item::ItemAmmo>([](item::ItemAmmo &item_ammo) -> bool {
-								return item_ammo.loaded();
-							});
-							if (item_ammo) {
-								auto &ammo_item = item_ammo->ammo_item;
-								if (ammo_item.has_component<item::ItemData>()
-									&& ammo_item.has_component<item::ItemQuantity>()) {
-									auto &ammo_data = *ammo_item.get_component<item::ItemData>();
-									auto ammo_qty = ammo_item.get_component<item::ItemQuantity>();
-
-									text_y += line_height;
-									item.add_component(new render::ScreenText(
-										inventory::build_item_text(ammo_data.name.get_string(), ammo_qty, true),
-										text_x,
-										text_y,
-										enumFT.LITTLE_ALWAYS,
-										enumFC.GOLD,
-										enumFTS.ALIGN_CENTER)
-									);
-								}
-							}
-						}
-
-						// add text for description
-						text_y += line_height;
-						item.add_component(new render::ScreenText(
-							item_data.description.get_string(),
-							text_x,
-							text_y,
-							enumFT.SIZE_ATOMIC_CHAR,
-							enumFC.GOLD,
-							enumFTS.ALIGN_CENTER)
-						);
 					}
 				}
 			}
@@ -362,41 +345,33 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 			if (inventory_state.ring->next) {
 				const auto glyph_up = "\x83";
 
-				inventory->add_component(new render::ScreenText(
+				text::add_text(
+					*inventory,
+					text::TextType::NAV_UP_LEFT,
 					glyph_up,
-					50,
-					100,
-					0,
-					enumFC.LIGHT_GRAY,
-					enumFTS.ALIGN_CENTER)
+					entity_manager
 				);
-				inventory->add_component(new render::ScreenText(
+				text::add_text(
+					*inventory,
+					text::TextType::NAV_UP_RIGHT,
 					glyph_up,
-					950,
-					100,
-					0,
-					enumFC.LIGHT_GRAY,
-					enumFTS.ALIGN_CENTER)
+					entity_manager
 				);
 			}
 			if (inventory_state.ring->prev) {
 				const auto glyph_down = "\x85";
 
-				inventory->add_component(new render::ScreenText(
+				text::add_text(
+					*inventory,
+					text::TextType::NAV_DOWN_LEFT,
 					glyph_down,
-					50,
-					900,
-					0,
-					enumFC.LIGHT_GRAY,
-					enumFTS.ALIGN_CENTER)
+					entity_manager
 				);
-				inventory->add_component(new render::ScreenText(
+				text::add_text(
+					*inventory,
+					text::TextType::NAV_DOWN_RIGHT,
 					glyph_down,
-					950,
-					900,
-					0,
-					enumFC.LIGHT_GRAY,
-					enumFTS.ALIGN_CENTER)
+					entity_manager
 				);
 			}
 		}
@@ -944,17 +919,11 @@ void ItemActiveState::start(ecs::EntityManager &entity_manager)
 		item_display.alpha_enabled = false;
 
 		// add text for active item
-		uint32_t line_height = 50;
-		const uint32_t text_x = 500;
-		uint32_t text_y = 100;
-
-		item_active.add_component(new render::ScreenText(
-			inventory::build_item_text(item_data.name.get_string(), item_qty, false),
-			text_x,
-			text_y,
-			0,
-			enumFC.GOLD,
-			enumFTS.ALIGN_CENTER)
+		text::add_text(
+			item_active,
+			text::TextType::ITEM_NAME_ACTIVE,
+			text::build_item_text(item_data.name.get_string(), item_qty, false),
+			entity_manager
 		);
 
 		// add text for loaded ammo, if any
@@ -969,51 +938,39 @@ void ItemActiveState::start(ecs::EntityManager &entity_manager)
 					auto &ammo_data = *ammo_item.get_component<item::ItemData>();
 					const auto ammo_qty = ammo_item.get_component<item::ItemQuantity>();
 
-					text_y += line_height;
-					item_active.add_component(new render::ScreenText(
-						inventory::build_item_text(ammo_data.name.get_string(), ammo_qty, true),
-						text_x,
-						text_y,
-						enumFT.LITTLE_ALWAYS,
-						enumFC.GOLD,
-						enumFTS.ALIGN_CENTER)
+					text::add_text(
+						item_active,
+						text::TextType::ITEM_AMMO_ACTIVE,
+						text::build_item_text(ammo_data.name.get_string(), ammo_qty, true),
+						entity_manager
 					);
 				}
 			}
 		}
 
 		// add text for description
-		text_y += line_height;
-		item_active.add_component(new render::ScreenText(
+		text::add_text(
+			item_active,
+			text::TextType::ITEM_DESC_ACTIVE,
 			item_data.description.get_string(),
-			text_x,
-			text_y,
-			enumFT.SIZE_ATOMIC_CHAR,
-			enumFC.GOLD,
-			enumFTS.ALIGN_CENTER)
+			entity_manager
 		);
 
-		// add text for action menu
+		// add text for action menu (add this last)
 		auto item_actions = item_active.get_components<item::ItemAction>([](item::ItemAction &item_action) -> bool {
 			return item_action.enabled();
 		});
 
 		if (!item_actions.empty()) {
-			text_y = 600;
-			line_height = 70;
 			for (auto action_it = item_actions.begin(); action_it != item_actions.end(); ++action_it) {
 				auto &item_action = **action_it;
 
-				item_active.add_component(new render::ScreenText(
+				text::add_text(
+					item_active,
+					item_action.active ? text::TextType::ACTION_MENU_HIGHLIGHT : text::TextType::ACTION_MENU,
 					item_action.name.get_string(),
-					text_x,
-					text_y,
-					0,
-					item_action.active ? enumFC.WHITE_PULSE : enumFC.LIGHT_GRAY,
-					enumFTS.ALIGN_CENTER)
+					entity_manager
 				);
-
-				text_y += line_height;
 			}
 		}
 	}
@@ -1050,7 +1007,7 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 						auto &item_action = **action_it;
 
 						// deactivate current action and activate next action based on direction
-						// also update related screen text colour
+						// also update related text font
 						if (item_action.active) {
 							item::ItemAction *item_action_next = nullptr;
 							auto index_next = index;
@@ -1075,8 +1032,25 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 
 							// action screen texts should be at end of list
 							const uint32_t screen_text_offset = (screen_texts.size() - item_actions.size());
-							screen_texts.at(screen_text_offset + index)->flags_colour = enumFC.LIGHT_GRAY;
-							screen_texts.at(screen_text_offset + index_next)->flags_colour = enumFC.WHITE_PULSE;
+							auto &screen_text_now = *screen_texts.at(screen_text_offset + index);
+							auto &screen_text_next = *screen_texts.at(screen_text_offset + index_next);
+
+							// update font
+							const auto normal_text_config = text::get_text_config(text::TextType::ACTION_MENU, entity_manager);
+							if (normal_text_config) {
+								screen_text_now.x = normal_text_config->x;
+								screen_text_now.flags_size = normal_text_config->size;
+								screen_text_now.flags_colour = normal_text_config->colour;
+								screen_text_now.flags_align = normal_text_config->align;
+							}
+
+							const auto hightlight_text_config = text::get_text_config(text::TextType::ACTION_MENU_HIGHLIGHT, entity_manager);
+							if (hightlight_text_config) {
+								screen_text_next.x = hightlight_text_config->x;
+								screen_text_next.flags_size = hightlight_text_config->size;
+								screen_text_next.flags_colour = hightlight_text_config->colour;
+								screen_text_next.flags_align = hightlight_text_config->align;
+							}
 
 							// add sfx
 							add_sfx(sound::SfxType::MENU_CHANGE, false, *inventory, &item_active);
@@ -1486,12 +1460,7 @@ void AmmoContextState::start(ecs::EntityManager &entity_manager)
 	}
 	auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
 
-	// add text for ammo ring
-	const uint32_t line_height = 80;
-	const uint32_t text_x = 500;
-	uint32_t text_y = 100;
-
-	// add active item text
+	// add text for active item
 	if (inventory_state.item_active) {
 		auto &item_active = inventory_state.item_active->item;
 
@@ -1499,32 +1468,26 @@ void AmmoContextState::start(ecs::EntityManager &entity_manager)
 			&& item_active.has_component<item::ItemData>()) {
 			auto &item_data = *item_active.get_component<item::ItemData>();
 
-			item_active.add_component(new render::ScreenText(
-				inventory::build_item_text(item_data.name.get_string()),
-				text_x,
-				text_y,
-				0,
-				enumFC.GOLD,
-				enumFTS.ALIGN_CENTER)
+			text::add_text(
+				item_active,
+				text::TextType::ITEM_NAME_ACTIVE,
+				text::build_item_text(item_data.name.get_string()),
+				entity_manager
 			);
 		}
 	}
 
 	// add action text
-	text_y += line_height;
 	if (!inventory->has_component<render::ScreenText>()) {
-		inventory->add_component(new render::ScreenText(
+		text::add_text(
+			*inventory,
+			text::TextType::CONTEXT_ACTION,
 			script::ScriptString(script::StringIndex::CHOOSE_AMMO).get_string(),
-			text_x,
-			text_y,
-			0,
-			enumFC.WHITE_PULSE,
-			enumFTS.ALIGN_CENTER)
+			entity_manager
 		);
 	}
 
 	// add selected ammo text
-	text_y = 900;
 	if (inventory_state.ring) {
 		auto &ring = inventory_state.ring->ring;
 
@@ -1540,13 +1503,11 @@ void AmmoContextState::start(ecs::EntityManager &entity_manager)
 					auto &item_data = *item.get_component<item::ItemData>();
 					auto &item_qty = *item.get_component<item::ItemQuantity>();
 
-					item.add_component(new render::ScreenText(
-						inventory::build_item_text(item_data.name.get_string(), &item_qty, true),
-						text_x,
-						text_y,
-						0,
-						enumFC.GOLD,
-						enumFTS.ALIGN_CENTER)
+					text::add_text(
+						item,
+						text::TextType::ITEM_NAME_IDLE,
+						text::build_item_text(item_data.name.get_string(), &item_qty, true),
+						entity_manager
 					);
 				}
 			}
@@ -1944,12 +1905,7 @@ void ComboContextState::start(ecs::EntityManager &entity_manager)
 	}
 	auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
 
-	// add text for combo ring
-	const uint32_t line_height = 80;
-	const uint32_t text_x = 500;
-	uint32_t text_y = 100;
-
-	// add active item text
+	// add text for active item
 	if (inventory_state.item_active) {
 		auto &item_active = inventory_state.item_active->item;
 
@@ -1957,32 +1913,26 @@ void ComboContextState::start(ecs::EntityManager &entity_manager)
 			&& item_active.has_component<item::ItemData>()) {
 			auto &item_data = *item_active.get_component<item::ItemData>();
 
-			item_active.add_component(new render::ScreenText(
-				inventory::build_item_text(item_data.name.get_string()),
-				text_x,
-				text_y,
-				0,
-				enumFC.GOLD,
-				enumFTS.ALIGN_CENTER)
+			text::add_text(
+				item_active,
+				text::TextType::ITEM_NAME_ACTIVE,
+				text::build_item_text(item_data.name.get_string()),
+				entity_manager
 			);
 		}
 	}
 
 	// add action text
-	text_y += line_height;
 	if (!inventory->has_component<render::ScreenText>()) {
-		inventory->add_component(new render::ScreenText(
+		text::add_text(
+			*inventory,
+			text::TextType::CONTEXT_ACTION,
 			script::ScriptString(script::StringIndex::COMBINE_WITH).get_string(),
-			text_x,
-			text_y,
-			0,
-			enumFC.WHITE_PULSE,
-			enumFTS.ALIGN_CENTER)
+			entity_manager
 		);
 	}
 
 	// add selected item text
-	text_y = 900;
 	if (inventory_state.ring) {
 		auto &ring = inventory_state.ring->ring;
 
@@ -1998,13 +1948,11 @@ void ComboContextState::start(ecs::EntityManager &entity_manager)
 					auto &item_data = *item.get_component<item::ItemData>();
 					auto &item_qty = *item.get_component<item::ItemQuantity>();
 
-					item.add_component(new render::ScreenText(
-						inventory::build_item_text(item_data.name.get_string()),
-						text_x,
-						text_y,
-						0,
-						enumFC.GOLD,
-						enumFTS.ALIGN_CENTER)
+					text::add_text(
+						item,
+						text::TextType::ITEM_NAME_IDLE,
+						text::build_item_text(item_data.name.get_string()),
+						entity_manager
 					);
 				}
 			}
@@ -2591,43 +2539,31 @@ void ExamineState::start(ecs::EntityManager &entity_manager)
 		auto text_2 = examine_data.text_2.get_string();
 		auto text_3 = examine_data.text_3.get_string();
 
-		const uint32_t screen_x = 500;
-		uint32_t screen_y = 100;
-		const uint32_t text_height = 300;
-
 		if (!text_1.empty()) {
-			item_active.add_component(new render::ScreenText(
+			text::add_text(
+				item_active,
+				text::TextType::EXAMINE_1,
 				text_1,
-				screen_x,
-				screen_y,
-				0,
-				enumFC.LIGHT_GRAY,
-				enumFTS.ALIGN_CENTER
-			));
+				entity_manager
+			);
 		}
 
-		screen_y += text_height;
 		if (!text_2.empty()) {
-			item_active.add_component(new render::ScreenText(
+			text::add_text(
+				item_active,
+				text::TextType::EXAMINE_2,
 				text_2,
-				screen_x,
-				screen_y,
-				0,
-				enumFC.LIGHT_GRAY,
-				enumFTS.ALIGN_CENTER
-			));
+				entity_manager
+			);
 		}
 
-		screen_y += text_height;
 		if (!text_3.empty()) {
-			item_active.add_component(new render::ScreenText(
+			text::add_text(
+				item_active,
+				text::TextType::EXAMINE_3,
 				text_3,
-				screen_x,
-				screen_y,
-				0,
-				enumFC.LIGHT_GRAY,
-				enumFTS.ALIGN_CENTER
-			));
+				entity_manager
+			);
 		}
 	}
 }
@@ -3020,13 +2956,11 @@ State* PassportState::update(ecs::EntityManager & entity_manager)
 
 				if (!item_active.has_component<render::ScreenText>()) {
 					// add text for item name
-					item_active.add_component(new render::ScreenText(
-						inventory::build_item_text(item_data.name.get_string()),
-						500,
-						100,
-						0,
-						enumFC.GOLD,
-						enumFTS.ALIGN_CENTER)
+					text::add_text(
+						item_active,
+						text::TextType::ITEM_NAME_ACTIVE,
+						text::build_item_text(item_data.name.get_string()),
+						entity_manager
 					);
 
 					// add text for page action
@@ -3036,13 +2970,11 @@ State* PassportState::update(ecs::EntityManager & entity_manager)
 					if (passport_data.page > 0 && static_cast<int32_t>(passport_actions.size()) >= passport_data.page) {
 						const auto action = passport_actions.at(passport_data.page - 1);
 
-						item_active.add_component(new render::ScreenText(
+						text::add_text(
+							item_active,
+							text::TextType::SPECIAL_ACTION,
 							action->name.get_string(),
-							500,
-							900,
-							0,
-							enumFC.WHITE_PULSE,
-							enumFTS.ALIGN_CENTER)
+							entity_manager
 						);
 					}
 				}
@@ -3050,27 +2982,25 @@ State* PassportState::update(ecs::EntityManager & entity_manager)
 				const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryData>();
 				if (inventory && !inventory->has_component<render::ScreenText>()) {
 					// add text for navigation
-					const auto glyph_left = "\x84";
-					const auto glyph_right = "\x86";
 
 					if (passport_data.page > 1) {
-						inventory->add_component(new render::ScreenText(
+						const auto glyph_left = "\x84";
+
+						text::add_text(
+							*inventory,
+							text::TextType::NAV_LEFT,
 							glyph_left,
-							50,
-							900,
-							0,
-							enumFC.LIGHT_GRAY,
-							enumFTS.ALIGN_CENTER)
+							entity_manager
 						);
 					}
 					if (passport_data.page < 3) {
-						inventory->add_component(new render::ScreenText(
+						const auto glyph_right = "\x86";
+
+						text::add_text(
+							*inventory,
+							text::TextType::NAV_RIGHT,
 							glyph_right,
-							950,
-							900,
-							0,
-							enumFC.LIGHT_GRAY,
-							enumFTS.ALIGN_CENTER)
+							entity_manager
 						);
 					}
 				}
@@ -3263,13 +3193,11 @@ void MapState::start(ecs::EntityManager &entity_manager)
 
 	// add text for item name
 	if (inventory) {
-		inventory->add_component(new render::ScreenText(
-			inventory::build_item_text(item_data.name.get_string()),
-			500,
-			100,
-			0,
-			enumFC.GOLD,
-			enumFTS.ALIGN_CENTER)
+		text::add_text(
+			*inventory,
+			text::TextType::ITEM_NAME_ACTIVE,
+			text::build_item_text(item_data.name.get_string()),
+			entity_manager
 		);
 	}
 
@@ -3309,7 +3237,7 @@ void MapState::start(ecs::EntityManager &entity_manager)
 		duration_frames = inventory_duration.item_select_frames;
 	}
 
-	update_map_marker(item_active, item_display, map_data, duration_frames);
+	update_map_marker(item_active, item_display, map_data, duration_frames, entity_manager);
 }
 
 State* MapState::input(input::InputState &input_state, ecs::EntityManager &entity_manager)
@@ -3412,7 +3340,7 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 						duration_frames = inventory_duration.item_select_frames;
 					}
 
-					update_map_marker(item_active, item_display, map_data, duration_frames);
+					update_map_marker(item_active, item_display, map_data, duration_frames, entity_manager);
 
 					return this;
 				}
@@ -3427,7 +3355,8 @@ void MapState::update_map_marker(
 	ecs::Entity &item,
 	item::ItemDisplay &item_display,
 	item::MapData &map_data,
-	uint32_t duration_frames
+	uint32_t duration_frames,
+	ecs::EntityManager &entity_manager
 )
 {
 	if (map_data.marker_index >= map_data.markers.size()) {
@@ -3442,15 +3371,14 @@ void MapState::update_map_marker(
 		return;
 	}
 
-	// add text for marker
 	item.remove_components<render::ScreenText>();
-	item.add_component(new render::ScreenText(
+
+	// add text for marker
+	text::add_text(
+		item,
+		text::TextType::SPECIAL_ACTION,
 		marker.action->name.get_string(),
-		500,
-		900,
-		0,
-		enumFC.WHITE_PULSE,
-		enumFTS.ALIGN_CENTER)
+		entity_manager
 	);
 
 	// add text for navigation
@@ -3458,21 +3386,17 @@ void MapState::update_map_marker(
 		const auto glyph_left = "\x84";
 		const auto glyph_right = "\x86";
 
-		item.add_component(new render::ScreenText(
+		text::add_text(
+			item,
+			text::TextType::NAV_LEFT,
 			glyph_left,
-			50,
-			900,
-			0,
-			enumFC.LIGHT_GRAY,
-			enumFTS.ALIGN_CENTER)
+			entity_manager
 		);
-		item.add_component(new render::ScreenText(
+		text::add_text(
+			item,
+			text::TextType::NAV_RIGHT,
 			glyph_right,
-			950,
-			900,
-			0,
-			enumFC.LIGHT_GRAY,
-			enumFTS.ALIGN_CENTER)
+			entity_manager
 		);
 	}
 

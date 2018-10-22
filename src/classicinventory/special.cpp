@@ -239,7 +239,7 @@ void MediShortcutSystem::update(
 		});
 
 		if (item) {
-			action::use_health(*item);
+			action::use_health(*item, false);
 		}
 	}
 }

@@ -31,7 +31,7 @@ extern StrMyData MyData;
 namespace classicinventory {
 namespace action {
 
-bool use_health(ecs::Entity &item)
+bool use_health(ecs::Entity &item, bool do_no_sfx)
 {
 	if (!item.has_component<item::HealthData>()) {
 		return false;
@@ -54,8 +54,10 @@ bool use_health(ecs::Entity &item)
 	if ((lara_health >= 1000 && *Trng.pGlobTomb4->pAdr->pPoison1 == 0)
 		|| (!item_quantity.decrement() && item_quantity.get_quantity() != item::ITEM_QTY_UNLIMITED)
 		) {
-		// lara says no
-		SoundEffect(2, nullptr, 0);
+		if (do_no_sfx) {
+			// lara says no
+			SoundEffect(2, nullptr, 0);
+		}
 		return false;
 	}
 
@@ -333,7 +335,7 @@ bool save_game()
 bool exit_to_title()
 {
 	int32_t &Savegame_1E7_NumeroLivello = *reinterpret_cast<int32_t*>(0x7F7730);
-	
+
 	Savegame_1E7_NumeroLivello = 0;
 
 	*Trng.pGlobTomb4->pAdr->pTestLoadOrNewLevel = 1;
