@@ -55,7 +55,7 @@ void add_text(
 	}
 
 	const auto text_config = get_text_config(text_type, entity_manager);
-	if (!text_config) {
+	if (!text_config || !text_config->enabled) {
 		return;
 	}
 

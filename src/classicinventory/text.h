@@ -60,6 +60,7 @@ struct TextConfig : public ecs::Component {
 	int32_t colour;
 	int32_t align;
 	uint32_t line_height;
+	bool enabled;
 
 	TextConfig(
 		TextType::Enum type,
@@ -77,7 +78,8 @@ struct TextConfig : public ecs::Component {
 		size(size),
 		colour(colour),
 		align(align),
-		line_height(line_height)
+		line_height(line_height),
+		enabled(true)
 	{}
 };
 
