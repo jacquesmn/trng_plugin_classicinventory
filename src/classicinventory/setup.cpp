@@ -66,12 +66,12 @@ void set_default_item_displays(ecs::Entity &item)
 	auto &item_display_idle = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::IDLE));
 
 	auto &item_display_active = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::ACTIVE, item_display_idle));
-	item_display_active.pos.z = -256;
+	item_display_active.pos.z = -200;
 	item_display_active.orient.x += 40;
 	item_display_active.tilt = -45;
 
 	auto &item_display_context = item.add_component(new item::ItemDisplayConfig(item::ItemDisplayType::CONTEXT, item_display_idle));
-	item_display_context.pos.z = 256;
+	item_display_context.pos.z = 200;
 	item_display_context.orient.x += -40;
 	item_display_context.tilt = 45;
 
