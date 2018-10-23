@@ -110,7 +110,8 @@ void build_inventory(
 		}
 		inventory_ring_prev = &inventory_ring;
 
-		if (ring_data.ring_id == ring_id) {
+		if (ring_data.ring_id == ring_id
+			|| (!inventory_state.ring && ring_data.ring_id == ring::RingId::INVENTORY)) {
 			inventory_state.ring = &inventory_ring;
 			inventory_state.ring_target = &inventory_ring;
 		}
