@@ -199,8 +199,8 @@
     <None Include="Plugin_ClassicInventory.sln.DotSettings" />
     <None Include="src\LICENSE" />
     <None Include="scripts\Plugin_ClassicInventory.btn" />
-    <None Include="scripts\Plugin_ClassicInventory.txt" />
     <None Include="Plugin_ClassicInventory.props" />
     <None Include="dist\Plugin_ClassicInventory.zip" />
+    <None Include="scripts\Plugin_ClassicInventory.txt" />
   </ItemGroup>
 </Project>

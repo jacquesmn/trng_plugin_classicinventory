@@ -177,7 +177,9 @@ powershell Compress-Archive -Path '$(ProjectDir)$(Configuration)\$(TargetFileNam
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ExcludedFromBuild>
     </None>
-    <None Include="scripts\Plugin_ClassicInventory.txt" />
+    <None Include="scripts\Plugin_ClassicInventory.txt">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </None>
     <None Include="src\LICENSE" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
