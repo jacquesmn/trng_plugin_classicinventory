@@ -206,12 +206,12 @@ void PickupSystem::update(
 	}
 }
 
-MediShortcutSystem::MediShortcutSystem(input::InputState &input_state)
+ShortcutSystem::ShortcutSystem(input::InputState &input_state)
 	:
 	input_state(input_state)
 {}
 
-void MediShortcutSystem::update(
+void ShortcutSystem::update(
 	ecs::EntityManager &entity_manager,
 	ecs::SystemManager &system_manager
 )

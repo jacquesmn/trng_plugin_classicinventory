@@ -276,5 +276,63 @@ void deactivate_item_actions(ecs::Entity &item)
 	});
 }
 
+void reset_item_animation(ecs::Entity &item)
+{
+	const auto item_anims = item.get_components<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
+		return item_animation.active;
+	});
+
+	std::for_each(item_anims.begin(), item_anims.end(), [](item::ItemAnimation *item_animation) -> void {
+		item_animation->active = false;
+	});
+}
+
+void spin_item(ecs::Entity &item, uint32_t frames)
+{
+	if (item.has_component<item::ItemDisplay>()) {
+		auto &item_display = *item.get_component<item::ItemDisplay>();
+
+		// check if already spinning
+		auto motion_spin = item.get_component<motion::Motion>([&](motion::Motion &motion) -> bool {
+			return &motion.value == &item_display.rot.y;
+		});
+
+		if (motion_spin) {
+			// resume spin
+			if (motion_spin->restoring) {
+				motion_spin->resume(motion::Motion::FORWARD, frames);
+
+				motion_spin->loop = true;
+			}
+		}
+		else {
+			// start spin
+			item.add_component(new motion::Motion(
+				item_display.rot.y,
+				0,
+				360,
+				frames,
+				0,
+				motion::Motion::FORWARD,
+				true)
+			);
+		}
+	}
+}
+
+void restore_item_spin(ecs::Entity &item, uint32_t frames, float speed)
+{
+	auto item_motion = item.get_component<motion::Motion>([](const motion::Motion &motion) -> bool {
+		return motion.loop && !motion.background;
+	});
+
+	if (item_motion) {
+		item_motion->restore(frames);
+		if (speed != 1) {
+			item_motion->accelerate(speed);
+		}
+	}
+}
+
 }
 }

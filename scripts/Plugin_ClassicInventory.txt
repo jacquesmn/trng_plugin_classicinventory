@@ -1,5 +1,5 @@
-Classic Inventory Plugin
-------------------------
+Classic Inventory
+-----------------
 Plugin version: 0.9.0.0
 Required TRNG version: 1.3.0.7
 
@@ -9,7 +9,7 @@ This plugin replaces the TR4 sliding inventory with one resembling the "classic"
 
 Not everything is exactly as in the originals. For example the save, load and options screens are still the same as TR4/TRNG.
 
-This is also just for the in-game inventory, the title screen hasn't been touched.
+This is also just for the in-game inventory, the title screen hasn't been altered.
 
 Scripting
 ---------
@@ -17,10 +17,40 @@ See the CUST_CINV_... constants in NG Center's Reference panel to see what's pos
 
 Triggers and Conditions
 -----------------------
-See the Set Trigger Type window in NGLE for this plugin.
+See the Set Trigger Type window in NGLE for this plugin to see what triggers and conditions are available.
 
+Known Issues and Workarounds
+----------------------------
+* Items have a water effect applied when the camera is underwater.
 
-Source code available on GitLab: <link>
+* Item meshes can be a bit jittery when in motion.
+
+* A too large of a value for item scale causes texture rendering issues for items with shine applied.
+
+* Camera view might differ somewhat between fullscreen and windowed modes.
+
+* The pickup notifier is disabled when a fixed camera is active.
+	
+* The configured mesh-mask of an item's model doesn't work for the pickup notifier, e.g. the revolver will be shown on screen with the lasersight and torch attached when picked up.
+For now a solution would be to change the item's pickup model in the script to a slot containing only the desired meshes.
+	
+* The pickup notifier will not use the configured display settings to ignore animation position and orientation.
+This is mostly a problem with items which are initially off-center from their 3D origin, e.g. attached to walls.
+Similar solution as for the mesh-mask issue, i.e. change pickup model to one that's positioned at the origin.
+	
+* Inventory background image might blink on certain computers. This also happens without the plugin. Soft Full Screen seems to fix it.
+
+* The WEAPONS cheat had to be changed to WEAPON.
+
+* Only the numpad keys are usable in debug mode to change camera and ring settings.
+
+* Only the Left Ctrl button is usable in debug mode to alternate between positioning and orienting.
+
+* The currently selected ring and item is reset to default (Inventory ring, first item) between level jumps.
+
+Source code
+-----------
+https://gitlab.com/jacquesmn/trng_plugin_classicinventory
 
 Enjoy,
 JMN

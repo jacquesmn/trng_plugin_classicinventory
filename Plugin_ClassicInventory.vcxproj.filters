@@ -189,7 +189,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="READ_ME.txt" />
     <None Include="Plugin_ClassicInventory.def">
       <Filter>Source Files</Filter>
     </None>
@@ -201,5 +200,7 @@
     <None Include="src\LICENSE" />
     <None Include="scripts\Plugin_ClassicInventory.btn" />
     <None Include="scripts\Plugin_ClassicInventory.txt" />
+    <None Include="Plugin_ClassicInventory.props" />
+    <None Include="dist\Plugin_ClassicInventory.zip" />
   </ItemGroup>
 </Project>

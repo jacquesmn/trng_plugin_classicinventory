@@ -62,7 +62,7 @@ extern TYPE_AlterFOV AlterFOV;
 namespace classicinventory {
 namespace render {
 
-const auto poly_alpha = reinterpret_cast<int32_t*>(0x4AB7B8);
+const auto poly_alpha = reinterpret_cast<uint32_t*>(0x4AB7B8);
 
 void InventoryRenderSystem::init(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
 {
@@ -171,9 +171,6 @@ void InventoryRenderSystem::draw_ring_item(
 		return;
 	}
 
-	const auto item_tilt = core::degrees_to_tr4_angle(item_display->tilt);
-	const auto ring_angle = core::degrees_to_tr4_angle(90 + (ring_display.sector * ring_item.item_index));
-
 	phd_PushMatrix();
 
 	// set transparency
@@ -183,19 +180,22 @@ void InventoryRenderSystem::draw_ring_item(
 	}
 	*poly_alpha = alpha << 24;
 
-	// lets do all transforms relative to world origin
+	// do all transforms relative to world origin
 	phd_TranslateAbs(0, 0, 0);
 
-	// position center of ring
+	// start off at center of ring
 	phd_TranslateRel(ring_pos_x, ring_pos_y, ring_pos_z);
 	phd_RotYXZ(ring_rot_y, ring_rot_x, ring_rot_z);
 
 	// position item on ring
+	const auto ring_angle = core::degrees_to_tr4_angle((ring_item.item_index * ring_display.sector) + 90);
+	const auto item_tilt = core::degrees_to_tr4_angle(item_display->tilt);
+
 	phd_PushMatrix();
-	phd_RotYXZ(ring_angle, 0, 0);			// angle around centre of ring
-	phd_TranslateRel(ring_radius, 0, 0);	// translate by radius
-	phd_RotY(-0x4000);						// face outwards
-	phd_RotX(item_tilt);					// tilt
+	phd_RotYXZ(ring_angle, 0, 0);				// angle around centre of ring
+	phd_TranslateRel(ring_radius, 0, 0);		// put on edge of ring
+	phd_RotY(-core::degrees_to_tr4_angle(90));	// face outwards
+	phd_RotX(item_tilt);						// tilt
 
 	draw_item(item, inventory_display, entity_manager);
 
@@ -276,7 +276,7 @@ void InventoryRenderSystem::draw_item(
 	}
 
 	// draw meshes
-	const int32_t poly_alpha_backup = *poly_alpha;
+	const uint32_t poly_alpha_backup = *poly_alpha;
 	const auto mesh_tree = reinterpret_cast<int32_t*>(0x533958);
 	auto bone = reinterpret_cast<int32_t*>(*mesh_tree) + slot_tr4.IndexFirstTree;
 	uint16_t mesh_bit = 1;
@@ -324,7 +324,7 @@ void InventoryRenderSystem::draw_item(
 						&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
 				});
 				if (cheat_entity) {
-					*poly_alpha = 128 << 24;
+					*poly_alpha = min(128, *poly_alpha >> 24) << 24;
 				}
 			}
 		}

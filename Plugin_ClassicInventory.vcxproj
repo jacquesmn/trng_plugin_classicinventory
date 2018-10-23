@@ -32,9 +32,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Plugin_ClassicInventory.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Plugin_ClassicInventory.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -68,9 +70,9 @@
       <PreventDllBinding>true</PreventDllBinding>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)$(Configuration)\$(TargetFileName)" "D:\Misc\TRLE\sotm"
-copy /y "$(SolutionDir)scripts\$(TargetName).script", "$(USERPROFILE)\Documents\NG_Center"
-copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
+      <Command>copy /y "$(ProjectDir)$(Configuration)\$(TargetFileName)" "$(TRLEDir)"
+copy /y "$(SolutionDir)scripts\$(TargetName).script", "$(NGCenterDir)"
+copy /y "$(SolutionDir)scripts\$(TargetName).trg", "$(TRLEDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -92,9 +94,9 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)$(Configuration)\$(TargetFileName)" "D:\Misc\TRLE\sotm"
-copy /y "$(SolutionDir)scripts\$(TargetName).script", "$(USERPROFILE)\Documents\NG_Center"
-copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
+      <Command>copy /y "$(ProjectDir)$(Configuration)\$(TargetFileName)" "$(TRLEDir)"
+if not exist "$(SolutionDir)dist" mkdir "$(SolutionDir)dist"
+powershell Compress-Archive -Path '$(ProjectDir)$(Configuration)\$(TargetFileName)', '$(SolutionDir)scripts\$(TargetName).*' -DestinationPath '$(SolutionDir)dist\$(TargetName).zip' -Force</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -161,10 +163,11 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "D:\Misc\TRLE\sotm"</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="dist\Plugin_ClassicInventory.zip" />
     <None Include="Plugin_ClassicInventory.aps" />
     <None Include="Plugin_ClassicInventory.def" />
+    <None Include="Plugin_ClassicInventory.props" />
     <None Include="Plugin_ClassicInventory.sln.DotSettings" />
-    <None Include="READ_ME.txt" />
     <None Include="scripts\Plugin_ClassicInventory.btn" />
     <None Include="scripts\Plugin_ClassicInventory.script" />
     <None Include="scripts\Plugin_ClassicInventory.trg">

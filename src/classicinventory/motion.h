@@ -76,6 +76,14 @@ public:
 	void finish();
 };
 
+// ----------------------------
+// ##### HELPER FUNCTIONS #####
+// ----------------------------
+std::vector<ecs::Entity*> get_entities_in_motion(ecs::EntityManager &entity_manager);
+
+// Adds rotation motion through shortest route.
+void add_motion_rot(ecs::Entity &entity, float &value, float start, float end, int32_t frames);
+
 }
 }
 

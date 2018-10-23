@@ -588,20 +588,7 @@ void rotate_ring(
 		);
 	}
 
-	restore_item_spin(ring_state->item->item, 0, 1.5);
-}
-
-void restore_item_spin(ecs::Entity &item, uint32_t frames, float speed)
-{
-	auto item_motion = item.get_component<motion::Motion>([](const motion::Motion &motion) -> bool {
-		return motion.loop && !motion.background;
-	});
-	if (item_motion) {
-		item_motion->restore(frames);
-		if (speed != 1) {
-			item_motion->accelerate(speed);
-		}
-	}
+	item::restore_item_spin(ring_state->item->item, 0, 1.5);
 }
 
 bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item_b)

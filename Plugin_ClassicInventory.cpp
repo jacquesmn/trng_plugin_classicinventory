@@ -11,11 +11,11 @@
 #include "functions_mine.h" // assigments of real discovered tomb4 address to each discovered tomb4 procedures
 
 #include <classicinventory/ecs.h>
-#include "classicinventory/controller.h"
+#include <classicinventory/controller.h>
 #include <classicinventory/item.h>
 #include <classicinventory/ring.h>
-#include "classicinventory/setup.h"
-#include "classicinventory/trigger.h"
+#include <classicinventory/setup.h>
+#include <classicinventory/trigger.h>
 
 using namespace classicinventory;
 

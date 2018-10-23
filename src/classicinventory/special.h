@@ -59,12 +59,12 @@ public:
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 };
 
-class MediShortcutSystem : public ecs::System {
+class ShortcutSystem : public ecs::System {
 private:
 	input::InputState &input_state;
 
 public:
-	MediShortcutSystem(input::InputState &input_state);
+	ShortcutSystem(input::InputState &input_state);
 
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 };

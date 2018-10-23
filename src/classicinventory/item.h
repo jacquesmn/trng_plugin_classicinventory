@@ -657,7 +657,6 @@ struct MapData : public ecs::Component {
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-
 int32_t tr4_slot_to_item_id(uint32_t tr4_slot);
 int32_t tr4_invobj_to_item_id(uint32_t tr4_invobj);
 uint32_t item_id_to_item_index(int32_t item_id);
@@ -693,8 +692,10 @@ void change_item_display(
 );
 
 void remove_item_motion(ecs::Entity &item, bool keep_background = true);
-
 void deactivate_item_actions(ecs::Entity &item);
+void reset_item_animation(ecs::Entity &item);
+void spin_item(ecs::Entity &item, uint32_t frames);
+void restore_item_spin(ecs::Entity &item, uint32_t frames = 0, float speed = 1);
 
 }
 }

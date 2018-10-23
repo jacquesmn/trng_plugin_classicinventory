@@ -148,6 +148,7 @@ struct InventoryState : public ecs::Component {
 	ring::RingItem *item_used;
 
 	bool activate_selected_item_on_open;
+	bool force_open;
 
 	InventoryState()
 		:
@@ -155,7 +156,8 @@ struct InventoryState : public ecs::Component {
 		ring_target(nullptr),
 		item_active(nullptr),
 		item_used(nullptr),
-		activate_selected_item_on_open(false)
+		activate_selected_item_on_open(false),
+		force_open(false)
 	{}
 
 	void change_ring() {
@@ -170,14 +172,13 @@ struct InventoryDebug : public ecs::Component {
 
 	InventoryDebug()
 		:
-		enabled(true)
+		enabled(false)
 	{}
 };
 
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-
 void build_inventory(int32_t ring_id, int32_t item_id, InventoryState &inventory_state, ecs::EntityManager &entity_manager);
 
 void build_ring(ecs::Entity &ring, ring::RingState &ring_state, std::vector<ecs::Entity*> &items, const int32_t *item_id_selected = nullptr, const std::vector<const ecs::Entity*> *items_excluded = nullptr);
@@ -199,8 +200,6 @@ void open_camera(ecs::Entity &camera, const InventoryDisplay &inventory_display,
 void close_camera(ecs::Entity &camera, const InventoryDisplay &inventory_display, const InventoryDuration &inventory_duration);
 
 void rotate_ring(ecs::Entity &ring, uint32_t duration_frames, bool clockwise);
-
-void restore_item_spin(ecs::Entity &item, uint32_t frames = 0, float speed = 1);
 
 bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item_b);
 

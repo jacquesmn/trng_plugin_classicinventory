@@ -64,7 +64,7 @@ void Controller::init()
 	system_manager.add_system(new special::CompassSystem());
 	system_manager.add_system(new special::StopwatchSystem());
 	system_manager.add_system(new special::PickupSystem());
-	system_manager.add_system(new special::MediShortcutSystem(input_state));
+	system_manager.add_system(new special::ShortcutSystem(input_state));
 	system_manager.add_system(new cheat::CheatSystem(input_state));
 	system_manager.add_system(new camera::InventoryCameraSystem());
 	system_manager.add_system(new render::InventoryRenderSystem());
@@ -76,7 +76,7 @@ void Controller::do_main()
 	// get list of applicable systems in desired order
 	std::vector<ecs::System*> systems;
 	systems.push_back(system_manager.get_system<special::PickupSystem>());
-	systems.push_back(system_manager.get_system<special::MediShortcutSystem>());
+	systems.push_back(system_manager.get_system<special::ShortcutSystem>());
 
 	// update systems
 	std::for_each(systems.begin(), systems.end(), [&](ecs::System *system) -> void {
@@ -98,14 +98,18 @@ void Controller::do_main_draw()
 
 void Controller::do_inventory()
 {
+	auto inventory_state = inventory::get_inventory_state(entity_manager);
+
 	// entry guards
 	// this is to prevent game from re-opening inventory if player keeps keys pressed at puzzle hole
-	auto &InventoryRequiredSlotItem = *Trng.pGlobTomb4->pAdr->pInventoryRequiredSlotItem;
 	if (!input_state.command_first_press(enumCMD.INVENTORY)
 		&& !input_state.command_first_press(enumCMD.ACTION)
-		&& InventoryRequiredSlotItem >= 0) {
-		InventoryRequiredSlotItem = -1;
+		&& (inventory_state && !inventory_state->force_open)) {
+		*Trng.pGlobTomb4->pAdr->pInventoryRequiredSlotItem = -1;
 		return;
+	}
+	if (inventory_state) {
+		inventory_state->force_open = false;
 	}
 
 	// get list of applicable systems in desired order

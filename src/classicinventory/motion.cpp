@@ -169,5 +169,47 @@ void Motion::finish()
 	active = false;
 }
 
+
+
+// ----------------------------
+// ##### HELPER FUNCTIONS #####
+// ----------------------------
+std::vector<ecs::Entity*> get_entities_in_motion(ecs::EntityManager &entity_manager)
+{
+	return entity_manager.find_entities_with_component<motion::Motion>([](const motion::Motion &motion) -> bool {
+		return motion.active && !motion.loop && !motion.restoring && !motion.background;
+	});
+}
+
+void add_motion_rot(
+	ecs::Entity &entity,
+	float &value,
+	float start,
+	float end,
+	int32_t frames
+)
+{
+	if (start == end) {
+		return;
+	}
+
+	// wrap to 0-360
+	core::wrap_angle(value);
+	core::wrap_angle(start);
+	core::wrap_angle(end);
+
+	// calculate shortest route to end
+	const auto angle_diff = core::angle_diff_smallest(start, end);
+
+	end = start + angle_diff;
+
+	entity.add_component(new motion::Motion(
+		value,
+		start,
+		end,
+		frames
+	));
+}
+
 }
 }

@@ -356,23 +356,13 @@ public:
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-
-std::vector<ecs::Entity*> get_entities_in_motion(ecs::EntityManager &entity_manager);
-
 ring::RingItem* get_selected_item(ecs::EntityManager &entity_manager);
 
 ring::RingItem* get_active_item(ecs::EntityManager &entity_manager);
 
-void spin_item(ecs::Entity &item, uint32_t frames);
-
-void reset_item_animation(ecs::Entity &item);
-
 void clear_hud(ecs::EntityManager &entity_manager);
 
 void add_sfx(sound::SfxType::Enum type, bool stop, ecs::Entity &inventory, ecs::Entity *item = nullptr);
-
-// Adds rotation motion through shortest route.
-void add_motion_rot(ecs::Entity &entity, float &value, float start, float end, int32_t frames);
 
 }
 }

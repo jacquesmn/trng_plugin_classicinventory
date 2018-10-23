@@ -120,14 +120,16 @@ void flipeffect_open_inventory_at_item(
 	MyData.Save.Local.inventory_data.ring_id_selected = item_ring->ring_id;
 	MyData.Save.Local.inventory_data.item_id_selected = item_id;
 
-	if (select_type == ItemSelectType::ACTIVATE) {
-		auto inventory_state = inventory::get_inventory_state(entity_manager);
-		if (inventory_state) {
-			inventory_state->activate_selected_item_on_open = true;
-		}
-	}
-
 	if (open_now) {
+		auto inventory_state = inventory::get_inventory_state(entity_manager);
+
+		if (inventory_state) {
+			if (select_type == ItemSelectType::ACTIVATE) {
+				inventory_state->activate_selected_item_on_open = true;
+			}
+			inventory_state->force_open = true;
+		}
+
 		// press inventory key
 		PerformFlipeffect(nullptr, 53, 14, 0);
 	}
