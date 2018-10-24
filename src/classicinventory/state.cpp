@@ -3744,10 +3744,10 @@ State* DebugState::input(input::InputState &input_state, ecs::EntityManager &ent
 
 		if (!ctrl_active) {
 			// position camera
-			if (input_state.key_active(75)) { // LEFT arrow
+			if (input_state.key_active(77)) { // RIGHT arrow
 				camera_view.position.x -= 10;
 			}
-			if (input_state.key_active(77)) { // RIGHT arrow
+			if (input_state.key_active(75)) { // LEFT arrow
 				camera_view.position.x += 10;
 			}
 			if (input_state.key_active(73)) { // PAGE UP

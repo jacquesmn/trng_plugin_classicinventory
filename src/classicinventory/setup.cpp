@@ -5243,18 +5243,10 @@ void customize_lighting(
 	const auto cord_y = customize.pVetArg[++cust_index];
 	const auto cord_z = customize.pVetArg[++cust_index];
 
-	if (room_index != -1) {
-		light_loc.room = room_index;
-	}
-	if (cord_x != -1) {
-		light_loc.x = cord_x;
-	}
-	if (cord_y != -1) {
-		light_loc.y = cord_y;
-	}
-	if (cord_z != -1) {
-		light_loc.z = cord_z;
-	}
+	light_loc.room = room_index;
+	light_loc.x = cord_x;
+	light_loc.y = cord_y;
+	light_loc.z = cord_z;
 }
 
 void customize_cheats(

@@ -556,10 +556,9 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager & entity_manager) co
 	}
 	auto &light_loc = *entity->get_component<LightingLocation>();
 
-	if (light_loc.room == 0
-		&& light_loc.x == 0
-		&& light_loc.y == 0
-		&& light_loc.z == 0) {
+	if (light_loc.room < 0
+		|| light_loc.x < 0
+		|| light_loc.z < 0) {
 		return;
 	}
 
@@ -582,7 +581,7 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager & entity_manager) co
 	// set to false to prevent water effect when Lara touches water
 	lara_in_water = false;
 
-	// TODO: there's still a blue tint when camera is underwater
+	// TODO: there's still a water-effect when camera is underwater
 
 	calculate_lighting();
 }
@@ -595,10 +594,9 @@ void InventoryRenderSystem::restore_lighting(ecs::EntityManager & entity_manager
 	}
 	auto &light_loc = *entity->get_component<LightingLocation>();
 
-	if (light_loc.room == 0
-		&& light_loc.x == 0
-		&& light_loc.y == 0
-		&& light_loc.z == 0) {
+	if (light_loc.room < 0
+		|| light_loc.x < 0
+		|| light_loc.z < 0) {
 		return;
 	}
 
