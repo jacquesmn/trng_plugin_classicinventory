@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <NGCenterDir>$(USERPROFILE)\Documents\NG_Center</NGCenterDir>
-    <TRLEDir>D:\Misc\TRLE\sotm</TRLEDir>
+    <TRLEDir>D:\Misc\TRLE\test</TRLEDir>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />

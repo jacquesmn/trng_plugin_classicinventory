@@ -3905,12 +3905,36 @@ void setup_lighting(ecs::Entity &inventory)
 	}
 
 	if (room_brightest && room_brightest_index >= 0) {
-		inventory.add_component(new render::LightingLocation(
-			room_brightest_index,
-			room_brightest->OriginX + 512,
-			room_brightest->OrigYBottom,
-			room_brightest->OriginZ + 512
-		));
+		// find first open floor sector
+		const auto room_x_max = room_brightest->OriginX + ((room_brightest->X_SizeSectors - 1) * 1024);
+		const auto room_z_max = room_brightest->OriginZ + ((room_brightest->Z_SizeSectors - 1) * 1024);
+		const auto room_x_start = room_brightest->OriginX + 1536;
+		const auto room_z_start = room_brightest->OriginZ + 1536;
+
+		for (int32_t x = room_x_start; x <= room_x_max; x += 1024) {
+			for (int32_t z = room_z_start; z <= room_z_max; z += 1024) {
+				CheckFloor(
+					x,
+					room_brightest->OrigYBottom,
+					z,
+					room_brightest_index
+				);
+
+				if (FLOOR.TestFullWall) {
+					continue;
+				}
+
+				// that's the spot
+				inventory.add_component(new render::LightingLocation(
+					room_brightest_index,
+					x,
+					FLOOR.FloorHeight,
+					z
+				));
+
+				return;
+			}
+		}
 	}
 }
 
