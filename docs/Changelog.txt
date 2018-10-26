@@ -1,10 +1,16 @@
 #Changelog
 All notable changes to this project will be documented in this file.
 
+##[0.9.0.2] - 2018-10-27
+- Ignore flipmaps for default lighting calculation.
+- Add debug info for lighting location.
+- Add NG Center logo.
+
 ##[0.9.0.1] - 2018-10-25
 - Fix and improve default lighting calculation.
 
 ##[0.9.0.0] - 2018-10-24
 - First private beta release.
 
+[0.9.0.2]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/656219dac0718c53a7fa43bc357735b615111639...fb90e4a794d92a3f309f5c005a6f53ba58ef33a8
 [0.9.0.1]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/24e8b8163b090f382bd7caacb0b022eb5ad89104...656219dac0718c53a7fa43bc357735b615111639
