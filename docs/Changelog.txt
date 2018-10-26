@@ -1,0 +1,10 @@
+#Changelog
+All notable changes to this project will be documented in this file.
+
+##[0.9.0.1] - 2018-10-25
+- Fix and improve default lighting calculation.
+
+##[0.9.0.0] - 2018-10-24
+- First private beta release.
+
+[0.9.0.1]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/24e8b8163b090f382bd7caacb0b022eb5ad89104...656219dac0718c53a7fa43bc357735b615111639

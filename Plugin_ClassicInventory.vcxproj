@@ -96,7 +96,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "$(TRLEDir)"</Command>
     <PostBuildEvent>
       <Command>copy /y "$(ProjectDir)$(Configuration)\$(TargetFileName)" "$(TRLEDir)"
 if not exist "$(SolutionDir)dist" mkdir "$(SolutionDir)dist"
-powershell Compress-Archive -Path '$(ProjectDir)$(Configuration)\$(TargetFileName)', '$(SolutionDir)scripts\$(TargetName).*' -DestinationPath '$(SolutionDir)dist\$(TargetName).zip' -Force</Command>
+powershell Compress-Archive -Path '$(ProjectDir)$(Configuration)\$(TargetFileName)', '$(SolutionDir)docs\*', '$(SolutionDir)scripts\*', '$(SolutionDir)resources\*' -DestinationPath '$(SolutionDir)dist\$(TargetName).zip' -Force</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

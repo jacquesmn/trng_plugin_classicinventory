@@ -3557,6 +3557,39 @@ State* DebugState::update(ecs::EntityManager &entity_manager)
 
 		uint32_t text_index = 0;
 
+
+		if (++text_index < screen_texts.size()) {
+			auto screen_text = screen_texts.at(text_index);
+			if (screen_text) {
+				std::ostringstream text("");
+				text << "Lighting Location:";
+
+				const auto &lara = *Trng.pGlobTomb4->pAdr->pLara;
+				auto light_loc_room = lara.Room;
+				auto light_loc_x = lara.CordX;
+				auto light_loc_y = lara.CordY;
+				auto light_loc_z = lara.CordZ;
+
+				const auto light_loc = inventory->get_component<render::LightingLocation>();
+				if (light_loc
+					&& light_loc->room >= 0
+					&& light_loc->x >= 0
+					&& light_loc->z >= 0) {
+					light_loc_room = light_loc->room;
+					light_loc_x = light_loc->x;
+					light_loc_y = light_loc->y;
+					light_loc_z = light_loc->z;
+				}
+
+				text << " Room=" << light_loc_room
+					<< ", X=" << light_loc_x
+					<< ", Y=" << light_loc_y
+					<< ", Z=" << light_loc_z;
+
+				screen_text->text = text.str();
+			}
+		}
+
 		const auto camera = entity_manager.find_entity_with_component<camera::CameraView>();
 		if (camera) {
 			auto &camera_view = *camera->get_component<camera::CameraView>();
