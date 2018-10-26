@@ -3898,7 +3898,8 @@ void setup_lighting(ecs::Entity &inventory)
 	for (int32_t i = 0; i < room_count; ++i) {
 		auto &room = Trng.pGlobTomb4->pAdr->pVetRooms[i];
 
-		if (!room_brightest || room.ColorIntensityLight > room_brightest->ColorIntensityLight) {
+		if ((!room_brightest || room.ColorIntensityLight > room_brightest->ColorIntensityLight)
+			&& room.FlipMapIndex == 0) {
 			room_brightest = &room;
 			room_brightest_index = i;
 		}
