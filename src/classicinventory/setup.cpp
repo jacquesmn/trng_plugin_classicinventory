@@ -174,6 +174,15 @@ void setup_tr4_ammo(
 	));
 }
 
+void load_first_ammo(ecs::Entity &item)
+{
+	const auto item_ammo = item.get_component<item::ItemAmmo>();
+
+	if (item_ammo && item_ammo->load) {
+		item_ammo->load();
+	}
+}
+
 void setup_MEMCARD_LOAD_INV(ecs::EntityManager &entity_manager)
 {
 	const auto item = setup_tr4_item(item::ItemId::MEMCARD_LOAD_INV, enumSLOT.MEMCARD_LOAD_INV_ITEM, ring::RingId::OPTIONS, entity_manager);
@@ -3949,6 +3958,13 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 			item_qty.set_quantity(1);
 		}
 	};
+	const auto give_weapon = [give_item](ecs::Entity *item) -> void {
+		give_item(item);
+
+		if (item) {
+			load_first_ammo(*item);
+		}
+	};
 	const auto remove_item = [](ecs::Entity *item) -> void {
 		if (item && item->has_component<item::ItemQuantity>()) {
 			auto &item_qty = *item->get_component<item::ItemQuantity>();
@@ -3974,12 +3990,13 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 		cheat_WEAPON = &item_BIGMEDI->add_component(new cheat::CheatConfig(17, 18, 30, 25, 24, 49));
 		cheat_WEAPON->enabled = []() -> bool { return false; }; // disabled until GUNS has been performed
 		cheat_WEAPON->action = [=, &entity_manager]() -> void {
-			give_item(item::get_item_by_item_id(item::ItemId::PISTOLS, entity_manager));
-			give_item(item::get_item_by_item_id(item::ItemId::SHOTGUN, entity_manager));
-			give_item(item::get_item_by_item_id(item::ItemId::UZI, entity_manager));
-			give_item(item::get_item_by_item_id(item::ItemId::REVOLVER, entity_manager));
-			give_item(item::get_item_by_item_id(item::ItemId::CROSSBOW, entity_manager));
-			give_item(item::get_item_by_item_id(item::ItemId::GRENADE_GUN, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::PISTOLS, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::SHOTGUN, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::UZI, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::REVOLVER, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::CROSSBOW, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::GRENADE_GUN, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::LASERSIGHT, entity_manager));
 
 			set_unlimited(item::get_item_by_item_id(item::ItemId::PISTOLS_AMMO, entity_manager));
 			set_unlimited(item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO1, entity_manager));
