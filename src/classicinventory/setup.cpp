@@ -37,6 +37,7 @@
 
 extern TYPE_convert_obj_to_invobj convert_obj_to_invobj;
 extern TYPE_SoundEffect SoundEffect;
+extern StrMyData MyData;
 
 namespace classicinventory {
 namespace setup {
@@ -181,8 +182,8 @@ void setup_MEMCARD_LOAD_INV(ecs::EntityManager &entity_manager)
 	}
 
 	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return 1; },
-		[](int32_t quantity) -> void {}
+		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)]; },
+		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::LOAD_GAME), item::ItemActionType::LOAD_GAME);
@@ -206,8 +207,8 @@ void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
 	}
 
 	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return 1; },
-		[](int32_t quantity) -> void {}
+		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)]; },
+		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::SAVE_GAME), item::ItemActionType::SAVE_GAME);
@@ -231,8 +232,8 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 	}
 
 	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return 1; },
-		[](int32_t quantity) -> void {}
+		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)]; },
+		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = qty; }
 	));
 
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
@@ -256,7 +257,7 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall = qty; }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -290,7 +291,7 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge = qty; }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -319,7 +320,7 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->Flares; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->Flares = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->Flares = qty; }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -349,7 +350,7 @@ void setup_BINOCULARS(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->Binoculars; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->Binoculars = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->Binoculars = qty; },
 		1,
 		0
 	));
@@ -378,7 +379,7 @@ void setup_CROWBAR(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->Crowbar; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->Crowbar = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->Crowbar = qty; },
 		1,
 		0
 	));
@@ -411,7 +412,7 @@ void setup_PISTOLS(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_PRESENT) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_PRESENT, quantity != 0); }
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_PRESENT, qty != 0); }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
@@ -460,7 +461,7 @@ void setup_SHOTGUN(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_PRESENT) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_PRESENT, quantity != 0); }
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_PRESENT, qty != 0); }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
@@ -506,7 +507,7 @@ void setup_UZI(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_PRESENT) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_PRESENT, quantity != 0); }
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_PRESENT, qty != 0); }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
@@ -556,7 +557,7 @@ void setup_REVOLVER(ecs::EntityManager &entity_manager)
 	const auto weapon_qty = &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver;
 	item->add_component(new item::ItemQuantity(
 		[=]() -> int32_t {return core::bit_set(*weapon_qty, FWEAP_PRESENT) && !core::bit_set(*weapon_qty, FWEAP_LASERSIGHT) ? 1 : 0; },
-		[=](int32_t quantity) -> void {core::set_bit(*weapon_qty, FWEAP_PRESENT, quantity != 0); }
+		[=](int32_t qty) -> void {core::set_bit(*weapon_qty, FWEAP_PRESENT, qty != 0); }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
@@ -607,7 +608,7 @@ void setup_REVOLVER_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_PRESENT | FWEAP_LASERSIGHT) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_PRESENT | FWEAP_LASERSIGHT, quantity != 0); }
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_PRESENT | FWEAP_LASERSIGHT, qty != 0); }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
@@ -652,7 +653,7 @@ void setup_CROSSBOW(ecs::EntityManager &entity_manager)
 	const auto weapon_qty = &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow;
 	item->add_component(new item::ItemQuantity(
 		[=]() -> int32_t {return core::bit_set(*weapon_qty, FWEAP_PRESENT) && !core::bit_set(*weapon_qty, FWEAP_LASERSIGHT) ? 1 : 0; },
-		[=](int32_t quantity) -> void {core::set_bit(*weapon_qty, FWEAP_PRESENT, quantity != 0); }
+		[=](int32_t qty) -> void {core::set_bit(*weapon_qty, FWEAP_PRESENT, qty != 0); }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
@@ -700,7 +701,7 @@ void setup_CROSSBOW_LASERSIGHT_COMBO(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_PRESENT | FWEAP_LASERSIGHT) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_PRESENT | FWEAP_LASERSIGHT, quantity != 0); }
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_PRESENT | FWEAP_LASERSIGHT, qty != 0); }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
@@ -741,7 +742,7 @@ void setup_GRENADE_GUN(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_PRESENT) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_PRESENT, quantity != 0); }
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_PRESENT, qty != 0); }
 	));
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::EQUIP), item::ItemActionType::EQUIP);
@@ -784,7 +785,7 @@ void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -813,7 +814,7 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -842,7 +843,7 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -871,7 +872,7 @@ void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -900,7 +901,7 @@ void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -929,7 +930,7 @@ void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -963,7 +964,7 @@ void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -997,7 +998,7 @@ void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1031,7 +1032,7 @@ void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1065,7 +1066,7 @@ void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1099,7 +1100,7 @@ void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash = quantity; }
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash = qty; }
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1133,7 +1134,7 @@ void setup_LASERSIGHT(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->LaserSight; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->LaserSight = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->LaserSight = qty; },
 		1,
 		0
 	));
@@ -1173,7 +1174,7 @@ void setup_PUZZLE1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem1; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem1 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem1 = qty; },
 		1,
 		0
 	));
@@ -1190,7 +1191,7 @@ void setup_PUZZLE2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem2; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem2 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem2 = qty; },
 		1,
 		0
 	));
@@ -1207,7 +1208,7 @@ void setup_PUZZLE3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem3; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem3 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem3 = qty; },
 		1,
 		0
 	));
@@ -1224,7 +1225,7 @@ void setup_PUZZLE4(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem4; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem4 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem4 = qty; },
 		1,
 		0
 	));
@@ -1241,7 +1242,7 @@ void setup_PUZZLE5(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem5; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem5 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem5 = qty; },
 		1,
 		0
 	));
@@ -1258,7 +1259,7 @@ void setup_PUZZLE6(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem6; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem6 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem6 = qty; },
 		1,
 		0
 	));
@@ -1275,7 +1276,7 @@ void setup_PUZZLE7(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem7; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem7 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem7 = qty; },
 		1,
 		0
 	));
@@ -1292,7 +1293,7 @@ void setup_PUZZLE8(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem8; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem8 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem8 = qty; },
 		1,
 		0
 	));
@@ -1309,7 +1310,7 @@ void setup_PUZZLE9(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem9; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem9 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem9 = qty; },
 		1,
 		0
 	));
@@ -1326,7 +1327,7 @@ void setup_PUZZLE10(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem10; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem10 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem10 = qty; },
 		1,
 		0
 	));
@@ -1343,7 +1344,7 @@ void setup_PUZZLE11(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem11; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem11 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem11 = qty; },
 		1,
 		0
 	));
@@ -1360,7 +1361,7 @@ void setup_PUZZLE12(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem12; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem12 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem12 = qty; },
 		1,
 		0
 	));
@@ -1377,7 +1378,7 @@ void setup_PUZZLE1_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_1, qty != 0); },
 		1,
 		0
 	));
@@ -1394,7 +1395,7 @@ void setup_PUZZLE1_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_1, qty != 0); },
 		1,
 		0
 	));
@@ -1411,7 +1412,7 @@ void setup_PUZZLE2_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_2, qty != 0); },
 		1,
 		0
 	));
@@ -1428,7 +1429,7 @@ void setup_PUZZLE2_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_2, qty != 0); },
 		1,
 		0
 	));
@@ -1445,7 +1446,7 @@ void setup_PUZZLE3_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_3, qty != 0); },
 		1,
 		0
 	));
@@ -1462,7 +1463,7 @@ void setup_PUZZLE3_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_3, qty != 0); },
 		1,
 		0
 	));
@@ -1479,7 +1480,7 @@ void setup_PUZZLE4_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_4, qty != 0); },
 		1,
 		0
 	));
@@ -1496,7 +1497,7 @@ void setup_PUZZLE4_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_4, qty != 0); },
 		1,
 		0
 	));
@@ -1513,7 +1514,7 @@ void setup_PUZZLE5_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_5) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_5, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_5, qty != 0); },
 		1,
 		0
 	));
@@ -1530,7 +1531,7 @@ void setup_PUZZLE5_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_5) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_5, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_5, qty != 0); },
 		1,
 		0
 	));
@@ -1547,7 +1548,7 @@ void setup_PUZZLE6_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_6) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_6, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_6, qty != 0); },
 		1,
 		0
 	));
@@ -1564,7 +1565,7 @@ void setup_PUZZLE6_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_6) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_6, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_6, qty != 0); },
 		1,
 		0
 	));
@@ -1581,7 +1582,7 @@ void setup_PUZZLE7_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_7) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_7, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_7, qty != 0); },
 		1,
 		0
 	));
@@ -1598,7 +1599,7 @@ void setup_PUZZLE7_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_7) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_7, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_7, qty != 0); },
 		1,
 		0
 	));
@@ -1615,7 +1616,7 @@ void setup_PUZZLE8_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_8) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_8, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM1_FOR_PUZZLE_8, qty != 0); },
 		1,
 		0
 	));
@@ -1632,7 +1633,7 @@ void setup_PUZZLE8_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_8) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_8, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ComboItems, COMBO_ITEM2_FOR_PUZZLE_8, qty != 0); },
 		1,
 		0
 	));
@@ -1649,7 +1650,7 @@ void setup_KEY1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_1, qty != 0); },
 		1,
 		0
 	));
@@ -1666,7 +1667,7 @@ void setup_KEY2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_2, qty != 0); },
 		1,
 		0
 	));
@@ -1683,7 +1684,7 @@ void setup_KEY3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_3, qty != 0); },
 		1,
 		0
 	));
@@ -1700,7 +1701,7 @@ void setup_KEY4(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_4, qty != 0); },
 		1,
 		0
 	));
@@ -1717,7 +1718,7 @@ void setup_KEY5(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_5) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_5, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_5, qty != 0); },
 		1,
 		0
 	));
@@ -1734,7 +1735,7 @@ void setup_KEY6(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_6) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_6, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_6, qty != 0); },
 		1,
 		0
 	));
@@ -1751,7 +1752,7 @@ void setup_KEY7(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_7) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_7, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_7, qty != 0); },
 		1,
 		0
 	));
@@ -1768,7 +1769,7 @@ void setup_KEY8(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_8) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_8, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_8, qty != 0); },
 		1,
 		0
 	));
@@ -1785,7 +1786,7 @@ void setup_KEY9(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_9) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_9, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_9, qty != 0); },
 		1,
 		0
 	));
@@ -1802,7 +1803,7 @@ void setup_KEY10(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_10) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_10, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_10, qty != 0); },
 		1,
 		0
 	));
@@ -1819,7 +1820,7 @@ void setup_KEY11(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_11) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_11, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_11, qty != 0); },
 		1,
 		0
 	));
@@ -1836,7 +1837,7 @@ void setup_KEY12(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_12) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_12, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->Keys, EX16_EXIST_12, qty != 0); },
 		1,
 		0
 	));
@@ -1853,7 +1854,7 @@ void setup_KEY1_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_1, qty != 0); },
 		1,
 		0
 	));
@@ -1870,7 +1871,7 @@ void setup_KEY1_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_1, qty != 0); },
 		1,
 		0
 	));
@@ -1887,7 +1888,7 @@ void setup_KEY2_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_2, qty != 0); },
 		1,
 		0
 	));
@@ -1904,7 +1905,7 @@ void setup_KEY2_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_2, qty != 0); },
 		1,
 		0
 	));
@@ -1921,7 +1922,7 @@ void setup_KEY3_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_3, qty != 0); },
 		1,
 		0
 	));
@@ -1938,7 +1939,7 @@ void setup_KEY3_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_3, qty != 0); },
 		1,
 		0
 	));
@@ -1955,7 +1956,7 @@ void setup_KEY4_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_4, qty != 0); },
 		1,
 		0
 	));
@@ -1972,7 +1973,7 @@ void setup_KEY4_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_4, qty != 0); },
 		1,
 		0
 	));
@@ -1989,7 +1990,7 @@ void setup_KEY5_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_5) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_5, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_5, qty != 0); },
 		1,
 		0
 	));
@@ -2006,7 +2007,7 @@ void setup_KEY5_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_5) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_5, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_5, qty != 0); },
 		1,
 		0
 	));
@@ -2023,7 +2024,7 @@ void setup_KEY6_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_6) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_6, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_6, qty != 0); },
 		1,
 		0
 	));
@@ -2040,7 +2041,7 @@ void setup_KEY6_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_6) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_6, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_6, qty != 0); },
 		1,
 		0
 	));
@@ -2057,7 +2058,7 @@ void setup_KEY7_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_7) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_7, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_7, qty != 0); },
 		1,
 		0
 	));
@@ -2074,7 +2075,7 @@ void setup_KEY7_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_7) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_7, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_7, qty != 0); },
 		1,
 		0
 	));
@@ -2091,7 +2092,7 @@ void setup_KEY8_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_8) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_8, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM1_FOR_KEY_8, qty != 0); },
 		1,
 		0
 	));
@@ -2108,7 +2109,7 @@ void setup_KEY8_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_8) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_8, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->KeyCombo, KCOMBO_ITEM2_FOR_KEY_8, qty != 0); },
 		1,
 		0
 	));
@@ -2125,7 +2126,7 @@ void setup_PICKUP1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_1, qty != 0); },
 		1,
 		0
 	));
@@ -2142,7 +2143,7 @@ void setup_PICKUP2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_2, qty != 0); },
 		1,
 		0
 	));
@@ -2159,7 +2160,7 @@ void setup_PICKUP3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_3, qty != 0); },
 		1,
 		0
 	));
@@ -2176,7 +2177,7 @@ void setup_PICKUP4(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupItems, EX16_EXIST_4, qty != 0); },
 		1,
 		0
 	));
@@ -2193,7 +2194,7 @@ void setup_PICKUP1_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_1, qty != 0); },
 		1,
 		0
 	));
@@ -2210,7 +2211,7 @@ void setup_PICKUP1_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_1, qty != 0); },
 		1,
 		0
 	));
@@ -2227,7 +2228,7 @@ void setup_PICKUP2_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_2, qty != 0); },
 		1,
 		0
 	));
@@ -2244,7 +2245,7 @@ void setup_PICKUP2_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_2, qty != 0); },
 		1,
 		0
 	));
@@ -2261,7 +2262,7 @@ void setup_PICKUP3_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_3, qty != 0); },
 		1,
 		0
 	));
@@ -2278,7 +2279,7 @@ void setup_PICKUP3_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_3, qty != 0); },
 		1,
 		0
 	));
@@ -2295,7 +2296,7 @@ void setup_PICKUP4_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM1_FOR_PICKUP_4, qty != 0); },
 		1,
 		0
 	));
@@ -2312,7 +2313,7 @@ void setup_PICKUP4_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->PickupCombo, PCOMBO_ITEM2_FOR_PICKUP_4, qty != 0); },
 		1,
 		0
 	));
@@ -2329,7 +2330,7 @@ void setup_QUEST1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_1) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_1, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_1, qty != 0); },
 		1,
 		0
 	));
@@ -2365,7 +2366,7 @@ void setup_QUEST2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_2) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_2, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_2, qty != 0); },
 		1,
 		0
 	));
@@ -2401,7 +2402,7 @@ void setup_QUEST3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_3) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_3, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_3, qty != 0); },
 		1,
 		0
 	));
@@ -2439,7 +2440,7 @@ void setup_QUEST4(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_4) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_4, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_4, qty != 0); },
 		1,
 		0
 	));
@@ -2477,7 +2478,7 @@ void setup_QUEST5(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_5) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_5, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_5, qty != 0); },
 		1,
 		0
 	));
@@ -2513,7 +2514,7 @@ void setup_QUEST6(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_6) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_6, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->QuestItems, EX16_EXIST_6, qty != 0); },
 		1,
 		0
 	));
@@ -2544,7 +2545,7 @@ void setup_EXAMINE1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->ExamineItem1; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->ExamineItem1 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->ExamineItem1 = qty; },
 		1,
 		0
 	));
@@ -2587,7 +2588,7 @@ void setup_EXAMINE2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->ExamineItem2; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->ExamineItem2 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->ExamineItem2 = qty; },
 		1,
 		0
 	));
@@ -2628,7 +2629,7 @@ void setup_EXAMINE3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->ExamineItem3; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->ExamineItem3 = quantity; },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->ExamineItem3 = qty; },
 		1,
 		0
 	));
@@ -2673,7 +2674,7 @@ void setup_WATERSKIN1_EMPTY(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall == 1 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall = (quantity == 1 ? 1 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall = (qty == 1 ? 1 : 0); },
 		1,
 		0
 	));
@@ -2723,7 +2724,7 @@ void setup_WATERSKIN1_1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall == 2 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall = (quantity == 1 ? 2 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall = (qty == 1 ? 2 : 0); },
 		1,
 		0
 	));
@@ -2773,7 +2774,7 @@ void setup_WATERSKIN1_2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall == 3 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall = (quantity == 1 ? 3 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall = (qty == 1 ? 3 : 0); },
 		1,
 		0
 	));
@@ -2823,7 +2824,7 @@ void setup_WATERSKIN1_3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall == 4 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall = (quantity == 1 ? 4 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinSmall = (qty == 1 ? 4 : 0); },
 		1,
 		0
 	));
@@ -2873,7 +2874,7 @@ void setup_WATERSKIN2_EMPTY(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge == 1 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (quantity == 1 ? 1 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (qty == 1 ? 1 : 0); },
 		1,
 		0
 	));
@@ -2923,7 +2924,7 @@ void setup_WATERSKIN2_1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge == 2 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (quantity == 1 ? 2 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (qty == 1 ? 2 : 0); },
 		1,
 		0
 	));
@@ -2973,7 +2974,7 @@ void setup_WATERSKIN2_2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge == 3 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (quantity == 1 ? 3 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (qty == 1 ? 3 : 0); },
 		1,
 		0
 	));
@@ -3023,7 +3024,7 @@ void setup_WATERSKIN2_3(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge == 4 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (quantity == 1 ? 4 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (qty == 1 ? 4 : 0); },
 		1,
 		0
 	));
@@ -3073,7 +3074,7 @@ void setup_WATERSKIN2_4(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge == 5 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (quantity == 1 ? 5 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (qty == 1 ? 5 : 0); },
 		1,
 		0
 	));
@@ -3123,7 +3124,7 @@ void setup_WATERSKIN2_5(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge == 6 ? 1 : 0; },
-		[](int32_t quantity) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (quantity == 1 ? 6 : 0); },
+		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->WaterSkinLarge = (qty == 1 ? 6 : 0); },
 		1,
 		0
 	));
@@ -3173,7 +3174,7 @@ void setup_CLOCKWORK_BEETLE(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_BEETLE_WITH_KEY) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_BEETLE_WITH_KEY, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_BEETLE_WITH_KEY, qty != 0); },
 		1,
 		0
 	));
@@ -3210,7 +3211,7 @@ void setup_CLOCKWORK_BEETLE_COMBO1(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_KEY_SINGLE) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_KEY_SINGLE, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_KEY_SINGLE, qty != 0); },
 		1,
 		0
 	));
@@ -3247,7 +3248,7 @@ void setup_CLOCKWORK_BEETLE_COMBO2(ecs::EntityManager &entity_manager)
 
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return core::bit_set(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_BEETLE_SINGLE) ? 1 : 0; },
-		[](int32_t quantity) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_BEETLE_SINGLE, quantity != 0); },
+		[](int32_t qty) -> void {core::set_bit(Trng.pGlobTomb4->pAdr->pInventory->ClockWorkBeetle, CBEET_BEETLE_SINGLE, qty != 0); },
 		1,
 		0
 	));
@@ -5304,11 +5305,11 @@ void customize_cheats(
 		}
 
 		auto cheat_config = item->get_component<cheat::CheatConfig>([&](cheat::CheatConfig &config) -> bool {
-			return config.key_1 == key1_scancode
-				&& config.key_2 == key2_scancode
-				&& config.key_3 == key3_scancode
-				&& config.key_4 == key4_scancode
-				&& config.key_5 == key5_scancode
+			return config.key_1 == max(0, key1_scancode)
+				&& config.key_2 == max(0, key2_scancode)
+				&& config.key_3 == max(0, key3_scancode)
+				&& config.key_4 == max(0, key4_scancode)
+				&& config.key_5 == max(0, key5_scancode)
 				&& config.key_6 == 0
 				&& config.key_7 == 0
 				&& config.key_8 == 0

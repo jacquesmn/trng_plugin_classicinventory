@@ -44,6 +44,12 @@ enum Enum {
 }
 
 struct InventoryData : public ecs::Component {
+	bool enabled;
+
+	InventoryData()
+		:
+		enabled(true)
+	{}
 };
 
 struct InventoryDisplay : public ecs::Component {
@@ -206,6 +212,8 @@ bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item
 inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager);
 
 inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager);
+
+bool inventory_enabled(ecs::EntityManager &entity_manager);
 
 bool debug_enabled(ecs::EntityManager &entity_manager);
 

@@ -9,6 +9,7 @@ typedef struct StrSavegameLocalInventoryData {
 	int item_id_selected;
 	int item_id_used;
 
+	int item_qty[512];
 	WORD map_marker_active[512];
 
 	StrSavegameLocalInventoryData()

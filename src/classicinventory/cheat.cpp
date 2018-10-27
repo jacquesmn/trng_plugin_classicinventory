@@ -56,6 +56,9 @@ void CheatSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager 
 		return;
 	}
 
+	// cleanup unhandled cheats
+	cleanup(entity_manager, system_manager);
+
 	const auto ring_item_selected = state::get_selected_item(entity_manager);
 	if (!ring_item_selected) {
 		return;

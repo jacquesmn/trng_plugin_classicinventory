@@ -29,7 +29,7 @@ namespace cheat {
 
 namespace CheatHintType {
 enum Enum {
-	NONE,
+	NONE = 1,
 	COMPASS_TRANSPARENT
 };
 }
