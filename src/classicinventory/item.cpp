@@ -36,13 +36,11 @@ bool ItemQuantity::increment(int32_t qty) const {
 	auto quantity = get_quantity();
 
 	if (quantity != ITEM_QTY_UNLIMITED) {
-		quantity += qty;
+		quantity = min(quantity_max, quantity + qty);
 
-		if (quantity <= quantity_max) {
-			set_quantity(quantity);
+		set_quantity(quantity);
 
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -56,14 +54,11 @@ bool ItemQuantity::decrement(int32_t qty) const {
 	auto quantity = get_quantity();
 
 	if (quantity != ITEM_QTY_UNLIMITED) {
-		quantity -= qty;
+		quantity = max(0, max(quantity_min, quantity - qty));
 
-		if (quantity >= quantity_min
-			&& quantity >= 0) {
-			set_quantity(quantity);
+		set_quantity(quantity);
 
-			return true;
-		}
+		return true;
 	}
 
 	return false;
@@ -123,13 +118,6 @@ int32_t tr4_invobj_to_item_id(uint32_t tr4_invobj)
 	return tr4_invobj - abs(MIN_INVENTORY_ITEM_ID);
 }
 
-uint32_t item_id_to_item_index(int32_t item_id)
-{
-	const uint32_t item_id_count = MAX_INVENTORY_ITEM_ID - MIN_INVENTORY_ITEM_ID;
-
-	return (item_id - MAX_INVENTORY_ITEM_ID) + item_id_count;
-}
-
 uint32_t item_id_to_tr4_slot(int32_t item_id)
 {
 	const auto tr4_invobj = item_id_to_tr4_invobj(item_id);
@@ -147,6 +135,20 @@ uint32_t item_id_to_tr4_invobj(int32_t item_id)
 	}
 
 	return item_id + abs(MIN_INVENTORY_ITEM_ID);
+}
+
+uint32_t item_id_to_item_index(int32_t item_id)
+{
+	const uint32_t item_id_count = MAX_INVENTORY_ITEM_ID - MIN_INVENTORY_ITEM_ID;
+
+	return (item_id - MAX_INVENTORY_ITEM_ID) + item_id_count;
+}
+
+uint32_t item_index_to_item_id(int32_t item_index)
+{
+	const uint32_t item_id_count = MAX_INVENTORY_ITEM_ID - MIN_INVENTORY_ITEM_ID;
+
+	return (item_index + MAX_INVENTORY_ITEM_ID) - item_id_count;
 }
 
 ecs::Entity* get_item_by_item_id(int32_t item_id, ecs::EntityManager &entity_manager)
