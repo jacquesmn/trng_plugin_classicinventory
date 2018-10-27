@@ -5304,11 +5304,11 @@ void customize_cheats(
 		}
 
 		auto cheat_config = item->get_component<cheat::CheatConfig>([&](cheat::CheatConfig &config) -> bool {
-			return config.key_1 == key1_scancode
-				&& config.key_2 == key2_scancode
-				&& config.key_3 == key3_scancode
-				&& config.key_4 == key4_scancode
-				&& config.key_5 == key5_scancode
+			return config.key_1 == max(0, key1_scancode)
+				&& config.key_2 == max(0, key2_scancode)
+				&& config.key_3 == max(0, key3_scancode)
+				&& config.key_4 == max(0, key4_scancode)
+				&& config.key_5 == max(0, key5_scancode)
 				&& config.key_6 == 0
 				&& config.key_7 == 0
 				&& config.key_8 == 0
