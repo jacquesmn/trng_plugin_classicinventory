@@ -3942,18 +3942,25 @@ void setup_lighting(ecs::Entity &inventory)
 
 void setup_cheats(ecs::EntityManager &entity_manager)
 {
+	const auto give_item = [](ecs::Entity *item) -> void {
+		if (item && item->has_component<item::ItemQuantity>()) {
+			auto &item_qty = *item->get_component<item::ItemQuantity>();
+
+			item_qty.set_quantity(1);
+		}
+	};
+	const auto remove_item = [](ecs::Entity *item) -> void {
+		if (item && item->has_component<item::ItemQuantity>()) {
+			auto &item_qty = *item->get_component<item::ItemQuantity>();
+
+			item_qty.zero();
+		}
+	};
 	const auto set_unlimited = [](ecs::Entity *item) -> void {
 		if (item && item->has_component<item::ItemQuantity>()) {
 			auto &item_qty = *item->get_component<item::ItemQuantity>();
 
 			item_qty.unlimited();
-		}
-	};
-	const auto give_weapon = [](ecs::Entity *item) -> void {
-		if (item && item->has_component<item::ItemQuantity>()) {
-			auto &item_qty = *item->get_component<item::ItemQuantity>();
-
-			item_qty.set_quantity(1);
 		}
 	};
 
@@ -3965,47 +3972,102 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 
 	if (item_BIGMEDI) {
 		cheat_WEAPON = &item_BIGMEDI->add_component(new cheat::CheatConfig(17, 18, 30, 25, 24, 49));
-
 		cheat_WEAPON->enabled = []() -> bool { return false; }; // disabled until GUNS has been performed
-
 		cheat_WEAPON->action = [=, &entity_manager]() -> void {
-			const auto item_PISTOLS = item::get_item_by_item_id(item::ItemId::PISTOLS, entity_manager);
-			const auto item_SHOTGUN = item::get_item_by_item_id(item::ItemId::SHOTGUN, entity_manager);
-			const auto item_UZI = item::get_item_by_item_id(item::ItemId::UZI, entity_manager);
-			const auto item_REVOLVER = item::get_item_by_item_id(item::ItemId::REVOLVER, entity_manager);
-			const auto item_CROSSBOW = item::get_item_by_item_id(item::ItemId::CROSSBOW, entity_manager);
-			const auto item_GRENADE_GUN = item::get_item_by_item_id(item::ItemId::GRENADE_GUN, entity_manager);
+			give_item(item::get_item_by_item_id(item::ItemId::PISTOLS, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::SHOTGUN, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::UZI, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::REVOLVER, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::CROSSBOW, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::GRENADE_GUN, entity_manager));
 
-			const auto item_PISTOLS_AMMO = item::get_item_by_item_id(item::ItemId::PISTOLS_AMMO, entity_manager);
-			const auto item_SHOTGUN_AMMO1 = item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO1, entity_manager);
-			const auto item_SHOTGUN_AMMO2 = item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO2, entity_manager);
-			const auto item_UZI_AMMO = item::get_item_by_item_id(item::ItemId::UZI_AMMO, entity_manager);
-			const auto item_REVOLVER_AMMO = item::get_item_by_item_id(item::ItemId::REVOLVER_AMMO, entity_manager);
-			const auto item_CROSSBOW_AMMO1 = item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO1, entity_manager);
-			const auto item_CROSSBOW_AMMO2 = item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO2, entity_manager);
-			const auto item_CROSSBOW_AMMO3 = item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO3, entity_manager);
-			const auto item_GRENADE_GUN_AMMO1 = item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO1, entity_manager);
-			const auto item_GRENADE_GUN_AMMO2 = item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO2, entity_manager);
-			const auto item_GRENADE_GUN_AMMO3 = item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO3, entity_manager);
+			set_unlimited(item::get_item_by_item_id(item::ItemId::PISTOLS_AMMO, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO1, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO2, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::UZI_AMMO, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::REVOLVER_AMMO, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO1, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO2, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO3, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO1, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO2, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO3, entity_manager));
+		};
 
-			give_weapon(item_PISTOLS);
-			give_weapon(item_SHOTGUN);
-			give_weapon(item_UZI);
-			give_weapon(item_REVOLVER);
-			give_weapon(item_CROSSBOW);
-			give_weapon(item_GRENADE_GUN);
+		auto &cheat_BITS = item_BIGMEDI->add_component(new cheat::CheatConfig(48, 23, 20, 31));
+		cheat_BITS.enabled = cheat::facing_north;
+		cheat_BITS.action = [=, &entity_manager]() -> void {
+			give_item(item::get_item_by_item_id(item::ItemId::CROWBAR, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::CLOCKWORK_BEETLE, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PUZZLE1, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PUZZLE2, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PUZZLE3, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PUZZLE4, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PUZZLE5, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PUZZLE6, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PUZZLE7, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PUZZLE8, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::KEY1, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::KEY2, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::KEY3, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::KEY4, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::KEY5, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::KEY6, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::KEY7, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::KEY8, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PICKUP1, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PICKUP2, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PICKUP3, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::PICKUP4, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::QUEST1, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::QUEST2, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::QUEST3, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::QUEST4, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::QUEST5, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::QUEST6, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::WATERSKIN1_EMPTY, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::WATERSKIN2_EMPTY, entity_manager));
 
-			set_unlimited(item_PISTOLS_AMMO);
-			set_unlimited(item_SHOTGUN_AMMO1);
-			set_unlimited(item_SHOTGUN_AMMO2);
-			set_unlimited(item_UZI_AMMO);
-			set_unlimited(item_REVOLVER_AMMO);
-			set_unlimited(item_CROSSBOW_AMMO1);
-			set_unlimited(item_CROSSBOW_AMMO2);
-			set_unlimited(item_CROSSBOW_AMMO3);
-			set_unlimited(item_GRENADE_GUN_AMMO1);
-			set_unlimited(item_GRENADE_GUN_AMMO2);
-			set_unlimited(item_GRENADE_GUN_AMMO3);
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE1_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE1_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE2_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE2_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE3_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE3_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE4_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE4_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE5_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE5_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE6_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE6_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE7_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE7_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE8_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PUZZLE8_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY1_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY1_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY2_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY2_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY3_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY3_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY4_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY4_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY5_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY5_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY6_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY6_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY7_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY7_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY8_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::KEY8_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PICKUP1_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PICKUP1_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PICKUP2_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PICKUP2_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PICKUP3_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PICKUP3_COMBO2, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PICKUP4_COMBO1, entity_manager));
+			remove_item(item::get_item_by_item_id(item::ItemId::PICKUP4_COMBO2, entity_manager));
 		};
 	}
 
@@ -4015,11 +4077,9 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 		cheat_GUNS.enabled = cheat::facing_north;
 
 		cheat_GUNS.action = [=, &entity_manager]() -> void {
-			const auto item_FLARE_INV = item::get_item_by_item_id(item::ItemId::FLARE_INV, entity_manager);
-
 			set_unlimited(item_SMALLMEDI);
 			set_unlimited(item_BIGMEDI);
-			set_unlimited(item_FLARE_INV);
+			set_unlimited(item::get_item_by_item_id(item::ItemId::FLARE_INV, entity_manager));
 
 			if (cheat_WEAPON) {
 				cheat_WEAPON->enabled = cheat::facing_north;
