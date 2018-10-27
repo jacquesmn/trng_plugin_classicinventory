@@ -620,10 +620,22 @@ InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager)
 	return nullptr;
 }
 
+bool inventory_enabled(ecs::EntityManager &entity_manager)
+{
+	const auto inventory = entity_manager.find_entity_with_component<InventoryData>();
+	if (inventory) {
+		const auto &inventory_data = *inventory->get_component<InventoryData>();
+
+		return inventory_data.enabled;
+	}
+
+	return false;
+}
+
 bool debug_enabled(ecs::EntityManager &entity_manager)
 {
-	const auto inventory = entity_manager.find_entity_with_component<InventoryDuration>();
-	if (inventory && inventory->has_component<InventoryDebug>()) {
+	const auto inventory = entity_manager.find_entity_with_component<InventoryDebug>();
+	if (inventory) {
 		const auto &inventory_debug = *inventory->get_component<InventoryDebug>();
 
 		return inventory_debug.enabled;
