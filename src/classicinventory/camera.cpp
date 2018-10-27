@@ -65,7 +65,9 @@ void camera::InventoryCameraSystem::update(ecs::EntityManager & entity_manager, 
 	const auto camera_rot_z = core::degrees_to_tr4_angle(camera_view.rotation.z);
 	const auto camera_fov = core::degrees_to_tr4_angle(camera_view.fov);
 
-	AlterFOV(camera_fov);
+	if (camera_fov != 0) {
+		AlterFOV(camera_fov);
+	}
 
 	int16_t camera_angles[2];
 	phd_GetVectorAngles(
