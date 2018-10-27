@@ -479,9 +479,13 @@ State* IdleState::input(input::InputState &input_state, ecs::EntityManager &enti
 	}
 
 	// handle active cheats
-	const auto cheat_entity = entity_manager.find_entity_with_component<cheat::Cheat>();
-	if (cheat_entity) {
-		return new CheatState(cheat_entity->get_id());
+	auto ring_item_selected = get_selected_item(entity_manager);
+	if (ring_item_selected) {
+		auto &item_selected = ring_item_selected->item;
+
+		if (cheat::add_active_cheats(item_selected, input_state)) {
+			return new CheatState(item_selected.get_id());
+		}
 	}
 
 	return this;
@@ -3455,7 +3459,7 @@ State* CheatState::update(ecs::EntityManager &entity_manager)
 		const auto get_next_ring = [=, &entity_manager]() -> inventory::InventoryRing* {
 			// perform cheat(s)
 			if (entity) {
-				cheat::do_cheats(*entity);
+				cheat::do_active_cheats(*entity);
 			}
 
 			// rebuild inventory

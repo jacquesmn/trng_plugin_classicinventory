@@ -43,8 +43,6 @@ public:
 
 	void init(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;
 
-	void update(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;
-
 	void cleanup(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;
 };
 
@@ -106,7 +104,9 @@ struct Cheat : public ecs::Component {
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-void do_cheats(ecs::Entity &entity);
+bool add_active_cheats(ecs::Entity &entity, input::InputState &input_state);
+
+void do_active_cheats(ecs::Entity &entity);
 
 bool facing_north();
 
