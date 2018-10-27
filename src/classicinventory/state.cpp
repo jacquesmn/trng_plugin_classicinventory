@@ -3214,7 +3214,7 @@ void MapState::start(ecs::EntityManager &entity_manager)
 	const auto marker_count = map_data.markers.size();
 
 	// load saved marker index
-	const auto marker_index = MyData.Save.Local.inventory_data.map_marker_active[item_data.item_id + abs(item::MIN_INVENTORY_ITEM_ID)];
+	const auto marker_index = MyData.Save.Local.inventory_data.map_marker_active[item::item_id_to_item_index(item_data.item_id)];
 	if (marker_index >= 0 && marker_index < marker_count) {
 		map_data.marker_index = marker_index;
 	}
@@ -3436,7 +3436,7 @@ void MapState::update_map_marker(
 	// save the current marker index
 	const auto item_data = item.get_component<item::ItemData>();
 	if (item_data) {
-		MyData.Save.Local.inventory_data.map_marker_active[item_data->item_id + abs(item::MIN_INVENTORY_ITEM_ID)] = map_data.marker_index;
+		MyData.Save.Local.inventory_data.map_marker_active[item::item_id_to_item_index(item_data->item_id)] = map_data.marker_index;
 	}
 }
 
