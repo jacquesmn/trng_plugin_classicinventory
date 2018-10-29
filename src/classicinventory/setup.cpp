@@ -3984,33 +3984,7 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 	auto item_SMALLMEDI = item::get_item_by_item_id(item::ItemId::SMALLMEDI, entity_manager);
 	auto item_MEMCARD_LOAD_INV = item::get_item_by_item_id(item::ItemId::MEMCARD_LOAD_INV, entity_manager);
 
-	cheat::CheatConfig *cheat_WEAPON = nullptr;
-
 	if (item_BIGMEDI) {
-		cheat_WEAPON = &item_BIGMEDI->add_component(new cheat::CheatConfig(17, 18, 30, 25, 24, 49));
-		cheat_WEAPON->enabled = []() -> bool { return false; }; // disabled until GUNS has been performed
-		cheat_WEAPON->action = [=, &entity_manager]() -> void {
-			give_weapon(item::get_item_by_item_id(item::ItemId::PISTOLS, entity_manager));
-			give_weapon(item::get_item_by_item_id(item::ItemId::SHOTGUN, entity_manager));
-			give_weapon(item::get_item_by_item_id(item::ItemId::UZI, entity_manager));
-			give_weapon(item::get_item_by_item_id(item::ItemId::REVOLVER, entity_manager));
-			give_weapon(item::get_item_by_item_id(item::ItemId::CROSSBOW, entity_manager));
-			give_weapon(item::get_item_by_item_id(item::ItemId::GRENADE_GUN, entity_manager));
-			give_item(item::get_item_by_item_id(item::ItemId::LASERSIGHT, entity_manager));
-
-			set_unlimited(item::get_item_by_item_id(item::ItemId::PISTOLS_AMMO, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO1, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO2, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::UZI_AMMO, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::REVOLVER_AMMO, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO1, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO2, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO3, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO1, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO2, entity_manager));
-			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO3, entity_manager));
-		};
-
 		auto &cheat_BITS = item_BIGMEDI->add_component(new cheat::CheatConfig(48, 23, 20, 31));
 		cheat_BITS.enabled = cheat::facing_north;
 		cheat_BITS.action = [=, &entity_manager]() -> void {
@@ -4089,26 +4063,37 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 	}
 
 	if (item_SMALLMEDI) {
-		auto &cheat_GUNS = item_SMALLMEDI->add_component(new cheat::CheatConfig(34, 22, 49, 31));
+		auto &cheat_GUN = item_SMALLMEDI->add_component(new cheat::CheatConfig(34, 22, 49));
+		cheat_GUN.enabled = cheat::facing_north;
+		cheat_GUN.action = [=, &entity_manager]() -> void {
+			give_weapon(item::get_item_by_item_id(item::ItemId::PISTOLS, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::SHOTGUN, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::UZI, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::REVOLVER, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::CROSSBOW, entity_manager));
+			give_weapon(item::get_item_by_item_id(item::ItemId::GRENADE_GUN, entity_manager));
+			give_item(item::get_item_by_item_id(item::ItemId::LASERSIGHT, entity_manager));
 
-		cheat_GUNS.enabled = cheat::facing_north;
-
-		cheat_GUNS.action = [=, &entity_manager]() -> void {
 			set_unlimited(item_SMALLMEDI);
 			set_unlimited(item_BIGMEDI);
 			set_unlimited(item::get_item_by_item_id(item::ItemId::FLARE_INV, entity_manager));
-
-			if (cheat_WEAPON) {
-				cheat_WEAPON->enabled = cheat::facing_north;
-			}
+			set_unlimited(item::get_item_by_item_id(item::ItemId::PISTOLS_AMMO, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO1, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::SHOTGUN_AMMO2, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::UZI_AMMO, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::REVOLVER_AMMO, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO1, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO2, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::CROSSBOW_AMMO3, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO1, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO2, entity_manager));
+			set_unlimited(item::get_item_by_item_id(item::ItemId::GRENADE_GUN_AMMO3, entity_manager));
 		};
 	}
 
 	if (item_MEMCARD_LOAD_INV) {
 		auto &cheat_HELP = item_MEMCARD_LOAD_INV->add_component(new cheat::CheatConfig(35, 18, 38, 25));
-
 		cheat_HELP.enabled = cheat::facing_north;
-
 		cheat_HELP.action = []() -> void {
 			// jump to next level
 			PerformFlipeffect(nullptr, 4, 0, 0);

@@ -63,8 +63,6 @@ Similar solution as for the mesh-mask issue, i.e. change pickup model to one tha
 	
 * Inventory background image might blink on certain computers. This also happens without the plugin. Soft Full Screen seems to fix it.
 
-* The WEAPONS cheat had to be changed to WEAPON.
-
 * Only the Numpad keys are usable in debug mode to change camera and ring settings.
 
 * Only the Left Ctrl button is usable in debug mode to alternate between positioning and orienting.
