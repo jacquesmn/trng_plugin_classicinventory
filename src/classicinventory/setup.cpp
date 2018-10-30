@@ -3588,6 +3588,22 @@ void setup_combos(ecs::EntityManager &entity_manager)
 
 	setup_tr4_combo(item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, false, false, entity_manager);
 	setup_tr4_combo(item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_3, false, false, entity_manager);
+
+	// TRNG custom combos
+	// BUG: pVetNewCombine not reset between levels
+	// for (int32_t i = 23; i < 115; ++i) { // 23 for TR4 and 92 for TRNG
+	// 	auto &combine = Trng.pGlobTomb4->pAdr->pVetNewCombine[i];
+	//
+	// 	if (combine.PrimoItem == 0 && combine.SecondoItem == 0) {
+	// 		break;
+	// 	}
+	//
+	// 	const auto item_id_first = item::tr4_invobj_to_item_id(combine.PrimoItem);
+	// 	const auto item_id_second = item::tr4_invobj_to_item_id(combine.SecondoItem);
+	// 	const auto item_id_final = item::tr4_invobj_to_item_id(combine.ItemFinale);
+	//
+	// 	setup_tr4_combo(item_id_first, item_id_second, item_id_final, item::ItemId::NONE, true, true, entity_manager);
+	// }
 }
 
 bool action_enabled_ammo(ecs::Entity &item) {
