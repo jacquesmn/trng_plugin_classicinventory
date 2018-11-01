@@ -3924,8 +3924,15 @@ void setup_lighting(ecs::Entity &inventory)
 	for (int32_t i = 0; i < room_count; ++i) {
 		auto &room = Trng.pGlobTomb4->pAdr->pVetRooms[i];
 
-		if ((!room_brightest || room.ColorIntensityLight > room_brightest->ColorIntensityLight)
-			&& room.FlipMapIndex == 0) {
+		const auto room_brighter = !room_brightest || room.ColorIntensityLight > room_brightest->ColorIntensityLight;
+		const auto room_flipmap = room.FlipMapIndex != 0;
+		const auto room_water = core::bit_set(room.FlagsRoom, enumFROOM.WATER, true);
+		const auto room_quicksand = core::bit_set(room.FlagsRoom, enumFROOM.QUICKSAND, true);
+
+		if (room_brighter
+			&& !room_flipmap
+			&& !room_water
+			&& !room_quicksand) {
 			room_brightest = &room;
 			room_brightest_index = i;
 		}
@@ -5585,7 +5592,7 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory_sfx.ring_change_sound_id = 109;
 	inventory_sfx.item_select_sound_id = 109;
 	inventory_sfx.item_cancel_sound_id = 111;
-	inventory_sfx.menu_change_sound_id = 108;
+	inventory_sfx.menu_change_sound_id = 111;
 	inventory_sfx.ammo_load_sound_id = 9;
 	inventory_sfx.combine_sound_id = 114;
 	inventory_sfx.separate_sound_id = 124;
