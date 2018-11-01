@@ -46,6 +46,8 @@ Known Issues and Workarounds
 
 * Item meshes can be a bit jittery when in motion.
 
+* Item animations only support a frame rate of 1. Any higher rate will result in sped up animations.
+
 * A too large of a value for item scale causes texture rendering issues for items with shine applied.
 
 * Camera view might differ somewhat between fullscreen and windowed modes.
