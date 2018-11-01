@@ -239,7 +239,7 @@ void ShortcutSystem::update(
 		});
 
 		if (item) {
-			action::use_health(*item, false);
+			action::use_health(*item, true);
 		}
 	}
 }

@@ -31,7 +31,7 @@ extern StrMyData MyData;
 namespace classicinventory {
 namespace action {
 
-bool use_health(ecs::Entity &item, bool do_no_sfx)
+bool use_health(ecs::Entity &item, bool silent)
 {
 	if (!item.has_component<item::HealthData>()) {
 		return false;
@@ -45,16 +45,23 @@ bool use_health(ecs::Entity &item, bool do_no_sfx)
 
 	auto &lara = *Trng.pGlobTomb4->pAdr->pLara;
 	auto &lara_health = lara.Health;
+	auto &poison1 = *Trng.pGlobTomb4->pAdr->pPoison1;
+	auto &poison2 = *Trng.pGlobTomb4->pAdr->pPoison2;
 
 	if (lara_health <= 0) {
 		// lara ded
 		return false;
 	}
 
-	if ((lara_health >= 1000 && *Trng.pGlobTomb4->pAdr->pPoison1 == 0)
-		|| (!item_quantity.decrement() && item_quantity.get_quantity() != item::ITEM_QTY_UNLIMITED)
-		) {
-		if (do_no_sfx) {
+	const auto can_use = lara_health < 1000
+		|| poison1 > 0
+		|| poison2 > 0
+		|| health_data.health_points < 0
+		|| health_data.poison_points > 0;
+
+	if (!can_use
+		|| (!item_quantity.decrement() && item_quantity.get_quantity() != item::ITEM_QTY_UNLIMITED)) {
+		if (!silent) {
 			// lara says no
 			SoundEffect(2, nullptr, 0);
 		}
@@ -62,29 +69,35 @@ bool use_health(ecs::Entity &item, bool do_no_sfx)
 	}
 
 	const auto lara_health_before = lara_health;
+	const auto poison1_before = poison1;
+	const auto poison2_before = poison2;
+
 	lara_health = min(1000, lara_health + health_data.health_points);
 	lara_health = max(0, lara_health);
 
-	if (health_data.poison_points > 0) {
-		*Trng.pGlobTomb4->pAdr->pPoison1 = health_data.poison_points;
-		*Trng.pGlobTomb4->pAdr->pPoison2 = health_data.poison_points;
-	}
-
 	if (health_data.cure_poison) {
-		*Trng.pGlobTomb4->pAdr->pPoison1 = 0;
-		*Trng.pGlobTomb4->pAdr->pPoison2 = 0;
+		poison1 = 0;
+		poison2 = 0;
+	}
+	else {
+		poison1 = min(4097, poison1 + health_data.poison_points);;
+		poison2 = min(4097, poison2 + health_data.poison_points);;
 	}
 
-	if (lara_health > lara_health_before) {
-		// heal sfx
-		if (health_data.heal_sound_id >= 0) {
-			SoundEffect(health_data.heal_sound_id, nullptr, 0);
-		}
-	}
-	else if (lara_health < lara_health_before) {
+	if (lara_health < lara_health_before
+		|| poison1 > poison1_before
+		|| poison2 > poison2_before) {
 		// hurt sfx
 		if (health_data.hurt_sound_id >= 0) {
 			SoundEffect(health_data.hurt_sound_id, nullptr, 0);
+		}
+	}
+	else if (lara_health > lara_health_before
+		|| poison1 < poison1_before
+		|| poison2 < poison2_before) {
+		// heal sfx
+		if (health_data.heal_sound_id >= 0) {
+			SoundEffect(health_data.heal_sound_id, nullptr, 0);
 		}
 	}
 
