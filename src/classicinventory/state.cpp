@@ -410,7 +410,7 @@ State* IdleState::update(ecs::EntityManager & entity_manager)
 	if (inventory_state && inventory_state->activate_selected_item_on_open) {
 		inventory_state->activate_selected_item_on_open = false;
 
-		return new ItemSelectState();
+		return new ItemActivateState();
 	}
 
 	return this;
@@ -421,7 +421,7 @@ State* IdleState::input(input::InputState &input_state, ecs::EntityManager &enti
 	const auto inventory_state = inventory::get_inventory_state(entity_manager);
 
 	if (input_state.command_first_press(enumCMD.ACTION) || input_state.command_first_press(enumCMD.ENTER)) {
-		return new ItemSelectState();
+		return new ItemActivateState();
 	}
 
 	if (input_state.command_first_press(enumCMD.INVENTORY)) {
@@ -693,12 +693,12 @@ State* RingChangeState::update(ecs::EntityManager &entity_manager)
 	return this;
 }
 
-ItemSelectState::ItemSelectState()
+ItemActivateState::ItemActivateState()
 	:
 	motions_done(false)
 {}
 
-void ItemSelectState::start(ecs::EntityManager &entity_manager)
+void ItemActivateState::start(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
 	if (!inventory) {
@@ -834,7 +834,7 @@ void ItemSelectState::start(ecs::EntityManager &entity_manager)
 	clear_hud(entity_manager);
 }
 
-void ItemSelectState::end(ecs::EntityManager &entity_manager)
+void ItemActivateState::end(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
 	if (!inventory) {
@@ -850,7 +850,7 @@ void ItemSelectState::end(ecs::EntityManager &entity_manager)
 	add_sfx(sound::SfxType::ITEM_ACTIVE, false, *inventory, &item_active->item);
 }
 
-State* ItemSelectState::update(ecs::EntityManager &entity_manager)
+State* ItemActivateState::update(ecs::EntityManager &entity_manager)
 {
 	// wait for all relevant motions to finish
 	const auto entities_in_motion = motion::get_entities_in_motion(entity_manager);
@@ -989,7 +989,7 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 
 	if (entities_in_motion.empty()) {
 		if (input_state.command_first_press(enumCMD.INVENTORY) && !loading_or_saving) {
-			return new ItemDeselectState([]() -> State* {
+			return new ItemCancelState([]() -> State* {
 				return new IdleState();
 			});
 		}
@@ -1118,7 +1118,7 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 							loading_or_saving = true;
 
 							if (action::save_game()) {
-								return new ItemDeselectState([]() -> State* {
+								return new ItemCancelState([]() -> State* {
 									return new ClosingState(false);
 								}, false, false, false, false);
 							}
@@ -1135,14 +1135,14 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 						else if (active_action->type == item::ItemActionType::EXIT) {
 							action::exit_to_title();
 
-							return new ItemDeselectState([]() -> State* {
+							return new ItemCancelState([]() -> State* {
 								return new ClosingState(false);
 							}, false, false, false, false);
 						}
 						else {
 							inventory_state.item_used = inventory_state.item_active;
 
-							return new ItemDeselectState([]() -> State* {
+							return new ItemCancelState([]() -> State* {
 								return new ClosingState(false);
 							}, false, false, false, false);
 						}
@@ -1251,7 +1251,7 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 	return this;
 }
 
-ItemDeselectState::ItemDeselectState(
+ItemCancelState::ItemCancelState(
 	std::function<State*()> get_next_state,
 	bool play_sfx,
 	bool play_animations,
@@ -1267,7 +1267,7 @@ ItemDeselectState::ItemDeselectState(
 	motions_done(false)
 {}
 
-void ItemDeselectState::start(ecs::EntityManager &entity_manager)
+void ItemCancelState::start(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryData>();
 	if (!inventory) {
@@ -1281,7 +1281,7 @@ void ItemDeselectState::start(ecs::EntityManager &entity_manager)
 		// start animations, if any
 		if (play_animations && item_active.has_component<item::ItemAnimation>()) {
 			const auto item_animation = item_active.get_component<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
-				return item_animation.type == item::ItemAnimationType::DESELECT;
+				return item_animation.type == item::ItemAnimationType::CANCEL;
 			});
 
 			if (item_animation && item_animation->wait_for_motions) {
@@ -1314,7 +1314,7 @@ void ItemDeselectState::start(ecs::EntityManager &entity_manager)
 	clear_hud(entity_manager);
 }
 
-void ItemDeselectState::end(ecs::EntityManager & entity_manager)
+void ItemCancelState::end(ecs::EntityManager & entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
 	if (!inventory) {
@@ -1336,7 +1336,7 @@ void ItemDeselectState::end(ecs::EntityManager & entity_manager)
 	}
 }
 
-State* ItemDeselectState::update(ecs::EntityManager &entity_manager)
+State* ItemCancelState::update(ecs::EntityManager &entity_manager)
 {
 	// wait for all relevant motions to finish
 	const auto entities_in_motion = motion::get_entities_in_motion(entity_manager);
@@ -1355,7 +1355,7 @@ State* ItemDeselectState::update(ecs::EntityManager &entity_manager)
 					// start animations, if any and not already
 					if (play_animations && item_active.has_component<item::ItemAnimation>()) {
 						const auto item_animation = item_active.get_component<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
-							return item_animation.type == item::ItemAnimationType::DESELECT;
+							return item_animation.type == item::ItemAnimationType::CANCEL;
 						});
 
 						if (item_animation && !item_animation->active) {
@@ -2853,7 +2853,7 @@ PassportState::PassportState()
 	closing(false)
 {
 	get_post_closing_state = []() -> State* {
-		return new ItemDeselectState([]() -> State* {
+		return new ItemCancelState([]() -> State* {
 			return new IdleState();
 		}, true, false);
 	};
@@ -2906,7 +2906,7 @@ State* PassportState::update(ecs::EntityManager & entity_manager)
 					// page 3 will play normal closing animation
 					const auto passport_anim_open = find_item_anim(item_active, item::ItemAnimationType::SELECT);
 					const auto passport_anim_page2 = find_item_anim(item_active, item::ItemAnimationType::PASSPORT_PAGE2);
-					const auto passport_anim_close = find_item_anim(item_active, item::ItemAnimationType::DESELECT);
+					const auto passport_anim_close = find_item_anim(item_active, item::ItemAnimationType::CANCEL);
 
 					item::ItemAnimation *anim_to_play = nullptr;
 					bool reverse = false;
@@ -3097,7 +3097,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 
 							if (action::save_game()) {
 								get_post_closing_state = []() -> State* {
-									return new ItemDeselectState([]() -> State* {
+									return new ItemCancelState([]() -> State* {
 										return new ClosingState(false);
 									}, false, false);
 								};
@@ -3108,7 +3108,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 							action::exit_to_title();
 
 							get_post_closing_state = []() -> State* {
-								return new ItemDeselectState([]() -> State* {
+								return new ItemCancelState([]() -> State* {
 									return new ClosingState(false);
 								}, false, false);
 							};
@@ -3127,7 +3127,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 							}
 
 							get_post_closing_state = []() -> State* {
-								return new ItemDeselectState([]() -> State* {
+								return new ItemCancelState([]() -> State* {
 									return new ClosingState(false);
 								}, false, false);
 							};
@@ -3265,7 +3265,7 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 				auto marker_index = map_data.marker_index;
 
 				if (input_state.command_first_press(enumCMD.INVENTORY) && map_data.cancelable) {
-					return new ItemDeselectState([]() -> State* {
+					return new ItemCancelState([]() -> State* {
 						return new IdleState();
 					});
 				}
@@ -3320,7 +3320,7 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 
 							inventory_state.item_used = inventory_state.item_active;
 
-							return new ItemDeselectState([]() -> State* {
+							return new ItemCancelState([]() -> State* {
 								return new ClosingState(false);
 							}, false, false, false, false);
 						}
