@@ -50,31 +50,22 @@ void CheatSystem::init(ecs::EntityManager & entity_manager, ecs::SystemManager &
 	}
 }
 
-void CheatSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
+void CheatSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
 {
-	if (!input_state.has_input()) {
-		return;
-	}
+	entity_manager.remove_components<Cheat>();
+}
 
-	// cleanup unhandled cheats
-	cleanup(entity_manager, system_manager);
-
-	const auto ring_item_selected = state::get_selected_item(entity_manager);
-	if (!ring_item_selected) {
-		return;
-	}
-	auto &item_selected = ring_item_selected->item;
-
-	if (!item_selected.has_component<item::ItemData>()) {
-		return;
-	}
-	const auto &item_data = *item_selected.get_component<item::ItemData>();
-
-	// find all cheat configs for current selected item and key_combo
+bool add_active_cheats(
+	ecs::Entity &entity,
+	input::InputState &input_state
+)
+{
+	// find all cheat configs for entity and key_combo
 	const auto key_active_or_zero = [&](int32_t key) -> bool {
 		return key == 0 || input_state.key_active(key);
 	};
-	auto cheat_configs = item_selected.get_components<CheatConfig>([&](CheatConfig &config) -> bool {
+
+	auto cheat_configs = entity.get_components<CheatConfig>([&](CheatConfig &config) -> bool {
 		return key_active_or_zero(config.key_1)
 			&& key_active_or_zero(config.key_2)
 			&& key_active_or_zero(config.key_3)
@@ -93,16 +84,13 @@ void CheatSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager 
 
 	// activate found cheats
 	std::for_each(cheat_configs.begin(), cheat_configs.end(), [&](CheatConfig *config) -> void {
-		item_selected.add_component(new Cheat(*config));
+		entity.add_component(new Cheat(*config));
 	});
+
+	return !cheat_configs.empty();
 }
 
-void CheatSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
-{
-	entity_manager.remove_components<Cheat>();
-}
-
-void do_cheats(ecs::Entity &entity)
+void do_active_cheats(ecs::Entity &entity)
 {
 	auto cheats = entity.get_components<cheat::Cheat>();
 

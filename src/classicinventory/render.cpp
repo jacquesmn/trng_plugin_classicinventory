@@ -229,12 +229,12 @@ void InventoryRenderSystem::draw_item(
 	});
 	const auto tr4_anim = Trng.pGlobTomb4->pAdr->pVetAnimations[slot_tr4.IndexFirstAnim + (item_anim ? item_anim->anim_index : 0)];
 
-	// TODO: get correct frame based on frame rate
 	const auto anim_frame = reinterpret_cast<int16_t*>(tr4_anim.FrameOffset) + (item_anim ? core::round(item_anim->frame) * tr4_anim.FrameSize : 0);
-	const int32_t root_trans_x = *(anim_frame + 6);
-	const int32_t root_trans_y = *(anim_frame + 7);
-	const int32_t root_trans_z = *(anim_frame + 8);
-	auto root_rot = (anim_frame + 9);
+	const int32_t frame_trans_x = *(anim_frame + 6);
+	const int32_t frame_trans_y = *(anim_frame + 7);
+	const int32_t frame_trans_z = *(anim_frame + 8);
+	auto frame_rot = (anim_frame + 9);
+	// TODO: interpolate based on frame rate
 
 	const auto item_pos_x = core::round(item_display->pos.x);
 	const auto item_pos_y = core::round(item_display->pos.y);
@@ -269,10 +269,10 @@ void InventoryRenderSystem::draw_item(
 
 	// transform root mesh according to animation frame
 	if (!item_display->config->pos_ignore_anim) {
-		phd_TranslateRel(root_trans_x, root_trans_y, root_trans_z); // TODO: causes jitter
+		phd_TranslateRel(frame_trans_x, frame_trans_y, frame_trans_z); // TODO: causes jitter
 	}
 	if (!item_display->config->orient_ignore_anim) {
-		gar_RotYXZsuperpack(&root_rot, 0);
+		gar_RotYXZsuperpack(&frame_rot, 0);
 	}
 
 	// draw meshes
@@ -300,7 +300,7 @@ void InventoryRenderSystem::draw_item(
 
 			// transform mesh according to animation frame
 			phd_TranslateRel(mesh_trans_x, mesh_trans_y, mesh_trans_z); // TODO: causes jitter
-			gar_RotYXZsuperpack(&root_rot, 0);
+			gar_RotYXZsuperpack(&frame_rot, 0);
 
 			bone += 4;
 		}

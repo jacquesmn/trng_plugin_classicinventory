@@ -69,6 +69,17 @@ void camera::InventoryCameraSystem::update(ecs::EntityManager & entity_manager, 
 		AlterFOV(camera_fov);
 	}
 
+	// backup current poison levels
+	auto &poison1 = *Trng.pGlobTomb4->pAdr->pPoison1;
+	auto &poison2 = *Trng.pGlobTomb4->pAdr->pPoison2;
+
+	const auto backup_poison1 = poison1;
+	const auto backup_poison2 = poison2;
+
+	// disable poison warp effect
+	poison1 = 0;
+	poison2 = 0;
+
 	int16_t camera_angles[2];
 	phd_GetVectorAngles(
 		camera_tgt_x - camera_pos_x,
@@ -87,6 +98,10 @@ void camera::InventoryCameraSystem::update(ecs::EntityManager & entity_manager, 
 	viewer.OrientR = camera_rot_z; // roll
 
 	phd_GenerateW2V(&viewer);
+
+	// restore poison levels
+	poison1 = backup_poison1;
+	poison2 = backup_poison2;
 }
 
 void camera::InventoryCameraSystem::cleanup(

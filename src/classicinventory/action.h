@@ -24,7 +24,7 @@
 namespace classicinventory {
 namespace action {
 
-bool use_health(ecs::Entity &item, bool do_no_sfx = true);
+bool use_health(ecs::Entity &item, bool silent = false);
 bool use_flare(ecs::Entity &item);
 bool use_binoculars(ecs::Entity &item);
 bool equip_weapon(ecs::Entity &item);

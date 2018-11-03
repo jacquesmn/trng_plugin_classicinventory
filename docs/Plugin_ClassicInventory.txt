@@ -1,4 +1,4 @@
-Classic Inventory 0.9.0.3
+Classic Inventory 0.9.0.4
 -------------------------
 Required TRNG version: 1.3.0.7
 
@@ -46,6 +46,8 @@ Known Issues and Workarounds
 
 * Item meshes can be a bit jittery when in motion.
 
+* Item animations only support a frame rate of 1. Any higher rate will result in sped up animations.
+
 * A too large of a value for item scale causes texture rendering issues for items with shine applied.
 
 * Camera view might differ somewhat between fullscreen and windowed modes.
@@ -63,18 +65,12 @@ Similar solution as for the mesh-mask issue, i.e. change pickup model to one tha
 	
 * Inventory background image might blink on certain computers. This also happens without the plugin. Soft Full Screen seems to fix it.
 
-* The WEAPONS cheat had to be changed to WEAPON.
-
 * Only the Numpad keys are usable in debug mode to change camera and ring settings.
 
 * Only the Left Ctrl button is usable in debug mode to alternate between positioning and orienting.
 
 * The currently selected ring and item is reset to default (INVENTORY ring, first item) between level jumps and after using up the last item on a ring.
 Make sure there is always at least one item available on the INVENTORY ring.
-
-Source code
------------
-https://gitlab.com/jacquesmn/trng_plugin_classicinventory
 
 Enjoy,
 JMN

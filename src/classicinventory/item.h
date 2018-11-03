@@ -183,7 +183,7 @@ namespace ItemAnimationType {
 enum Enum {
 	IDLE = 1,
 	SELECT,
-	DESELECT,
+	CANCEL,
 	PASSPORT_PAGE2,
 	PASSPORT_PAGE3
 };

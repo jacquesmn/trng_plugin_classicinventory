@@ -177,26 +177,24 @@ public:
 		if (!component_store.empty() && component_type_id < static_cast<int32_t>(component_store.size())) {
 			auto &entities = component_store[component_type_id];
 
-			for (int32_t entity_id = 0; entity_id < static_cast<int32_t>(entities.size()); ++entity_id)
-			{
+			for (int32_t entity_id = 0; entity_id < static_cast<int32_t>(entities.size()); ++entity_id) {
 				auto &components = entities[entity_id];
-				if (components.empty())
-				{
+
+				if (components.empty()) {
 					continue;
 				}
-				if (component_filter)
-				{
+
+				if (component_filter) {
 					auto found = false;
-					for (auto it = components.begin(); it != components.end(); ++it)
-					{
-						if (component_filter(*static_cast<T*>(it->get())))
-						{
+
+					for (auto it = components.begin(); it != components.end(); ++it) {
+						if (component_filter(*static_cast<T*>(it->get()))) {
 							found = true;
 							break;
 						}
 					}
-					if (!found)
-					{
+
+					if (!found) {
 						continue;
 					}
 				}

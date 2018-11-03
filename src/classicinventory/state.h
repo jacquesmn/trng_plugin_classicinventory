@@ -162,12 +162,12 @@ private:
 	bool halfway;
 };
 
-class ItemSelectState : public State {
+class ItemActivateState : public State {
 private:
 	bool motions_done;
 
 public:
-	ItemSelectState();
+	ItemActivateState();
 
 	void start(ecs::EntityManager& entity_manager) override;
 	void end(ecs::EntityManager& entity_manager) override;
@@ -187,7 +187,7 @@ public:
 	State * input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
 };
 
-class ItemDeselectState : public State {
+class ItemCancelState : public State {
 private:
 	std::function<State*()> get_next_state;
 	bool play_sfx;
@@ -198,7 +198,7 @@ private:
 	bool motions_done;
 
 public:
-	ItemDeselectState(
+	ItemCancelState(
 		std::function<State*()> get_next_state,
 		bool play_sfx = true,
 		bool play_animations = true,
