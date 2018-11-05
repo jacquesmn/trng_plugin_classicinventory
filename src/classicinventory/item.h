@@ -342,23 +342,26 @@ public:
 	std::function<void(int32_t)> set_quantity;
 	int32_t quantity_max;
 	int32_t quantity_min;
+	int32_t divider;
 
 	ItemQuantity(
 		std::function<int32_t(void)> get_quantity = []() -> int32_t {return 0; },
 		std::function<void(int32_t)> set_quantity = [](int32_t) -> void {},
-		int32_t quantity_max = UINT16_MAX,
+		int32_t quantity_max = INT16_MAX,
 		int32_t quantity_min = -1
 	)
 		:
 		get_quantity(get_quantity),
 		set_quantity(set_quantity),
 		quantity_max(quantity_max),
-		quantity_min(quantity_min)
+		quantity_min(quantity_min),
+		divider(1)
 	{}
 
+	int32_t get() const;
+	bool set(int32_t qty) const;
 	bool increment(int32_t qty = 1) const;
 	bool decrement(int32_t qty = 1) const;
-	bool set(int32_t qty) const;
 	bool unlimited() const;
 	bool zero() const;
 };

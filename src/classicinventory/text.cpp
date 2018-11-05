@@ -95,7 +95,7 @@ std::string build_item_text(const std::string& item_name, const item::ItemQuanti
 	std::ostringstream item_text;
 
 	if (item_qty) {
-		const auto qty = item_qty->get_quantity();
+		const auto qty = item_qty->get();
 
 		if (qty == item::ITEM_QTY_UNLIMITED) {
 			item_text << "Unlimited ";

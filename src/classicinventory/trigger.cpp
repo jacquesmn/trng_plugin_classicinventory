@@ -108,7 +108,7 @@ void flipeffect_open_inventory_at_item(
 
 	if (!item
 		|| !item_qty
-		|| item_qty->get_quantity() == 0
+		|| item_qty->get() == 0
 		|| !item_ring) {
 		// item not found
 		if (missing_response == ItemMissingResponse::NO) {
@@ -158,7 +158,7 @@ bool condition_item_qty_at_least(
 	auto item = item::get_item_by_item_id(item_id, entity_manager);
 	if (item) {
 		if (item->has_component<item::ItemQuantity>()) {
-			const auto item_qty = item->get_component<item::ItemQuantity>()->get_quantity();
+			const auto item_qty = item->get_component<item::ItemQuantity>()->get();
 
 			return item_qty == item::ITEM_QTY_UNLIMITED || item_qty >= qty;
 		}
@@ -176,7 +176,7 @@ bool condition_item_qty_less_than(
 	auto item = item::get_item_by_item_id(item_id, entity_manager);
 	if (item) {
 		if (item->has_component<item::ItemQuantity>()) {
-			const auto item_qty = item->get_component<item::ItemQuantity>()->get_quantity();
+			const auto item_qty = item->get_component<item::ItemQuantity>()->get();
 
 			return item_qty != item::ITEM_QTY_UNLIMITED && item_qty < qty;
 		}

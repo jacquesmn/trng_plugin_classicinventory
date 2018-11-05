@@ -821,10 +821,11 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals = qty; }
 	));
+	item_qty.divider = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -850,10 +851,11 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot = qty; }
 	));
+	item_qty.divider = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -3609,7 +3611,7 @@ void setup_combos(ecs::EntityManager &entity_manager)
 bool action_enabled_ammo(ecs::Entity &item) {
 	return !item.get_components<item::ItemAmmo>([](item::ItemAmmo &item_ammo) -> bool {
 		return !item_ammo.ammo_item.get_components<item::ItemQuantity>([](item::ItemQuantity &item_qty) -> bool {
-			return item_qty.get_quantity() != 0;
+			return item_qty.get() != 0;
 		}).empty();
 	}).empty();
 }
@@ -3633,7 +3635,7 @@ bool action_enabled_combine(
 
 		if (combo.vice_versa && item_first.get_id() != item.get_id() && item_first.has_component<item::ItemQuantity>()) {
 			if (item_first.get_component<item::ItemQuantity>([](item::ItemQuantity &item_qty) -> bool {
-				return item_qty.get_quantity() != 0;
+				return item_qty.get() != 0;
 			})) {
 				return true;
 			}
@@ -3641,7 +3643,7 @@ bool action_enabled_combine(
 
 		if (item_second.get_id() != item.get_id() && item_second.has_component<item::ItemQuantity>()) {
 			if (item_second.get_component<item::ItemQuantity>([](item::ItemQuantity &item_qty) -> bool {
-				return item_qty.get_quantity() != 0;
+				return item_qty.get() != 0;
 			})) {
 				return true;
 			}
@@ -3978,7 +3980,7 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 		if (item && item->has_component<item::ItemQuantity>()) {
 			auto &item_qty = *item->get_component<item::ItemQuantity>();
 
-			item_qty.set_quantity(1);
+			item_qty.set(1);
 		}
 	};
 	const auto give_weapon = [give_item](ecs::Entity *item) -> void {
@@ -4394,7 +4396,7 @@ void customize_item_quantity(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 5) {
+	if (customize.NArguments < 6) {
 		return;
 	}
 
@@ -4403,6 +4405,7 @@ void customize_item_quantity(
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto qty_min = customize.pVetArg[++cust_index];
 	const auto qty_max = customize.pVetArg[++cust_index];
+	const auto qty_divider = customize.pVetArg[++cust_index];
 	const auto qty_get_tgroup = customize.pVetArg[++cust_index];
 	const auto qty_set_tgroup = customize.pVetArg[++cust_index];
 
@@ -4420,6 +4423,10 @@ void customize_item_quantity(
 
 	item_qty->quantity_min = qty_min;
 	item_qty->quantity_max = qty_max;
+
+	if (qty_divider > 0) {
+		item_qty->divider = qty_divider;
+	}
 
 	if (qty_get_tgroup != -1) {
 		item_qty->get_quantity = [=]()-> int32_t {

@@ -146,7 +146,7 @@ bool patch_00_have_i_got_object(int slot)
 	if (item && item->has_component<item::ItemQuantity>()) {
 		const auto &item_qty = *item->get_component<item::ItemQuantity>();
 
-		if (item_qty.get_quantity() != 0) {
+		if (item_qty.get() != 0) {
 			return true;
 		}
 	}
