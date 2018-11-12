@@ -50,7 +50,7 @@ void build_inventory(
 		auto &weapon = **weapon_it;
 
 		const auto item_qty = weapon.get_component<item::ItemQuantity>();
-		if (!item_qty || !item_qty->get_quantity || item_qty->get_quantity() == 0) {
+		if (!item_qty || item_qty->get() == 0) {
 			continue;
 		}
 
@@ -147,7 +147,7 @@ void build_ring(
 
 		// exclude items with zero quantity
 		const auto item_qty = item.get_component<item::ItemQuantity>();
-		if (!item_qty || !item_qty->get_quantity || item_qty->get_quantity() == 0) {
+		if (!item_qty || item_qty->get() == 0) {
 			continue;
 		}
 
@@ -276,7 +276,7 @@ InventoryRing* build_combo_ring(
 					if (!combo_item
 						|| !combo_item->has_component<item::ItemQuantity>()
 						|| !combo_item->get_component<item::ItemQuantity>([](item::ItemQuantity &item_qty) -> bool {
-						return item_qty.get_quantity() != 0;
+						return item_qty.get() != 0;
 					})) {
 						return;
 					}

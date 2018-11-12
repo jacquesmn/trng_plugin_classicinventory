@@ -28,45 +28,28 @@ extern TYPE_convert_obj_to_invobj convert_obj_to_invobj;
 namespace classicinventory {
 namespace item {
 
-bool ItemQuantity::increment(int32_t qty) const {
-	if (!get_quantity || !set_quantity) {
-		return false;
+int32_t ItemQuantity::get() const
+{
+	if (get_quantity) {
+		const auto qty = get_quantity();
+
+		if (qty == ITEM_QTY_UNLIMITED) {
+			return qty;
+		}
+
+		return core::round(float(qty) / divider);
 	}
 
-	auto quantity = get_quantity();
-
-	if (quantity != ITEM_QTY_UNLIMITED) {
-		quantity = min(quantity_max, quantity + qty);
-
-		set_quantity(quantity);
-
-		return true;
-	}
-
-	return false;
-}
-
-bool ItemQuantity::decrement(int32_t qty) const {
-	if (!get_quantity || !set_quantity) {
-		return false;
-	}
-
-	auto quantity = get_quantity();
-
-	if (quantity != ITEM_QTY_UNLIMITED) {
-		quantity = max(0, max(quantity_min, quantity - qty));
-
-		set_quantity(quantity);
-
-		return true;
-	}
-
-	return false;
+	return 0;
 }
 
 bool ItemQuantity::set(int32_t qty) const
 {
-	if (qty >= quantity_min && qty <= quantity_max) {
+	if (qty != ITEM_QTY_UNLIMITED) {
+		qty = divider * qty;
+	}
+
+	if (set_quantity && qty >= quantity_min && qty <= quantity_max) {
 		set_quantity(qty);
 
 		return true;
@@ -75,29 +58,32 @@ bool ItemQuantity::set(int32_t qty) const
 	return false;
 }
 
-bool ItemQuantity::unlimited() const {
-	if (!set_quantity) {
-		return false;
-	}
+bool ItemQuantity::increment(int32_t qty) const {
+	const auto quantity = get();
 
-	if (quantity_min <= ITEM_QTY_UNLIMITED
-		&& quantity_max >= ITEM_QTY_UNLIMITED) {
-		set_quantity(ITEM_QTY_UNLIMITED);
-
-		return true;
+	if (quantity != ITEM_QTY_UNLIMITED) {
+		return set(quantity + qty);
 	}
 
 	return false;
 }
 
-bool ItemQuantity::zero() const {
-	if (!set_quantity) {
-		return false;
+bool ItemQuantity::decrement(int32_t qty) const {
+	const auto quantity = get();
+
+	if (quantity != ITEM_QTY_UNLIMITED) {
+		return set(quantity - qty);
 	}
 
-	set_quantity(0);
+	return false;
+}
 
-	return true;
+bool ItemQuantity::unlimited() const {
+	return set(ITEM_QTY_UNLIMITED);
+}
+
+bool ItemQuantity::zero() const {
+	return set(0);
 }
 
 int32_t tr4_slot_to_item_id(uint32_t tr4_slot)

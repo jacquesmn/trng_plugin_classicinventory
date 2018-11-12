@@ -1,4 +1,4 @@
-Classic Inventory 0.9.0.4
+Classic Inventory 0.9.0.5
 -------------------------
 Required TRNG version: 1.3.0.7
 
@@ -10,7 +10,6 @@ Description
 This plugin replaces the TR4 sliding inventory with one resembling the "classic" TR1-3 ring.
 
 Not everything is exactly as in the originals. For example the save, load and options screens are still the same as TR4/TRNG.
-
 This is also just for the in-game inventory, the title screen hasn't been altered.
 
 Main Features

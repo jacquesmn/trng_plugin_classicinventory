@@ -285,6 +285,7 @@ struct ItemDisplayConfig : public ecs::Component {
 
 	bool pos_ignore_anim;
 	bool orient_ignore_anim;
+	bool alpha_allowed;
 
 	ItemDisplayConfig(const ItemDisplayType::Enum type)
 		:
@@ -294,7 +295,8 @@ struct ItemDisplayConfig : public ecs::Component {
 		tilt(0),
 		scale(1),
 		pos_ignore_anim(false),
-		orient_ignore_anim(false)
+		orient_ignore_anim(false),
+		alpha_allowed(true)
 	{}
 
 	ItemDisplayConfig(
@@ -308,7 +310,8 @@ struct ItemDisplayConfig : public ecs::Component {
 		tilt(config.tilt),
 		scale(config.scale),
 		pos_ignore_anim(config.pos_ignore_anim),
-		orient_ignore_anim(config.orient_ignore_anim)
+		orient_ignore_anim(config.orient_ignore_anim),
+		alpha_allowed(config.alpha_allowed)
 	{}
 };
 
@@ -321,6 +324,7 @@ struct ItemDisplay : public ecs::Component {
 
 	float tilt;
 	float scale;
+	bool alpha_allowed;
 
 	bool alpha_enabled;
 
@@ -332,6 +336,7 @@ struct ItemDisplay : public ecs::Component {
 		rot(core::Vector3D()),
 		tilt(config.tilt),
 		scale(config.scale),
+		alpha_allowed(config.alpha_allowed),
 		alpha_enabled(true)
 	{}
 };
@@ -342,23 +347,26 @@ public:
 	std::function<void(int32_t)> set_quantity;
 	int32_t quantity_max;
 	int32_t quantity_min;
+	int32_t divider;
 
 	ItemQuantity(
 		std::function<int32_t(void)> get_quantity = []() -> int32_t {return 0; },
 		std::function<void(int32_t)> set_quantity = [](int32_t) -> void {},
-		int32_t quantity_max = UINT16_MAX,
+		int32_t quantity_max = INT16_MAX,
 		int32_t quantity_min = -1
 	)
 		:
 		get_quantity(get_quantity),
 		set_quantity(set_quantity),
 		quantity_max(quantity_max),
-		quantity_min(quantity_min)
+		quantity_min(quantity_min),
+		divider(1)
 	{}
 
+	int32_t get() const;
+	bool set(int32_t qty) const;
 	bool increment(int32_t qty = 1) const;
 	bool decrement(int32_t qty = 1) const;
-	bool set(int32_t qty) const;
 	bool unlimited() const;
 	bool zero() const;
 };
