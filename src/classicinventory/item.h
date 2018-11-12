@@ -285,6 +285,7 @@ struct ItemDisplayConfig : public ecs::Component {
 
 	bool pos_ignore_anim;
 	bool orient_ignore_anim;
+	bool alpha_allowed;
 
 	ItemDisplayConfig(const ItemDisplayType::Enum type)
 		:
@@ -294,7 +295,8 @@ struct ItemDisplayConfig : public ecs::Component {
 		tilt(0),
 		scale(1),
 		pos_ignore_anim(false),
-		orient_ignore_anim(false)
+		orient_ignore_anim(false),
+		alpha_allowed(true)
 	{}
 
 	ItemDisplayConfig(
@@ -308,7 +310,8 @@ struct ItemDisplayConfig : public ecs::Component {
 		tilt(config.tilt),
 		scale(config.scale),
 		pos_ignore_anim(config.pos_ignore_anim),
-		orient_ignore_anim(config.orient_ignore_anim)
+		orient_ignore_anim(config.orient_ignore_anim),
+		alpha_allowed(config.alpha_allowed)
 	{}
 };
 
@@ -321,6 +324,7 @@ struct ItemDisplay : public ecs::Component {
 
 	float tilt;
 	float scale;
+	bool alpha_allowed;
 
 	bool alpha_enabled;
 
@@ -332,6 +336,7 @@ struct ItemDisplay : public ecs::Component {
 		rot(core::Vector3D()),
 		tilt(config.tilt),
 		scale(config.scale),
+		alpha_allowed(config.alpha_allowed),
 		alpha_enabled(true)
 	{}
 };
