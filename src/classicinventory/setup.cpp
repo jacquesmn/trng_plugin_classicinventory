@@ -4426,8 +4426,18 @@ void customize_item_quantity(
 		item_qty = &item->add_component(new item::ItemQuantity());
 	}
 
-	item_qty->quantity_min = qty_min;
-	item_qty->quantity_max = qty_max;
+	if (qty_min != -1) {
+		item_qty->quantity_min = max(item::ITEM_QTY_UNLIMITED, qty_min);
+	}
+
+	if (qty_max != -1) {
+		if (qty_max < 0) {
+			item_qty->quantity_min = item::ITEM_QTY_UNLIMITED;
+		}
+		else {
+			item_qty->quantity_max = qty_max;
+		}
+	}
 
 	if (qty_divider > 0) {
 		item_qty->divider = qty_divider;

@@ -387,6 +387,8 @@ CINV_TXT_ALIGN_RIGHT:$4000
 
 CINV_EXTRANG_STRING:359 ;Value to add to string indexes if they are ExtraNG strings.
 
+CINV_QTY_UNLIMITED:-2 ;Value used to indicate item quantity is unlimited.
+
 CINV_AXIS_X:0
 CINV_AXIS_Y:1
 CINV_AXIS_Z:2
