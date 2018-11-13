@@ -110,6 +110,8 @@ void do_active_cheats(ecs::Entity &entity);
 
 bool facing_north();
 
+bool cheats_enabled();
+
 }
 }
 

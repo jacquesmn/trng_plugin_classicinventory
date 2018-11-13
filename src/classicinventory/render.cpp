@@ -318,13 +318,15 @@ void InventoryRenderSystem::draw_item(
 				mesh_rot_special = core::degrees_to_tr4_angle(compass_data.needle_angle);
 				mesh_rot_special_axis = compass_data.needle_mesh_axis;
 
-				// make needle transparent if cheats enabled
-				const auto cheat_entity = entity_manager.find_entity_with_component <cheat::CheatConfig>([](const cheat::CheatConfig &config) -> bool {
-					return config.enabled()
-						&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
-				});
-				if (cheat_entity) {
-					*poly_alpha = min(128, *poly_alpha >> 24) << 24;
+				// make needle transparent if cheats are enabled
+				if (cheat::cheats_enabled()) {
+					const auto cheat_entity = entity_manager.find_entity_with_component <cheat::CheatConfig>([](const cheat::CheatConfig &config) -> bool {
+						return config.enabled()
+							&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
+					});
+					if (cheat_entity) {
+						*poly_alpha = min(128, *poly_alpha >> 24) << 24;
+					}
 				}
 			}
 		}
