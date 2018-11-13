@@ -182,7 +182,7 @@ enum Enum {
 namespace ItemAnimationType {
 enum Enum {
 	IDLE = 1,
-	SELECT,
+	ACTIVATE,
 	CANCEL,
 	PASSPORT_PAGE2,
 	PASSPORT_PAGE3
@@ -202,7 +202,7 @@ enum Enum {
 	STATISTICS,
 	OPTIONS,
 	CONTROLS,
-	EXIT,
+	EXIT_TO_TITLE,
 	CUSTOM
 };
 }

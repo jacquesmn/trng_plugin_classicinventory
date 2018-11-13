@@ -5025,8 +5025,8 @@ void customize_duration(
 		case inventory::DurationType::RING_CHANGE:
 			inventory_duration.ring_change_frames = duration_frames;
 			break;
-		case inventory::DurationType::ITEM_SELECT:
-			inventory_duration.item_select_frames = duration_frames;
+		case inventory::DurationType::ITEM_ACTIVATE:
+			inventory_duration.item_activate_frames = duration_frames;
 			break;
 		case inventory::DurationType::ITEM_SPIN:
 			inventory_duration.item_spin_frames = duration_frames;
@@ -5101,7 +5101,7 @@ void customize_sfx(
 	case sound::SfxType::RING_CHANGE:
 		inventory_sfx.ring_change_sound_id = sound_id;
 		break;
-	case sound::SfxType::ITEM_SELECT:
+	case sound::SfxType::ITEM_ACTIVATE:
 		inventory_sfx.item_select_sound_id = sound_id;
 		break;
 	case sound::SfxType::ITEM_CANCEL:
@@ -5594,7 +5594,7 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory_duration.inventory_open_frames = 18;
 	inventory_duration.ring_change_frames = 14;
 	inventory_duration.ring_rotate_frames = 10;
-	inventory_duration.item_select_frames = 10;
+	inventory_duration.item_activate_frames = 10;
 	inventory_duration.item_spin_frames = 120;
 
 	auto &inventory_sfx = inventory.add_component(new inventory::InventorySfx());
