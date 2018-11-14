@@ -22,6 +22,7 @@
 
 #include <trng_core.h>
 #include "item.h"
+#include "special.h"
 
 extern TYPE_ShowSaveScreen ShowSaveScreen;
 extern TYPE_SoundEffect SoundEffect;
@@ -33,10 +34,10 @@ namespace action {
 
 bool use_health(ecs::Entity &item, bool silent)
 {
-	if (!item.has_component<item::HealthData>()) {
+	if (!item.has_component<special::HealthData>()) {
 		return false;
 	}
-	auto &health_data = *item.get_component<item::HealthData>();
+	auto &health_data = *item.get_component<special::HealthData>();
 
 	if (!item.has_component<item::ItemQuantity>()) {
 		return false;

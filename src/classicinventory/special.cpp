@@ -18,14 +18,14 @@
 
 #include "StdAfx.h"
 
+#include "special.h"
+
 #include <trng_core.h>
 #include "action.h"
 #include "input.h"
 #include "inventory.h"
-#include "item.h"
 #include "motion.h"
 #include "render.h"
-#include "special.h"
 
 extern TYPE_InitialisePickUpDisplay InitialisePickUpDisplay;
 
@@ -33,8 +33,8 @@ namespace classicinventory {
 namespace special {
 
 void TimeSystem::update(
-	ecs::EntityManager & entity_manager,
-	ecs::SystemManager & system_manager
+	ecs::EntityManager &entity_manager,
+	ecs::SystemManager &system_manager
 )
 {
 	auto &game_frames = *reinterpret_cast<uint32_t*>(0x7FD138);
@@ -72,10 +72,10 @@ void CompassSystem::init(
 )
 {
 	// initialize compass
-	auto compasses = entity_manager.find_entities_with_component<item::CompassData>();
+	auto compasses = entity_manager.find_entities_with_component<CompassData>();
 	for (auto compass_it = compasses.begin(); compass_it != compasses.end(); ++compass_it) {
 		auto &compass = **compass_it;
-		auto &compass_data = *compass.get_component<item::CompassData>();
+		auto &compass_data = *compass.get_component<CompassData>();
 
 		compass_data.bearing = core::tr4_angle_to_degrees(-Trng.pGlobTomb4->pAdr->pLara->OrientationH) + 180;
 
@@ -109,10 +109,10 @@ void CompassSystem::update(
 )
 {
 	// update compass needle
-	auto compasses = entity_manager.find_entities_with_component<item::CompassData>();
+	auto compasses = entity_manager.find_entities_with_component<CompassData>();
 	for (auto compass_it = compasses.begin(); compass_it != compasses.end(); ++compass_it) {
 		auto &compass = **compass_it;
-		auto &compass_data = *compass.get_component<item::CompassData>();
+		auto &compass_data = *compass.get_component<CompassData>();
 
 		// swing needle
 		const auto oscillate = compass_data.needle_oscill_amplitude * cos(core::degrees_to_radians(compass_data.needle_oscill_angle));
@@ -143,10 +143,10 @@ void StopwatchSystem::update(
 	auto &game_time = *time->get_component<GameTime>();
 
 	// update stopwatch hands
-	auto stopwatches = entity_manager.find_entities_with_component<item::StopwatchData>();
+	auto stopwatches = entity_manager.find_entities_with_component<StopwatchData>();
 	for (auto stopwatch_it = stopwatches.begin(); stopwatch_it != stopwatches.end(); ++stopwatch_it) {
 		auto &stopwatch = **stopwatch_it;
-		auto &stopwatch_data = *stopwatch.get_component<item::StopwatchData>();
+		auto &stopwatch_data = *stopwatch.get_component<StopwatchData>();
 
 		if (!first_update && game_time.frames % stopwatch_data.frequency_frames != 0) {
 			continue;

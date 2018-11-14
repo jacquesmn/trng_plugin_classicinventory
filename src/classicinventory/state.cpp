@@ -324,7 +324,7 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 						);
 
 						// add health bar
-						if (item.has_component<item::HealthData>()) {
+						if (item.has_component<special::HealthData>()) {
 							const auto &health_bar_cust = Trng.pGlobTomb4->pBaseCustomize->VetBar[BAR_HEALTH];
 
 							item.add_component(new render::ScreenBar(
@@ -887,10 +887,10 @@ State* ItemActivateState::update(ecs::EntityManager &entity_manager)
 
 		// go to special state depending on item components
 		if (item_active) {
-			if (item_active->item.has_component<item::PassportData>()) {
+			if (item_active->item.has_component<special::PassportData>()) {
 				return new PassportState();
 			}
-			if (item_active->item.has_component<item::MapData>()) {
+			if (item_active->item.has_component<special::MapData>()) {
 				return new MapState();
 			}
 		}
@@ -2866,8 +2866,8 @@ void PassportState::start(ecs::EntityManager &entity_manager)
 	if (ring_item_active) {
 		auto &item_active = ring_item_active->item;
 
-		if (item_active.has_component<item::PassportData>()) {
-			auto &passport_data = *item_active.get_component<item::PassportData>();
+		if (item_active.has_component<special::PassportData>()) {
+			auto &passport_data = *item_active.get_component<special::PassportData>();
 
 			// open on first page
 			passport_data.page = 1;
@@ -2887,9 +2887,9 @@ State* PassportState::update(ecs::EntityManager & entity_manager)
 			auto &item_active = ring_item_active->item;
 
 			if (item_active.has_component<item::ItemData>()
-				&& item_active.has_component<item::PassportData>()) {
+				&& item_active.has_component<special::PassportData>()) {
 				auto &item_data = *item_active.get_component<item::ItemData>();
-				auto &passport_data = *item_active.get_component<item::PassportData>();
+				auto &passport_data = *item_active.get_component<special::PassportData>();
 
 				if (closing) {
 					// passport is busy closing
@@ -3028,8 +3028,8 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 		if (ring_item_active) {
 			auto &item_active = ring_item_active->item;
 
-			if (item_active.has_component<item::PassportData>()) {
-				auto &passport_data = *item_active.get_component<item::PassportData>();
+			if (item_active.has_component<special::PassportData>()) {
+				auto &passport_data = *item_active.get_component<special::PassportData>();
 
 				const auto find_item_anim = [](const ecs::Entity &item, item::ItemAnimationType::Enum anim_type) -> item::ItemAnimation* {
 					return item.get_component<item::ItemAnimation>([&](item::ItemAnimation &anim) -> bool {
@@ -3191,11 +3191,11 @@ void MapState::start(ecs::EntityManager &entity_manager)
 	auto &item_active = ring_item_active->item;
 
 	if (!item_active.has_component<item::ItemData>()
-		|| !item_active.has_component<item::MapData>()) {
+		|| !item_active.has_component<special::MapData>()) {
 		return;
 	}
 	auto &item_data = *item_active.get_component<item::ItemData>();
-	auto &map_data = *item_active.get_component<item::MapData>();
+	auto &map_data = *item_active.get_component<special::MapData>();
 
 	// add text for item name
 	if (inventory) {
@@ -3256,9 +3256,9 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 		if (ring_item_active) {
 			auto &item_active = ring_item_active->item;
 
-			if (item_active.has_component<item::MapData>()
+			if (item_active.has_component<special::MapData>()
 				&& item_active.has_component<item::ItemDisplay>()) {
-				auto &map_data = *item_active.get_component<item::MapData>();
+				auto &map_data = *item_active.get_component<special::MapData>();
 				auto &item_display = *item_active.get_component<item::ItemDisplay>();
 
 				const auto marker_count = map_data.markers.size();
@@ -3360,7 +3360,7 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 void MapState::update_map_marker(
 	ecs::Entity &item,
 	item::ItemDisplay &item_display,
-	item::MapData &map_data,
+	special::MapData &map_data,
 	uint32_t duration_frames,
 	ecs::EntityManager &entity_manager
 )

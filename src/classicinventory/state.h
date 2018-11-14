@@ -27,6 +27,7 @@
 #include "inventory.h"
 #include "item.h"
 #include "ring.h"
+#include "special.h"
 #include "sound.h"
 
 namespace classicinventory {
@@ -299,7 +300,7 @@ private:
 	void update_map_marker(
 		ecs::Entity &item,
 		item::ItemDisplay &item_display,
-		item::MapData &map_data,
+		special::MapData &map_data,
 		uint32_t duration_frames,
 		ecs::EntityManager &entity_manager
 	);

@@ -250,7 +250,7 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		item_display_active->orient.x = 100;
 	}
 
-	auto &compass_data = item->add_component(new item::CompassData(1, core::Axis::Y));
+	auto &compass_data = item->add_component(new special::CompassData(1, core::Axis::Y));
 	compass_data.needle_oscill_amplitude_min = 3;
 	compass_data.needle_oscill_amplitude_max = 30;
 	compass_data.needle_oscill_amplitude_settle_frames = 120;
@@ -276,7 +276,7 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 		}
 	};
 
-	item->add_component(new item::HealthData(500, 0, 116, 31));
+	item->add_component(new special::HealthData(500, 0, 116, 31));
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -317,7 +317,7 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 
 	set_tr4_pickup_orientation(*item, enumSLOT.BIGMEDI_ITEM);
 
-	item->add_component(new item::HealthData(1000, 0, 116, 31));
+	item->add_component(new special::HealthData(1000, 0, 116, 31));
 }
 
 void setup_FLARE_INV(ecs::EntityManager &entity_manager)
@@ -4767,9 +4767,9 @@ void customize_health(
 		item_action->sort_index = -1;
 	}
 
-	auto health_data = item->get_component<item::HealthData>();
+	auto health_data = item->get_component<special::HealthData>();
 	if (!health_data) {
-		health_data = &item->add_component(new item::HealthData(0, 0, 116, 31));
+		health_data = &item->add_component(new special::HealthData(0, 0, 116, 31));
 
 		// only perform existing action if first time adding health data
 		// this is to allow existing medi-actions to be performed only once
@@ -4829,9 +4829,9 @@ void customize_compass(
 		return;
 	}
 
-	auto compass_data = item->get_component<item::CompassData>();
+	auto compass_data = item->get_component<special::CompassData>();
 	if (!compass_data) {
-		compass_data = &item->add_component(new item::CompassData(0, core::Axis::Y));
+		compass_data = &item->add_component(new special::CompassData(0, core::Axis::Y));
 	}
 
 	if (needle_mesh_index >= 0) {
@@ -4881,9 +4881,9 @@ void customize_stopwatch(
 		return;
 	}
 
-	auto stopwatch_data = item->get_component<item::StopwatchData>();
+	auto stopwatch_data = item->get_component<special::StopwatchData>();
 	if (!stopwatch_data) {
-		stopwatch_data = &item->add_component(new item::StopwatchData(0, core::Axis::Y, 0, core::Axis::Y, 0, core::Axis::Y));
+		stopwatch_data = &item->add_component(new special::StopwatchData(0, core::Axis::Y, 0, core::Axis::Y, 0, core::Axis::Y));
 	}
 
 	if (hour_hand_mesh_index >= 0) {
@@ -4933,9 +4933,9 @@ void customize_passport(
 		return;
 	}
 
-	auto passport_data = item->get_component<item::PassportData>();
+	auto passport_data = item->get_component<special::PassportData>();
 	if (!passport_data) {
-		passport_data = &item->add_component(new item::PassportData());
+		passport_data = &item->add_component(new special::PassportData());
 	}
 
 	if (page_sound_id >= 0) {
@@ -4964,9 +4964,9 @@ void customize_map(
 		return;
 	}
 
-	auto map_data = item->get_component<item::MapData>();
+	auto map_data = item->get_component<special::MapData>();
 	if (!map_data) {
-		map_data = &item->add_component(new item::MapData());
+		map_data = &item->add_component(new special::MapData());
 	}
 
 	if (cancelable >= 0) {
@@ -4983,7 +4983,7 @@ void customize_map(
 			continue;
 		}
 
-		map_data->markers.push_back(item::MapMarker(marker_mesh_index));
+		map_data->markers.push_back(special::MapMarker(marker_mesh_index));
 
 		auto &marker = map_data->markers.back();
 
