@@ -440,9 +440,9 @@ void cbInitLoadNewLevel(void)
 	MyData.Save.Local.inventory_data.item_id_selected = item::ItemId::NONE;
 	MyData.Save.Local.inventory_data.item_id_used = item::ItemId::NONE;
 	
-	MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = 1;
-	MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = 1;
-	MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = 1;
 
 	// here you can initialise other variables of MyData different than Local and progressive actions
 	// free resources allocate in previous level

@@ -190,10 +190,11 @@ void setup_MEMCARD_LOAD_INV(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)]; },
-		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = qty; }
+	auto &item_qty = item->add_component(new item::ItemQuantity(
+		[]() -> int32_t {return MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)]; },
+		[](int32_t qty) -> void {MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::LOAD_GAME), item::ItemActionType::LOAD_GAME);
 
@@ -215,10 +216,11 @@ void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)]; },
-		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = qty; }
+	auto &item_qty = item->add_component(new item::ItemQuantity(
+		[]() -> int32_t {return MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)]; },
+		[](int32_t qty) -> void {MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::SAVE_GAME), item::ItemActionType::SAVE_GAME);
 
@@ -240,10 +242,11 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)]; },
-		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = qty; }
+	auto &item_qty = item->add_component(new item::ItemQuantity(
+		[]() -> int32_t {return MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)]; },
+		[](int32_t qty) -> void {MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
@@ -264,10 +267,11 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 	item_action.action = [=]() {
@@ -298,10 +302,11 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 	item_action.action = [=]() {
@@ -327,10 +332,11 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->Flares; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->Flares = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 	item_action.action = [=]() {
@@ -792,10 +798,11 @@ void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -825,6 +832,7 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals = qty; }
 	));
+	item_qty.supports_unlimited = true;
 	item_qty.divider = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -855,6 +863,7 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot = qty; }
 	));
+	item_qty.supports_unlimited = true;
 	item_qty.divider = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -881,10 +890,11 @@ void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -910,10 +920,11 @@ void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -939,10 +950,11 @@ void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -973,10 +985,11 @@ void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1007,10 +1020,11 @@ void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1041,10 +1055,11 @@ void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1075,10 +1090,11 @@ void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1109,10 +1125,11 @@ void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1186,8 +1203,7 @@ void setup_PUZZLE1(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem1; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem1 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1203,8 +1219,7 @@ void setup_PUZZLE2(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem2; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem2 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1220,8 +1235,7 @@ void setup_PUZZLE3(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem3; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem3 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1237,8 +1251,7 @@ void setup_PUZZLE4(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem4; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem4 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1254,8 +1267,7 @@ void setup_PUZZLE5(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem5; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem5 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1271,8 +1283,7 @@ void setup_PUZZLE6(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem6; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem6 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1288,8 +1299,7 @@ void setup_PUZZLE7(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem7; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem7 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1305,8 +1315,7 @@ void setup_PUZZLE8(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem8; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem8 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1322,8 +1331,7 @@ void setup_PUZZLE9(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem9; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem9 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1339,8 +1347,7 @@ void setup_PUZZLE10(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem10; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem10 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1356,8 +1363,7 @@ void setup_PUZZLE11(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem11; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem11 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1373,8 +1379,7 @@ void setup_PUZZLE12(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem12; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem12 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -3980,7 +3985,9 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 		if (item && item->has_component<item::ItemQuantity>()) {
 			auto &item_qty = *item->get_component<item::ItemQuantity>();
 
-			item_qty.set(1);
+			if (item_qty.get() == 0) {
+				item_qty.set(1);
+			}
 		}
 	};
 	const auto give_weapon = [give_item](ecs::Entity *item) -> void {
@@ -4401,7 +4408,7 @@ void customize_item_quantity(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 6) {
+	if (customize.NArguments < 7) {
 		return;
 	}
 
@@ -4410,7 +4417,8 @@ void customize_item_quantity(
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto qty_min = customize.pVetArg[++cust_index];
 	const auto qty_max = customize.pVetArg[++cust_index];
-	const auto qty_divider = customize.pVetArg[++cust_index];
+	const auto supports_unlimited = customize.pVetArg[++cust_index];
+	const auto divider = customize.pVetArg[++cust_index];
 	const auto qty_get_tgroup = customize.pVetArg[++cust_index];
 	const auto qty_set_tgroup = customize.pVetArg[++cust_index];
 
@@ -4427,20 +4435,19 @@ void customize_item_quantity(
 	}
 
 	if (qty_min != -1) {
-		item_qty->quantity_min = max(item::ITEM_QTY_UNLIMITED, qty_min);
+		item_qty->quantity_min = max(0, qty_min);
 	}
 
 	if (qty_max != -1) {
-		if (qty_max < 0) {
-			item_qty->quantity_min = item::ITEM_QTY_UNLIMITED;
-		}
-		else {
-			item_qty->quantity_max = qty_max;
-		}
+		item_qty->quantity_max = max(0, qty_max);
 	}
 
-	if (qty_divider > 0) {
-		item_qty->divider = qty_divider;
+	if (supports_unlimited >= 0) {
+		item_qty->supports_unlimited = supports_unlimited == CINV_TRUE;
+	}
+
+	if (divider > 0) {
+		item_qty->divider = divider;
 	}
 
 	if (qty_get_tgroup != -1) {

@@ -4,13 +4,15 @@
 // TYPE_HERE: here you can type your structure definitions like it has been done
 // in the "structures.h" file for trng dll
 
+typedef struct StrSavegameGlobalInventoryData {
+	int item_qty[512];
+	WORD map_marker_active[512];
+}SavegameGlobalInventoryData;
+
 typedef struct StrSavegameLocalInventoryData {
 	int ring_id_selected;
 	int item_id_selected;
 	int item_id_used;
-
-	int item_qty[512];
-	WORD map_marker_active[512];
 
 	StrSavegameLocalInventoryData()
 		:
@@ -30,6 +32,15 @@ typedef struct StrSavegameGlobalData {
 	//           (only one for all levels)
 	// note: the size of this structure should be always even (if you add BYTE variable, remember to compensate that 
 	//       with another BYTE vairable or placefolder)
+	SavegameGlobalInventoryData inventory_data;
+
+	SavegameGlobalInventoryData placeholder_inventory_data;
+
+	StrSavegameGlobalData()
+		:
+		inventory_data(SavegameGlobalInventoryData()),
+		placeholder_inventory_data(SavegameGlobalInventoryData())
+	{}
 }SavegameGlobalDataFields;
 
 typedef struct StrSavegameLocalData {
