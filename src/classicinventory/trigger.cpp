@@ -23,6 +23,7 @@
 #include <trng_core.h>
 #include "ecs.h"
 #include "inventory.h"
+#include "input.h"
 #include "item.h"
 #include "render.h"
 
@@ -94,7 +95,8 @@ void flipeffect_open_inventory_at_item(
 	ItemSelectType::Enum select_type,
 	ItemMissingResponse::Enum missing_response,
 	bool open_now,
-	ecs::EntityManager &entity_manager
+	ecs::EntityManager &entity_manager,
+	ecs::SystemManager &system_manager
 )
 {
 	const auto item = item::get_item_by_item_id(item_id, entity_manager);
@@ -129,6 +131,11 @@ void flipeffect_open_inventory_at_item(
 			}
 			inventory_state->force_open = true;
 		}
+
+		// reset inventory key status, won't work if debounced by engine
+		PerformFlipeffect(nullptr, 51, 14, 0);
+		system_manager.get_system<input::InputUpdateSystem>()->update(entity_manager, system_manager);
+		PerformFlipeffect(nullptr, 52, 14, 0);
 
 		// press inventory key
 		PerformFlipeffect(nullptr, 53, 14, 0);

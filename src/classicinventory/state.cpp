@@ -403,7 +403,7 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 	}
 }
 
-State* IdleState::update(ecs::EntityManager & entity_manager)
+State* IdleState::update(ecs::EntityManager &entity_manager)
 {
 	const auto inventory_state = inventory::get_inventory_state(entity_manager);
 

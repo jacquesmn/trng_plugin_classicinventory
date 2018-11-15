@@ -98,13 +98,17 @@ void Controller::do_main_draw()
 
 void Controller::do_inventory()
 {
-	auto inventory_state = inventory::get_inventory_state(entity_manager);
-
 	// entry guards
 	// this is to prevent game from re-opening inventory if player keeps keys pressed at puzzle hole
-	if (!input_state.command_first_press(enumCMD.INVENTORY)
-		&& !input_state.command_first_press(enumCMD.ACTION)
-		&& (inventory_state && !inventory_state->force_open)) {
+	auto inventory_state = inventory::get_inventory_state(entity_manager);
+	const auto first_press_inventory = input_state.command_first_press(enumCMD.INVENTORY);
+	const auto first_press_action = input_state.command_first_press(enumCMD.ACTION);
+	const auto first_press_enter = input_state.command_first_press(enumCMD.ENTER);
+	const auto force_open = inventory_state && inventory_state->force_open;
+
+	if (!first_press_inventory
+		&& (!first_press_action || !first_press_enter)
+		&& !force_open) {
 		*Trng.pGlobTomb4->pAdr->pInventoryRequiredSlotItem = -1;
 		return;
 	}

@@ -486,7 +486,8 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 			trigger::ItemSelectType::SELECT,
 			trigger::ItemMissingResponse::SILENCE,
 			false,
-			ecs::get_entity_manager()
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
 		);
 	}
 	else if (FlipIndex == 706) {
@@ -495,7 +496,8 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 			trigger::ItemSelectType::SELECT,
 			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
 			true,
-			ecs::get_entity_manager()
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
 		);
 	}
 	else if (FlipIndex == 707) {
@@ -504,7 +506,8 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 			trigger::ItemSelectType::ACTIVATE,
 			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
 			true,
-			ecs::get_entity_manager()
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
 		);
 	}
 	else if (FlipIndex == 708) {
