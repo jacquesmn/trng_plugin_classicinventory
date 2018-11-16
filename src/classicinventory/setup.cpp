@@ -4190,6 +4190,11 @@ void customize_item(
 		set_default_item_displays(*item);
 
 		add_to_ring(*item, ring::RingId::INVENTORY, entity_manager);
+
+		item->add_component(new item::ItemQuantity(
+			[=]() -> int32_t {return MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item_id)]; },
+			[=](int32_t qty) -> void {MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item_id)] = qty; }
+		));
 	}
 
 	auto &item_data = *item->get_component<item::ItemData>();
@@ -4440,6 +4445,10 @@ void customize_item_quantity(
 
 	if (qty_max != -1) {
 		item_qty->quantity_max = max(0, qty_max);
+	}
+
+	if (item_qty->quantity_min > item_qty->quantity_max) {
+		std::swap(item_qty->quantity_min, item_qty->quantity_max);
 	}
 
 	if (supports_unlimited >= 0) {
