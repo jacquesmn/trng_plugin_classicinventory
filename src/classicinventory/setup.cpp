@@ -190,10 +190,11 @@ void setup_MEMCARD_LOAD_INV(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)]; },
-		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = qty; }
+	auto &item_qty = item->add_component(new item::ItemQuantity(
+		[]() -> int32_t {return MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)]; },
+		[](int32_t qty) -> void {MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::LOAD_GAME), item::ItemActionType::LOAD_GAME);
 
@@ -215,10 +216,11 @@ void setup_MEMCARD_SAVE_INV(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)]; },
-		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = qty; }
+	auto &item_qty = item->add_component(new item::ItemQuantity(
+		[]() -> int32_t {return MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)]; },
+		[](int32_t qty) -> void {MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::SAVE_GAME), item::ItemActionType::SAVE_GAME);
 
@@ -240,17 +242,18 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
-		[]() -> int32_t {return MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)]; },
-		[](int32_t qty) -> void {MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = qty; }
+	auto &item_qty = item->add_component(new item::ItemQuantity(
+		[]() -> int32_t {return MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)]; },
+		[](int32_t qty) -> void {MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	auto item_display_active = item::get_item_display_config(*item, item::ItemDisplayType::ACTIVE, item::ItemDisplayType::ACTIVE);
 	if (item_display_active) {
 		item_display_active->orient.x = 100;
 	}
 
-	auto &compass_data = item->add_component(new item::CompassData(1, core::Axis::Y));
+	auto &compass_data = item->add_component(new special::CompassData(1, core::Axis::Y));
 	compass_data.needle_oscill_amplitude_min = 3;
 	compass_data.needle_oscill_amplitude_max = 30;
 	compass_data.needle_oscill_amplitude_settle_frames = 120;
@@ -264,10 +267,11 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackSmall = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 	item_action.action = [=]() {
@@ -276,7 +280,7 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 		}
 	};
 
-	item->add_component(new item::HealthData(500, 0, 116, 31));
+	item->add_component(new special::HealthData(500, 0, 116, 31));
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -298,10 +302,11 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->MediPackLarge = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 	item_action.action = [=]() {
@@ -317,7 +322,7 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 
 	set_tr4_pickup_orientation(*item, enumSLOT.BIGMEDI_ITEM);
 
-	item->add_component(new item::HealthData(1000, 0, 116, 31));
+	item->add_component(new special::HealthData(1000, 0, 116, 31));
 }
 
 void setup_FLARE_INV(ecs::EntityManager &entity_manager)
@@ -327,10 +332,11 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->Flares; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->Flares = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 	item_action.action = [=]() {
@@ -792,10 +798,11 @@ void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -825,6 +832,7 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunNormals = qty; }
 	));
+	item_qty.supports_unlimited = true;
 	item_qty.divider = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -855,6 +863,7 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoShotgunWideShot = qty; }
 	));
+	item_qty.supports_unlimited = true;
 	item_qty.divider = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -881,10 +890,11 @@ void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -910,10 +920,11 @@ void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -939,10 +950,11 @@ void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -973,10 +985,11 @@ void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1007,10 +1020,11 @@ void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1041,10 +1055,11 @@ void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1075,10 +1090,11 @@ void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1109,10 +1125,11 @@ void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
 		return;
 	}
 
-	item->add_component(new item::ItemQuantity(
+	auto &item_qty = item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash = qty; }
 	));
+	item_qty.supports_unlimited = true;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1186,8 +1203,7 @@ void setup_PUZZLE1(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem1; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem1 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1203,8 +1219,7 @@ void setup_PUZZLE2(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem2; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem2 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1220,8 +1235,7 @@ void setup_PUZZLE3(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem3; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem3 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1237,8 +1251,7 @@ void setup_PUZZLE4(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem4; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem4 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1254,8 +1267,7 @@ void setup_PUZZLE5(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem5; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem5 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1271,8 +1283,7 @@ void setup_PUZZLE6(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem6; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem6 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1288,8 +1299,7 @@ void setup_PUZZLE7(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem7; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem7 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1305,8 +1315,7 @@ void setup_PUZZLE8(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem8; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem8 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1322,8 +1331,7 @@ void setup_PUZZLE9(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem9; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem9 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1339,8 +1347,7 @@ void setup_PUZZLE10(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem10; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem10 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1356,8 +1363,7 @@ void setup_PUZZLE11(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem11; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem11 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -1373,8 +1379,7 @@ void setup_PUZZLE12(ecs::EntityManager &entity_manager)
 	item->add_component(new item::ItemQuantity(
 		[]() -> int32_t {return Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem12; },
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->PuzzleItem12 = qty; },
-		1,
-		0
+		UINT8_MAX
 	));
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
@@ -3980,7 +3985,9 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 		if (item && item->has_component<item::ItemQuantity>()) {
 			auto &item_qty = *item->get_component<item::ItemQuantity>();
 
-			item_qty.set(1);
+			if (item_qty.get() == 0) {
+				item_qty.set(1);
+			}
 		}
 	};
 	const auto give_weapon = [give_item](ecs::Entity *item) -> void {
@@ -4183,6 +4190,11 @@ void customize_item(
 		set_default_item_displays(*item);
 
 		add_to_ring(*item, ring::RingId::INVENTORY, entity_manager);
+
+		item->add_component(new item::ItemQuantity(
+			[=]() -> int32_t {return MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item_id)]; },
+			[=](int32_t qty) -> void {MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item_id)] = qty; }
+		));
 	}
 
 	auto &item_data = *item->get_component<item::ItemData>();
@@ -4401,7 +4413,7 @@ void customize_item_quantity(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 6) {
+	if (customize.NArguments < 7) {
 		return;
 	}
 
@@ -4410,7 +4422,8 @@ void customize_item_quantity(
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto qty_min = customize.pVetArg[++cust_index];
 	const auto qty_max = customize.pVetArg[++cust_index];
-	const auto qty_divider = customize.pVetArg[++cust_index];
+	const auto supports_unlimited = customize.pVetArg[++cust_index];
+	const auto divider = customize.pVetArg[++cust_index];
 	const auto qty_get_tgroup = customize.pVetArg[++cust_index];
 	const auto qty_set_tgroup = customize.pVetArg[++cust_index];
 
@@ -4426,11 +4439,24 @@ void customize_item_quantity(
 		item_qty = &item->add_component(new item::ItemQuantity());
 	}
 
-	item_qty->quantity_min = qty_min;
-	item_qty->quantity_max = qty_max;
+	if (qty_min != -1) {
+		item_qty->quantity_min = max(0, qty_min);
+	}
 
-	if (qty_divider > 0) {
-		item_qty->divider = qty_divider;
+	if (qty_max != -1) {
+		item_qty->quantity_max = max(0, qty_max);
+	}
+
+	if (item_qty->quantity_min > item_qty->quantity_max) {
+		std::swap(item_qty->quantity_min, item_qty->quantity_max);
+	}
+
+	if (supports_unlimited >= 0) {
+		item_qty->supports_unlimited = supports_unlimited == CINV_TRUE;
+	}
+
+	if (divider > 0) {
+		item_qty->divider = divider;
 	}
 
 	if (qty_get_tgroup != -1) {
@@ -4757,9 +4783,9 @@ void customize_health(
 		item_action->sort_index = -1;
 	}
 
-	auto health_data = item->get_component<item::HealthData>();
+	auto health_data = item->get_component<special::HealthData>();
 	if (!health_data) {
-		health_data = &item->add_component(new item::HealthData(0, 0, 116, 31));
+		health_data = &item->add_component(new special::HealthData(0, 0, 116, 31));
 
 		// only perform existing action if first time adding health data
 		// this is to allow existing medi-actions to be performed only once
@@ -4819,9 +4845,9 @@ void customize_compass(
 		return;
 	}
 
-	auto compass_data = item->get_component<item::CompassData>();
+	auto compass_data = item->get_component<special::CompassData>();
 	if (!compass_data) {
-		compass_data = &item->add_component(new item::CompassData(0, core::Axis::Y));
+		compass_data = &item->add_component(new special::CompassData(0, core::Axis::Y));
 	}
 
 	if (needle_mesh_index >= 0) {
@@ -4871,9 +4897,9 @@ void customize_stopwatch(
 		return;
 	}
 
-	auto stopwatch_data = item->get_component<item::StopwatchData>();
+	auto stopwatch_data = item->get_component<special::StopwatchData>();
 	if (!stopwatch_data) {
-		stopwatch_data = &item->add_component(new item::StopwatchData(0, core::Axis::Y, 0, core::Axis::Y, 0, core::Axis::Y));
+		stopwatch_data = &item->add_component(new special::StopwatchData(0, core::Axis::Y, 0, core::Axis::Y, 0, core::Axis::Y));
 	}
 
 	if (hour_hand_mesh_index >= 0) {
@@ -4923,9 +4949,9 @@ void customize_passport(
 		return;
 	}
 
-	auto passport_data = item->get_component<item::PassportData>();
+	auto passport_data = item->get_component<special::PassportData>();
 	if (!passport_data) {
-		passport_data = &item->add_component(new item::PassportData());
+		passport_data = &item->add_component(new special::PassportData());
 	}
 
 	if (page_sound_id >= 0) {
@@ -4954,9 +4980,9 @@ void customize_map(
 		return;
 	}
 
-	auto map_data = item->get_component<item::MapData>();
+	auto map_data = item->get_component<special::MapData>();
 	if (!map_data) {
-		map_data = &item->add_component(new item::MapData());
+		map_data = &item->add_component(new special::MapData());
 	}
 
 	if (cancelable >= 0) {
@@ -4973,7 +4999,7 @@ void customize_map(
 			continue;
 		}
 
-		map_data->markers.push_back(item::MapMarker(marker_mesh_index));
+		map_data->markers.push_back(special::MapMarker(marker_mesh_index));
 
 		auto &marker = map_data->markers.back();
 
@@ -5025,8 +5051,8 @@ void customize_duration(
 		case inventory::DurationType::RING_CHANGE:
 			inventory_duration.ring_change_frames = duration_frames;
 			break;
-		case inventory::DurationType::ITEM_SELECT:
-			inventory_duration.item_select_frames = duration_frames;
+		case inventory::DurationType::ITEM_ACTIVATE:
+			inventory_duration.item_activate_frames = duration_frames;
 			break;
 		case inventory::DurationType::ITEM_SPIN:
 			inventory_duration.item_spin_frames = duration_frames;
@@ -5101,7 +5127,7 @@ void customize_sfx(
 	case sound::SfxType::RING_CHANGE:
 		inventory_sfx.ring_change_sound_id = sound_id;
 		break;
-	case sound::SfxType::ITEM_SELECT:
+	case sound::SfxType::ITEM_ACTIVATE:
 		inventory_sfx.item_select_sound_id = sound_id;
 		break;
 	case sound::SfxType::ITEM_CANCEL:
@@ -5594,7 +5620,7 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory_duration.inventory_open_frames = 18;
 	inventory_duration.ring_change_frames = 14;
 	inventory_duration.ring_rotate_frames = 10;
-	inventory_duration.item_select_frames = 10;
+	inventory_duration.item_activate_frames = 10;
 	inventory_duration.item_spin_frames = 120;
 
 	auto &inventory_sfx = inventory.add_component(new inventory::InventorySfx());

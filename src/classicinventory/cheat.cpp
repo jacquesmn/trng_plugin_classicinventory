@@ -23,6 +23,7 @@
 #include <algorithm>
 
 #include <trng_core.h>
+#include "core.h"
 #include "inventory.h"
 #include "item.h"
 #include "state.h"
@@ -37,6 +38,10 @@ CheatSystem::CheatSystem(input::InputState &input_state)
 
 void CheatSystem::init(ecs::EntityManager & entity_manager, ecs::SystemManager & system_manager)
 {
+	if (!cheats_enabled()) {
+		return;
+	}
+
 	const auto cheat_entities = entity_manager.find_entities_with_component<CheatConfig>();
 
 	// turn on cheats
@@ -106,6 +111,11 @@ void do_active_cheats(ecs::Entity &entity)
 bool facing_north()
 {
 	return Trng.pGlobTomb4->pAdr->pLara->OrientationH == 0;
+}
+
+bool cheats_enabled()
+{
+	return !core::bit_set(Trng.pGlobTomb4->Settings, 1);
 }
 
 }

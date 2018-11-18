@@ -182,7 +182,7 @@ enum Enum {
 namespace ItemAnimationType {
 enum Enum {
 	IDLE = 1,
-	SELECT,
+	ACTIVATE,
 	CANCEL,
 	PASSPORT_PAGE2,
 	PASSPORT_PAGE3
@@ -202,7 +202,7 @@ enum Enum {
 	STATISTICS,
 	OPTIONS,
 	CONTROLS,
-	EXIT,
+	EXIT_TO_TITLE,
 	CUSTOM
 };
 }
@@ -348,19 +348,21 @@ public:
 	int32_t quantity_max;
 	int32_t quantity_min;
 	int32_t divider;
+	bool supports_unlimited;
 
 	ItemQuantity(
 		std::function<int32_t(void)> get_quantity = []() -> int32_t {return 0; },
 		std::function<void(int32_t)> set_quantity = [](int32_t) -> void {},
 		int32_t quantity_max = INT16_MAX,
-		int32_t quantity_min = -1
+		int32_t quantity_min = 0
 	)
 		:
 		get_quantity(get_quantity),
 		set_quantity(set_quantity),
 		quantity_max(quantity_max),
 		quantity_min(quantity_min),
-		divider(1)
+		divider(1),
+		supports_unlimited(false)
 	{}
 
 	int32_t get() const;
@@ -519,146 +521,6 @@ struct ExamineData : public ecs::Component {
 		text_1(text_1),
 		text_2(text_2),
 		text_3(text_3)
-	{}
-};
-
-struct HealthData : public ecs::Component {
-	int32_t health_points;
-	uint32_t poison_points;
-	int32_t heal_sound_id;
-	int32_t hurt_sound_id;
-	bool cure_poison;
-	bool increase_usage_stats;
-
-	HealthData(
-		int32_t health_points,
-		uint32_t poison_points = 0,
-		int32_t heal_sound_id = -1,
-		int32_t hurt_sound_id = -1,
-		bool cure_poison = true,
-		bool increase_usage_stats = true
-	)
-		:
-		health_points(health_points),
-		poison_points(poison_points),
-		heal_sound_id(heal_sound_id),
-		hurt_sound_id(hurt_sound_id),
-		cure_poison(cure_poison),
-		increase_usage_stats(increase_usage_stats)
-	{}
-};
-
-struct CompassData : public ecs::Component {
-	int32_t needle_mesh_index;
-	core::Axis::Enum needle_mesh_axis;
-	float needle_angle;
-
-	float needle_oscill_amplitude;
-	float needle_oscill_amplitude_min;
-	float needle_oscill_amplitude_max;
-	float needle_oscill_angle;
-
-	uint32_t needle_oscill_amplitude_settle_frames;
-	uint32_t needle_oscill_period_frames;
-
-	float bearing;
-
-	CompassData(
-		int32_t needle_mesh_index,
-		core::Axis::Enum needle_mesh_axis = core::Axis::Y
-	)
-		:
-		needle_mesh_index(needle_mesh_index),
-		needle_mesh_axis(needle_mesh_axis),
-		needle_angle(0),
-		needle_oscill_amplitude(0),
-		needle_oscill_amplitude_min(0),
-		needle_oscill_amplitude_max(0),
-		needle_oscill_angle(0),
-		needle_oscill_amplitude_settle_frames(0),
-		needle_oscill_period_frames(0),
-		bearing(0)
-	{}
-};
-
-struct StopwatchData : public ecs::Component {
-	int32_t hour_hand_mesh_index;
-	core::Axis::Enum hour_hand_mesh_axis;
-	int32_t minute_hand_mesh_index;
-	core::Axis::Enum minute_hand_mesh_axis;
-	int32_t second_hand_mesh_index;
-	core::Axis::Enum second_hand_mesh_axis;
-	int32_t frequency_frames;
-
-	float hour_hand_angle;
-	float minute_hand_angle;
-	float second_hand_angle;
-
-	StopwatchData(
-		int32_t hour_hand_mesh_index,
-		core::Axis::Enum hour_hand_mesh_axis,
-		int32_t minute_hand_mesh_index,
-		core::Axis::Enum minute_hand_mesh_axis,
-		int32_t second_hand_mesh_index,
-		core::Axis::Enum second_hand_mesh_axis,
-		int32_t frequency_frames = 30
-	)
-		:
-		hour_hand_mesh_index(hour_hand_mesh_index),
-		hour_hand_mesh_axis(hour_hand_mesh_axis),
-		minute_hand_mesh_index(minute_hand_mesh_index),
-		minute_hand_mesh_axis(minute_hand_mesh_axis),
-		second_hand_mesh_index(second_hand_mesh_index),
-		second_hand_mesh_axis(second_hand_mesh_axis),
-		frequency_frames(frequency_frames),
-		hour_hand_angle(0),
-		minute_hand_angle(0),
-		second_hand_angle(0)
-	{}
-};
-
-struct PassportData : public ecs::Component {
-	int32_t page;
-	int32_t page_sound_id;
-
-	PassportData(
-		int32_t page = 0,
-		int32_t page_sound_id = -1
-	)
-		:
-		page(page),
-		page_sound_id(page_sound_id)
-	{}
-};
-
-struct MapMarker : public ecs::Component {
-	int32_t mesh_index;
-	core::Vector3D map_orient;
-	ItemAction *action;
-
-	MapMarker(
-		int32_t mesh_index,
-		core::Vector3D map_orient = core::Vector3D()
-	)
-		:
-		mesh_index(mesh_index),
-		map_orient(map_orient),
-		action(nullptr)
-	{}
-};
-
-struct MapData : public ecs::Component {
-	std::vector<MapMarker> markers;
-	uint32_t marker_index;
-	bool marker_active;
-	bool cancelable;
-
-	MapData()
-		:
-		markers(std::vector<MapMarker>()),
-		marker_index(0),
-		marker_active(false),
-		cancelable(true)
 	{}
 };
 

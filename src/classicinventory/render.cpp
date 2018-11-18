@@ -20,15 +20,14 @@
 
 #include "render.h"
 
-#include <algorithm>
-
 #include <trng_core.h>
-#include "core.h"
 #include "camera.h"
 #include "cheat.h"
+#include "core.h"
 #include "inventory.h"
-#include "ring.h"
 #include "item.h"
+#include "ring.h"
+#include "special.h"
 
 extern TYPE_CreateMonoScreen CreateMonoScreen;
 extern TYPE_FreeMonoScreen FreeMonoScreen;
@@ -310,28 +309,30 @@ void InventoryRenderSystem::draw_item(
 		int16_t mesh_rot_special = 0;
 		core::Axis::Enum mesh_rot_special_axis = core::Axis::X;
 
-		if (item.has_component<item::CompassData>()) {
-			auto &compass_data = *item.get_component<item::CompassData>();
+		if (item.has_component<special::CompassData>()) {
+			auto &compass_data = *item.get_component<special::CompassData>();
 
 			if (compass_data.needle_mesh_index == mesh_index) {
 				// rotate compass needle
 				mesh_rot_special = core::degrees_to_tr4_angle(compass_data.needle_angle);
 				mesh_rot_special_axis = compass_data.needle_mesh_axis;
 
-				// make needle transparent if cheats enabled
-				const auto cheat_entity = entity_manager.find_entity_with_component <cheat::CheatConfig>([](const cheat::CheatConfig &config) -> bool {
-					return config.enabled()
-						&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
-				});
-				if (cheat_entity) {
-					*poly_alpha = min(128, *poly_alpha >> 24) << 24;
+				// make needle transparent if cheats are enabled
+				if (cheat::cheats_enabled()) {
+					const auto cheat_entity = entity_manager.find_entity_with_component <cheat::CheatConfig>([](const cheat::CheatConfig &config) -> bool {
+						return config.enabled()
+							&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
+					});
+					if (cheat_entity) {
+						*poly_alpha = min(128, *poly_alpha >> 24) << 24;
+					}
 				}
 			}
 		}
 
 		// rotate stopwatch hands
-		if (item.has_component<item::StopwatchData>()) {
-			auto &stopwatch_data = *item.get_component<item::StopwatchData>();
+		if (item.has_component<special::StopwatchData>()) {
+			auto &stopwatch_data = *item.get_component<special::StopwatchData>();
 
 			if (stopwatch_data.hour_hand_mesh_index == mesh_index) {
 				mesh_rot_special = core::degrees_to_tr4_angle(-stopwatch_data.hour_hand_angle);
@@ -348,8 +349,8 @@ void InventoryRenderSystem::draw_item(
 		}
 
 		// only draw the active map marker
-		if (item.has_component<item::MapData>()) {
-			auto &map_data = *item.get_component<item::MapData>();
+		if (item.has_component<special::MapData>()) {
+			auto &map_data = *item.get_component<special::MapData>();
 
 			for (uint32_t i = 0; i < map_data.markers.size(); ++i) {
 				auto &marker = map_data.markers.at(i);

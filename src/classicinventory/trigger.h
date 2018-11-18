@@ -49,7 +49,8 @@ void flipeffect_open_inventory_at_item(
 	ItemSelectType::Enum select_type,
 	ItemMissingResponse::Enum missing_response,
 	bool open_now,
-	ecs::EntityManager &entity_manager
+	ecs::EntityManager &entity_manager,
+	ecs::SystemManager &system_manager
 );
 
 void flipeffect_show_pickup_notifier(int32_t item_id, ecs::EntityManager &entity_manager);

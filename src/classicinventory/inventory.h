@@ -37,7 +37,7 @@ enum Enum {
 	INVENTORY_OPEN = 1,
 	RING_ROTATE,
 	RING_CHANGE,
-	ITEM_SELECT,
+	ITEM_ACTIVATE,
 	ITEM_SPIN,
 	NONE
 };
@@ -87,7 +87,7 @@ struct InventoryDuration : public ecs::Component {
 	uint32_t inventory_open_frames;
 	uint32_t ring_change_frames;
 	uint32_t ring_rotate_frames;
-	uint32_t item_select_frames;
+	uint32_t item_activate_frames;
 	uint32_t item_spin_frames;
 
 	InventoryDuration()
@@ -95,7 +95,7 @@ struct InventoryDuration : public ecs::Component {
 		inventory_open_frames(0),
 		ring_change_frames(0),
 		ring_rotate_frames(0),
-		item_select_frames(0),
+		item_activate_frames(0),
 		item_spin_frames(0)
 	{}
 };

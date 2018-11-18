@@ -324,7 +324,7 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 						);
 
 						// add health bar
-						if (item.has_component<item::HealthData>()) {
+						if (item.has_component<special::HealthData>()) {
 							const auto &health_bar_cust = Trng.pGlobTomb4->pBaseCustomize->VetBar[BAR_HEALTH];
 
 							item.add_component(new render::ScreenBar(
@@ -403,7 +403,7 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 	}
 }
 
-State* IdleState::update(ecs::EntityManager & entity_manager)
+State* IdleState::update(ecs::EntityManager &entity_manager)
 {
 	const auto inventory_state = inventory::get_inventory_state(entity_manager);
 
@@ -717,7 +717,7 @@ void ItemActivateState::start(ecs::EntityManager &entity_manager)
 		uint32_t duration_frames = 0;
 		const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 		if (inventory_duration) {
-			duration_frames = inventory_duration->item_select_frames;
+			duration_frames = inventory_duration->item_activate_frames;
 		}
 
 		// move to active position
@@ -797,7 +797,7 @@ void ItemActivateState::start(ecs::EntityManager &entity_manager)
 		// start animation, if any
 		if (item_active.has_component<item::ItemAnimation>()) {
 			const auto item_animation = item_active.get_component<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
-				return item_animation.type == item::ItemAnimationType::SELECT;
+				return item_animation.type == item::ItemAnimationType::ACTIVATE;
 			});
 
 			if (item_animation && !item_animation->wait_for_motions) {
@@ -828,7 +828,7 @@ void ItemActivateState::start(ecs::EntityManager &entity_manager)
 		}
 
 		// add sfx
-		add_sfx(sound::SfxType::ITEM_SELECT, false, *inventory, &item_active);
+		add_sfx(sound::SfxType::ITEM_ACTIVATE, false, *inventory, &item_active);
 	}
 
 	clear_hud(entity_manager);
@@ -865,7 +865,7 @@ State* ItemActivateState::update(ecs::EntityManager &entity_manager)
 				// start animation, if any and not already
 				if (item_active->item.has_component<item::ItemAnimation>()) {
 					const auto item_animation = item_active->item.get_component<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
-						return item_animation.type == item::ItemAnimationType::SELECT;
+						return item_animation.type == item::ItemAnimationType::ACTIVATE;
 					});
 
 					if (item_animation && !item_animation->active) {
@@ -887,10 +887,10 @@ State* ItemActivateState::update(ecs::EntityManager &entity_manager)
 
 		// go to special state depending on item components
 		if (item_active) {
-			if (item_active->item.has_component<item::PassportData>()) {
+			if (item_active->item.has_component<special::PassportData>()) {
 				return new PassportState();
 			}
-			if (item_active->item.has_component<item::MapData>()) {
+			if (item_active->item.has_component<special::MapData>()) {
 				return new MapState();
 			}
 		}
@@ -1132,7 +1132,7 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 						else if (active_action->type == item::ItemActionType::CONTROLS) {
 							return new OptionsState(true);
 						}
-						else if (active_action->type == item::ItemActionType::EXIT) {
+						else if (active_action->type == item::ItemActionType::EXIT_TO_TITLE) {
 							action::exit_to_title();
 
 							return new ItemCancelState([]() -> State* {
@@ -1152,7 +1152,7 @@ State* ItemActiveState::input(input::InputState &input_state, ecs::EntityManager
 							uint32_t duration_frames = 0;
 							const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 							if (inventory_duration) {
-								duration_frames = inventory_duration->item_select_frames;
+								duration_frames = inventory_duration->item_activate_frames;
 							}
 
 							// move active item to context position
@@ -1375,7 +1375,7 @@ State* ItemCancelState::update(ecs::EntityManager &entity_manager)
 					uint32_t duration_frames = 0;
 					const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 					if (inventory_duration) {
-						duration_frames = inventory_duration->item_select_frames;
+						duration_frames = inventory_duration->item_activate_frames;
 					}
 
 					// move to idle position
@@ -1569,7 +1569,7 @@ State* AmmoContextState::input(input::InputState &input_state, ecs::EntityManage
 						uint32_t duration_frames = 0;
 						const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 						if (inventory_duration) {
-							duration_frames = inventory_duration->item_select_frames;
+							duration_frames = inventory_duration->item_activate_frames;
 						}
 
 						// move active item to active position
@@ -1692,7 +1692,7 @@ void AmmoLoadState::start(ecs::EntityManager &entity_manager)
 	uint32_t duration_frames = 0;
 	const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 	if (inventory_duration) {
-		duration_frames = inventory_duration->item_select_frames;
+		duration_frames = inventory_duration->item_activate_frames;
 	}
 
 	// move selected item to context position
@@ -1819,7 +1819,7 @@ State* AmmoLoadState::update(ecs::EntityManager &entity_manager)
 								uint32_t duration_frames = 0;
 								const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 								if (inventory_duration) {
-									duration_frames = inventory_duration->item_select_frames;
+									duration_frames = inventory_duration->item_activate_frames;
 								}
 
 								// move active item to active position
@@ -2014,7 +2014,7 @@ State* ComboContextState::input(input::InputState &input_state, ecs::EntityManag
 						uint32_t duration_frames = 0;
 						const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 						if (inventory_duration) {
-							duration_frames = inventory_duration->item_select_frames;
+							duration_frames = inventory_duration->item_activate_frames;
 						}
 
 						// move active item to active position
@@ -2137,7 +2137,7 @@ void ComboTryState::start(ecs::EntityManager &entity_manager)
 	uint32_t duration_frames = 0;
 	const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 	if (inventory_duration) {
-		duration_frames = inventory_duration->item_select_frames;
+		duration_frames = inventory_duration->item_activate_frames;
 	}
 
 	// move selected item to context position
@@ -2299,7 +2299,7 @@ State* ComboTryState::update(ecs::EntityManager &entity_manager)
 											uint32_t duration_frames = 0;
 											const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 											if (inventory_duration) {
-												duration_frames = inventory_duration->item_select_frames;
+												duration_frames = inventory_duration->item_activate_frames;
 											}
 
 											// move active item to active position
@@ -2458,7 +2458,7 @@ void ExamineState::start(ecs::EntityManager &entity_manager)
 	uint32_t duration_frames = 0;
 	const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 	if (inventory_duration) {
-		duration_frames = inventory_duration->item_select_frames;
+		duration_frames = inventory_duration->item_activate_frames;
 	}
 
 	// move item to examine position
@@ -2592,7 +2592,7 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 					uint32_t duration_frames = 0;
 					const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 					if (inventory_duration) {
-						duration_frames = inventory_duration->item_select_frames;
+						duration_frames = inventory_duration->item_activate_frames;
 					}
 
 					// restore item back to active position
@@ -2744,7 +2744,7 @@ void StatisticsState::start(ecs::EntityManager &entity_manager)
 	uint32_t duration_frames = 0;
 	const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 	if (inventory_duration) {
-		duration_frames = inventory_duration->item_select_frames;
+		duration_frames = inventory_duration->item_activate_frames;
 	}
 
 	inventory::fade_out_ring(inventory_state.ring->ring, core::round(duration_frames * 0.25f));
@@ -2765,7 +2765,7 @@ void StatisticsState::end(ecs::EntityManager &entity_manager)
 	uint32_t duration_frames = 0;
 	const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 	if (inventory_duration) {
-		duration_frames = inventory_duration->item_select_frames;
+		duration_frames = inventory_duration->item_activate_frames;
 	}
 
 	inventory::fade_in_ring(inventory_state.ring->ring, core::round(duration_frames * 0.25f));
@@ -2800,7 +2800,7 @@ void OptionsState::start(ecs::EntityManager &entity_manager)
 	uint32_t duration_frames = 0;
 	const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 	if (inventory_duration) {
-		duration_frames = inventory_duration->item_select_frames;
+		duration_frames = inventory_duration->item_activate_frames;
 	}
 
 	inventory::fade_out_ring(inventory_state.ring->ring, core::round(duration_frames * 0.25f));
@@ -2821,7 +2821,7 @@ void OptionsState::end(ecs::EntityManager &entity_manager)
 	uint32_t duration_frames = 0;
 	const auto inventory_duration = inventory->get_component<inventory::InventoryDuration>();
 	if (inventory_duration) {
-		duration_frames = inventory_duration->item_select_frames;
+		duration_frames = inventory_duration->item_activate_frames;
 	}
 
 	inventory::fade_in_ring(inventory_state.ring->ring, core::round(duration_frames * 0.25f));
@@ -2866,8 +2866,8 @@ void PassportState::start(ecs::EntityManager &entity_manager)
 	if (ring_item_active) {
 		auto &item_active = ring_item_active->item;
 
-		if (item_active.has_component<item::PassportData>()) {
-			auto &passport_data = *item_active.get_component<item::PassportData>();
+		if (item_active.has_component<special::PassportData>()) {
+			auto &passport_data = *item_active.get_component<special::PassportData>();
 
 			// open on first page
 			passport_data.page = 1;
@@ -2887,9 +2887,9 @@ State* PassportState::update(ecs::EntityManager & entity_manager)
 			auto &item_active = ring_item_active->item;
 
 			if (item_active.has_component<item::ItemData>()
-				&& item_active.has_component<item::PassportData>()) {
+				&& item_active.has_component<special::PassportData>()) {
 				auto &item_data = *item_active.get_component<item::ItemData>();
-				auto &passport_data = *item_active.get_component<item::PassportData>();
+				auto &passport_data = *item_active.get_component<special::PassportData>();
 
 				if (closing) {
 					// passport is busy closing
@@ -2904,7 +2904,7 @@ State* PassportState::update(ecs::EntityManager & entity_manager)
 					// page count is hardcoded for now
 					// page 1 and 2 will reverse animations back to front cover
 					// page 3 will play normal closing animation
-					const auto passport_anim_open = find_item_anim(item_active, item::ItemAnimationType::SELECT);
+					const auto passport_anim_open = find_item_anim(item_active, item::ItemAnimationType::ACTIVATE);
 					const auto passport_anim_page2 = find_item_anim(item_active, item::ItemAnimationType::PASSPORT_PAGE2);
 					const auto passport_anim_close = find_item_anim(item_active, item::ItemAnimationType::CANCEL);
 
@@ -3028,8 +3028,8 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 		if (ring_item_active) {
 			auto &item_active = ring_item_active->item;
 
-			if (item_active.has_component<item::PassportData>()) {
-				auto &passport_data = *item_active.get_component<item::PassportData>();
+			if (item_active.has_component<special::PassportData>()) {
+				auto &passport_data = *item_active.get_component<special::PassportData>();
 
 				const auto find_item_anim = [](const ecs::Entity &item, item::ItemAnimationType::Enum anim_type) -> item::ItemAnimation* {
 					return item.get_component<item::ItemAnimation>([&](item::ItemAnimation &anim) -> bool {
@@ -3104,7 +3104,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 								closing = true;
 							}
 						}
-						else if (action->type == item::ItemActionType::EXIT) {
+						else if (action->type == item::ItemActionType::EXIT_TO_TITLE) {
 							action::exit_to_title();
 
 							get_post_closing_state = []() -> State* {
@@ -3191,11 +3191,11 @@ void MapState::start(ecs::EntityManager &entity_manager)
 	auto &item_active = ring_item_active->item;
 
 	if (!item_active.has_component<item::ItemData>()
-		|| !item_active.has_component<item::MapData>()) {
+		|| !item_active.has_component<special::MapData>()) {
 		return;
 	}
 	auto &item_data = *item_active.get_component<item::ItemData>();
-	auto &map_data = *item_active.get_component<item::MapData>();
+	auto &map_data = *item_active.get_component<special::MapData>();
 
 	// add text for item name
 	if (inventory) {
@@ -3218,7 +3218,7 @@ void MapState::start(ecs::EntityManager &entity_manager)
 	const auto marker_count = map_data.markers.size();
 
 	// load saved marker index
-	const auto marker_index = MyData.Save.Local.inventory_data.map_marker_active[item::item_id_to_item_index(item_data.item_id)];
+	const auto marker_index = MyData.Save.Global.inventory_data.map_marker_active[item::item_id_to_item_index(item_data.item_id)];
 	if (marker_index >= 0 && marker_index < marker_count) {
 		map_data.marker_index = marker_index;
 	}
@@ -3240,7 +3240,7 @@ void MapState::start(ecs::EntityManager &entity_manager)
 	uint32_t duration_frames = 0;
 	if (inventory) {
 		const auto &inventory_duration = *inventory->get_component<inventory::InventoryDuration>();
-		duration_frames = inventory_duration.item_select_frames;
+		duration_frames = inventory_duration.item_activate_frames;
 	}
 
 	update_map_marker(item_active, item_display, map_data, duration_frames, entity_manager);
@@ -3256,9 +3256,9 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 		if (ring_item_active) {
 			auto &item_active = ring_item_active->item;
 
-			if (item_active.has_component<item::MapData>()
+			if (item_active.has_component<special::MapData>()
 				&& item_active.has_component<item::ItemDisplay>()) {
-				auto &map_data = *item_active.get_component<item::MapData>();
+				auto &map_data = *item_active.get_component<special::MapData>();
 				auto &item_display = *item_active.get_component<item::ItemDisplay>();
 
 				const auto marker_count = map_data.markers.size();
@@ -3343,7 +3343,7 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 					const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryDuration>();
 					if (inventory) {
 						const auto &inventory_duration = *inventory->get_component<inventory::InventoryDuration>();
-						duration_frames = inventory_duration.item_select_frames;
+						duration_frames = inventory_duration.item_activate_frames;
 					}
 
 					update_map_marker(item_active, item_display, map_data, duration_frames, entity_manager);
@@ -3360,7 +3360,7 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 void MapState::update_map_marker(
 	ecs::Entity &item,
 	item::ItemDisplay &item_display,
-	item::MapData &map_data,
+	special::MapData &map_data,
 	uint32_t duration_frames,
 	ecs::EntityManager &entity_manager
 )
@@ -3440,7 +3440,7 @@ void MapState::update_map_marker(
 	// save the current marker index
 	const auto item_data = item.get_component<item::ItemData>();
 	if (item_data) {
-		MyData.Save.Local.inventory_data.map_marker_active[item::item_id_to_item_index(item_data->item_id)] = map_data.marker_index;
+		MyData.Save.Global.inventory_data.map_marker_active[item::item_id_to_item_index(item_data->item_id)] = map_data.marker_index;
 	}
 }
 
@@ -4060,7 +4060,7 @@ void add_sfx(
 		case sound::SfxType::RING_CHANGE:
 			default_sound_id = inventory_sfx.ring_change_sound_id;
 			break;
-		case sound::SfxType::ITEM_SELECT:
+		case sound::SfxType::ITEM_ACTIVATE:
 			default_sound_id = inventory_sfx.item_select_sound_id;
 			break;
 		case sound::SfxType::ITEM_CANCEL:

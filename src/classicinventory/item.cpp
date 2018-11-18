@@ -49,7 +49,8 @@ bool ItemQuantity::set(int32_t qty) const
 		qty = divider * qty;
 	}
 
-	if (set_quantity && qty >= quantity_min && qty <= quantity_max) {
+	if (set_quantity
+		&& ((qty >= quantity_min && qty <= quantity_max) || (qty == ITEM_QTY_UNLIMITED && supports_unlimited))) {
 		set_quantity(qty);
 
 		return true;
@@ -62,7 +63,7 @@ bool ItemQuantity::increment(int32_t qty) const {
 	const auto quantity = get();
 
 	if (quantity != ITEM_QTY_UNLIMITED) {
-		return set(quantity + qty);
+		return set(min(quantity_max, quantity + qty));
 	}
 
 	return false;
@@ -72,7 +73,7 @@ bool ItemQuantity::decrement(int32_t qty) const {
 	const auto quantity = get();
 
 	if (quantity != ITEM_QTY_UNLIMITED) {
-		return set(quantity - qty);
+		return set(max(quantity_min, quantity - qty));
 	}
 
 	return false;

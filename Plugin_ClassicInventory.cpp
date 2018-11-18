@@ -435,14 +435,19 @@ void cbInitLoadNewLevel(void)
 	MyData.TotProgrActions = 0;
 	MyData.LastProgrActionIndex = 0;
 
+	// clear GLOBAL inventory state
+	// GLOBAL state will still be carried over between levels
+	// this is just to prevent GLOBAL state from being carried over to the title screen and subsequent new-game
+	ClearMemory(&MyData.Save.Global.inventory_data, sizeof(MyData.Save.Global.inventory_data));
+
 	// init inventory state
 	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
 	MyData.Save.Local.inventory_data.item_id_selected = item::ItemId::NONE;
 	MyData.Save.Local.inventory_data.item_id_used = item::ItemId::NONE;
-	
-	MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = 1;
-	MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = 1;
-	MyData.Save.Local.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = 1;
+
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = 1;
 
 	// here you can initialise other variables of MyData different than Local and progressive actions
 	// free resources allocate in previous level
@@ -486,7 +491,8 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 			trigger::ItemSelectType::SELECT,
 			trigger::ItemMissingResponse::SILENCE,
 			false,
-			ecs::get_entity_manager()
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
 		);
 	}
 	else if (FlipIndex == 706) {
@@ -495,7 +501,8 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 			trigger::ItemSelectType::SELECT,
 			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
 			true,
-			ecs::get_entity_manager()
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
 		);
 	}
 	else if (FlipIndex == 707) {
@@ -504,7 +511,8 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 			trigger::ItemSelectType::ACTIVATE,
 			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
 			true,
-			ecs::get_entity_manager()
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
 		);
 	}
 	else if (FlipIndex == 708) {
