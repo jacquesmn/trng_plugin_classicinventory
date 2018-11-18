@@ -1,4 +1,4 @@
-Classic Inventory 0.9.0.5
+Classic Inventory 0.9.0.6
 -------------------------
 Required TRNG version: 1.3.0.7
 
@@ -19,6 +19,7 @@ Main Features
 * Item descriptions
 * Item 3D models can be any moveable slot
 * Custom item actions
+* Support for new items
 * Support for custom source of item quantities, e.g. using script variables
 * Support for custom ammo types
 * Custom combos with support for two final items (e.g. waterskins)
