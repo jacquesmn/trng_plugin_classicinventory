@@ -79,17 +79,21 @@ bool bit_set(T &value, uint32_t bit, bool partial = false)
 {
 	if (partial) {
 		return (value & bit) != 0;
-	} else {
+	}
+	else {
 		return (value & bit) == bit;
 	}
 }
 
 float degrees_to_radians(float degrees);
+float radians_to_degrees(float radians);
 uint16_t degrees_to_tr4_angle(float degrees);
 float tr4_angle_to_degrees(uint16_t angle);
 void wrap_angle(float &degrees);
 float angle_diff_smallest(float angle_a_degrees, float angle_b_degrees);
 int32_t round(float x);
+float random(float range_min, float range_max);
+int random_sign();
 void jmn_PopMatrix();
 
 }

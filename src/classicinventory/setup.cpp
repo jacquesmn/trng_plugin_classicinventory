@@ -254,10 +254,8 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 	}
 
 	auto &compass_data = item->add_component(new special::CompassData(1, core::Axis::Y));
-	compass_data.needle_oscill_amplitude_min = 3;
-	compass_data.needle_oscill_amplitude_max = 30;
-	compass_data.needle_oscill_amplitude_settle_frames = 120;
-	compass_data.needle_oscill_period_frames = 60;
+	compass_data.needle_attraction = 1.0f;
+	compass_data.needle_friction = 0.03f;
 }
 
 void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
@@ -4824,7 +4822,7 @@ void customize_compass(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 7) {
+	if (customize.NArguments < 5) {
 		return;
 	}
 
@@ -4833,10 +4831,8 @@ void customize_compass(
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto needle_mesh_index = customize.pVetArg[++cust_index];
 	const auto needle_mesh_axis = customize.pVetArg[++cust_index];
-	const auto needle_oscill_amp_max = customize.pVetArg[++cust_index];
-	const auto needle_oscill_amp_min = customize.pVetArg[++cust_index];
-	const auto needle_oscill_amp_settle_frames = customize.pVetArg[++cust_index];
-	const auto needle_oscill_period_frames = customize.pVetArg[++cust_index];
+	const auto needle_attraction = customize.pVetArg[++cust_index];
+	const auto needle_friction = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -4856,17 +4852,11 @@ void customize_compass(
 	if (needle_mesh_axis >= 0) {
 		compass_data->needle_mesh_axis = static_cast<core::Axis::Enum>(needle_mesh_axis);
 	}
-	if (needle_oscill_amp_max >= 0) {
-		compass_data->needle_oscill_amplitude_max = needle_oscill_amp_max;
+	if (needle_attraction >= 0) {
+		compass_data->needle_attraction = needle_attraction / 100.f;
 	}
-	if (needle_oscill_amp_min >= 0) {
-		compass_data->needle_oscill_amplitude_min = needle_oscill_amp_min;
-	}
-	if (needle_oscill_amp_settle_frames >= 0) {
-		compass_data->needle_oscill_amplitude_settle_frames = needle_oscill_amp_settle_frames;
-	}
-	if (needle_oscill_period_frames >= 0) {
-		compass_data->needle_oscill_period_frames = needle_oscill_period_frames;
+	if (needle_friction >= 0) {
+		compass_data->needle_friction = min(100, needle_friction) / 100.f;
 	}
 }
 

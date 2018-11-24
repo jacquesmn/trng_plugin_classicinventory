@@ -71,7 +71,6 @@ void CompassSystem::init(
 	ecs::SystemManager &system_manager
 )
 {
-	// initialize compass
 	auto compasses = entity_manager.find_entities_with_component<CompassData>();
 	for (auto compass_it = compasses.begin(); compass_it != compasses.end(); ++compass_it) {
 		auto &compass = **compass_it;
@@ -79,27 +78,10 @@ void CompassSystem::init(
 
 		compass_data.bearing = core::tr4_angle_to_degrees(-Trng.pGlobTomb4->pAdr->pLara->OrientationH) + 180;
 
-		compass.add_component(new motion::Motion(
-			compass_data.needle_oscill_angle,
-			0,
-			360,
-			compass_data.needle_oscill_period_frames,
-			0,
-			motion::Motion::FORWARD,
-			true,
-			true
-		));
-
-		compass.add_component(new motion::Motion(
-			compass_data.needle_oscill_amplitude,
-			compass_data.needle_oscill_amplitude_max,
-			compass_data.needle_oscill_amplitude_min,
-			compass_data.needle_oscill_amplitude_settle_frames,
-			0,
-			motion::Motion::FORWARD,
-			false,
-			true
-		));
+		// swing needle
+		compass_data.needle_acceleration = 0.f;
+		compass_data.needle_velocity = 0.f;
+		compass_data.needle_oscill_angle = core::random(45.f, 179.f) * core::random_sign();
 	}
 }
 
@@ -108,16 +90,23 @@ void CompassSystem::update(
 	ecs::SystemManager &system_manager
 )
 {
-	// update compass needle
 	auto compasses = entity_manager.find_entities_with_component<CompassData>();
 	for (auto compass_it = compasses.begin(); compass_it != compasses.end(); ++compass_it) {
 		auto &compass = **compass_it;
 		auto &compass_data = *compass.get_component<CompassData>();
 
-		// swing needle
-		const auto oscillate = compass_data.needle_oscill_amplitude * cos(core::degrees_to_radians(compass_data.needle_oscill_angle));
+		// settle needle
+		if (compass_data.needle_friction == 1) {
+			compass_data.needle_oscill_angle = 0;
+		}
+		else {
+			compass_data.needle_acceleration = -compass_data.needle_attraction * sin(core::degrees_to_radians(compass_data.needle_oscill_angle));
+			compass_data.needle_velocity += compass_data.needle_acceleration;
+			compass_data.needle_oscill_angle += compass_data.needle_velocity;
+			compass_data.needle_velocity *= (1 - compass_data.needle_friction);
+		}
 
-		compass_data.needle_angle = compass_data.bearing + oscillate;
+		compass_data.needle_angle = compass_data.bearing + compass_data.needle_oscill_angle;
 	}
 }
 
@@ -187,7 +176,7 @@ void PickupSystem::update(
 		if (!inventory) {
 			break;
 		}
-		
+
 		const auto slot_id = *reinterpret_cast<uint16_t*>(tr4_pickup_buffer_offset + i + 2);
 		const auto item_id = item::tr4_slot_to_item_id(slot_id);
 
