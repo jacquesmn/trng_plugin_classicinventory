@@ -4321,7 +4321,7 @@ void customize_item_display(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 13) {
+	if (customize.NArguments < 14) {
 		return;
 	}
 
@@ -4336,7 +4336,7 @@ void customize_item_display(
 		return;
 	}
 
-	for (int32_t i = 1; i < customize.NArguments; i += 12) {
+	for (int32_t i = 1; i < customize.NArguments; i += 13) {
 		const auto type_id = customize.pVetArg[++cust_index];
 		const auto pos_x = customize.pVetArg[++cust_index];
 		const auto pos_y = customize.pVetArg[++cust_index];
@@ -4348,6 +4348,7 @@ void customize_item_display(
 		const auto orient_ignore_anim = customize.pVetArg[++cust_index];
 		const auto tilt = customize.pVetArg[++cust_index];
 		const auto scale = customize.pVetArg[++cust_index];
+		const auto spin = customize.pVetArg[++cust_index];
 		const auto fade_in_out = customize.pVetArg[++cust_index];
 
 		if (type_id < 1) {
@@ -4398,8 +4399,12 @@ void customize_item_display(
 			item_display_config->scale = scale / 100.f;
 		}
 
+		if (spin >= 0) {
+			item_display_config->spin = spin == CINV_TRUE;
+		}
+
 		if (fade_in_out >= 0) {
-			item_display_config->alpha_allowed = fade_in_out == CINV_TRUE;
+			item_display_config->fade = fade_in_out == CINV_TRUE;
 		}
 	}
 }

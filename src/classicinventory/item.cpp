@@ -244,6 +244,8 @@ void change_item_display(
 	if (!keep_alpha) {
 		item_display->alpha_enabled = true;
 	}
+
+	item_display->spin = display_config->spin;
 }
 
 void remove_item_motion(ecs::Entity &item, bool keep_background)
@@ -280,6 +282,10 @@ void spin_item(ecs::Entity &item, uint32_t frames)
 {
 	if (item.has_component<item::ItemDisplay>()) {
 		auto &item_display = *item.get_component<item::ItemDisplay>();
+
+		if (!item_display.spin) {
+			return;
+		}
 
 		// check if already spinning
 		auto motion_spin = item.get_component<motion::Motion>([&](motion::Motion &motion) -> bool {
