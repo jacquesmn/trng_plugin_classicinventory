@@ -24,7 +24,6 @@
 #include "action.h"
 #include "input.h"
 #include "inventory.h"
-#include "motion.h"
 #include "render.h"
 
 extern TYPE_InitialisePickUpDisplay InitialisePickUpDisplay;
@@ -76,7 +75,7 @@ void CompassSystem::init(
 		auto &compass = **compass_it;
 		auto &compass_data = *compass.get_component<CompassData>();
 
-		compass_data.bearing = core::tr4_angle_to_degrees(-Trng.pGlobTomb4->pAdr->pLara->OrientationH) + 180;
+		compass_data.bearing = compass_data.get_bearing() - compass_data.needle_offset;
 
 		// swing needle
 		compass_data.needle_acceleration = 0.f;
@@ -231,6 +230,42 @@ void ShortcutSystem::update(
 			action::use_health(*item, true);
 		}
 	}
+}
+
+// ----------------------------
+// ##### HELPER FUNCTIONS #####
+// ----------------------------
+float get_lara_bearing()
+{
+	return core::tr4_angle_to_degrees(-Trng.pGlobTomb4->pAdr->pLara->OrientationH);
+}
+
+float get_lara_item_bearing(int32_t ngle_index)
+{
+	uint32_t item_x;
+	uint32_t item_z;
+
+	if (Get(enumGET.ITEM, ngle_index | NGLE_INDEX, 0)) {
+		const auto item_movable = GET.pItem;
+		item_x = item_movable->CordX;
+		item_z = item_movable->CordZ;
+	}
+	else if (Get(enumGET.STATIC, ngle_index | NGLE_INDEX, 0)) {
+		const auto item_static = GET.pStatic;
+		item_x = item_static->x;
+		item_z = item_static->z;
+	}
+	else {
+		return get_lara_bearing();
+	}
+
+	Get(enumGET.LARA, 0, 0);
+	auto &lara = *GET.pLara;
+
+	auto direction = core::tr4_angle_to_degrees(GetDirection(lara.CordX, lara.CordZ, item_x, item_z));
+	direction += core::tr4_angle_to_degrees(-lara.OrientationH);
+
+	return direction;
 }
 
 }

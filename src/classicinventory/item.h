@@ -20,7 +20,6 @@
 #pragma pack(push,1)
 
 #include <functional>
-#include <vector>
 
 #include "core.h"
 #include "ecs.h"

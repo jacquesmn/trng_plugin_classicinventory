@@ -253,9 +253,7 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		item_display_active->orient.x = 100;
 	}
 
-	auto &compass_data = item->add_component(new special::CompassData(1, core::Axis::Y));
-	compass_data.needle_attraction = 1.0f;
-	compass_data.needle_friction = 0.03f;
+	item->add_component(new special::CompassData([]()->float { return special::get_lara_bearing(); }, 1));
 }
 
 void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
@@ -4822,7 +4820,7 @@ void customize_compass(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 5) {
+	if (customize.NArguments < 7) {
 		return;
 	}
 
@@ -4833,6 +4831,8 @@ void customize_compass(
 	const auto needle_mesh_axis = customize.pVetArg[++cust_index];
 	const auto needle_attraction = customize.pVetArg[++cust_index];
 	const auto needle_friction = customize.pVetArg[++cust_index];
+	const auto needle_offset = customize.pVetArg[++cust_index];
+	const auto get_target_tg = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -4843,20 +4843,37 @@ void customize_compass(
 
 	auto compass_data = item->get_component<special::CompassData>();
 	if (!compass_data) {
-		compass_data = &item->add_component(new special::CompassData(0, core::Axis::Y));
+		compass_data = &item->add_component(new special::CompassData([]() -> float { return special::get_lara_bearing(); }, 1));
 	}
 
 	if (needle_mesh_index >= 0) {
 		compass_data->needle_mesh_index = needle_mesh_index;
 	}
+
 	if (needle_mesh_axis >= 0) {
 		compass_data->needle_mesh_axis = static_cast<core::Axis::Enum>(needle_mesh_axis);
 	}
+
 	if (needle_attraction >= 0) {
 		compass_data->needle_attraction = needle_attraction / 100.f;
 	}
+
 	if (needle_friction >= 0) {
 		compass_data->needle_friction = min(100, needle_friction) / 100.f;
+	}
+
+	if (needle_offset >= 0) {
+		compass_data->needle_offset = float(min(360, needle_offset));
+	}
+
+	if (get_target_tg >= 0) {
+		compass_data->get_bearing = [=]() -> float {
+			PerformTriggerGroup(get_target_tg);
+
+			const auto ngle_index = Trng.pGlobTomb4->pBaseVariableTRNG->Globals.CurrentValue;
+
+			return special::get_lara_item_bearing(ngle_index);
+		};
 	}
 }
 
