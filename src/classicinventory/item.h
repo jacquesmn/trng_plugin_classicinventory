@@ -20,7 +20,6 @@
 #pragma pack(push,1)
 
 #include <functional>
-#include <vector>
 
 #include "core.h"
 #include "ecs.h"
@@ -285,7 +284,8 @@ struct ItemDisplayConfig : public ecs::Component {
 
 	bool pos_ignore_anim;
 	bool orient_ignore_anim;
-	bool alpha_allowed;
+	bool spin;
+	bool fade;
 
 	ItemDisplayConfig(const ItemDisplayType::Enum type)
 		:
@@ -296,7 +296,8 @@ struct ItemDisplayConfig : public ecs::Component {
 		scale(1),
 		pos_ignore_anim(false),
 		orient_ignore_anim(false),
-		alpha_allowed(true)
+		spin(true),
+		fade(true)
 	{}
 
 	ItemDisplayConfig(
@@ -311,7 +312,8 @@ struct ItemDisplayConfig : public ecs::Component {
 		scale(config.scale),
 		pos_ignore_anim(config.pos_ignore_anim),
 		orient_ignore_anim(config.orient_ignore_anim),
-		alpha_allowed(config.alpha_allowed)
+		spin(config.spin),
+		fade(config.fade)
 	{}
 };
 
@@ -324,7 +326,7 @@ struct ItemDisplay : public ecs::Component {
 
 	float tilt;
 	float scale;
-	bool alpha_allowed;
+	bool spin;
 
 	bool alpha_enabled;
 
@@ -336,7 +338,7 @@ struct ItemDisplay : public ecs::Component {
 		rot(core::Vector3D()),
 		tilt(config.tilt),
 		scale(config.scale),
-		alpha_allowed(config.alpha_allowed),
+		spin(config.spin),
 		alpha_enabled(true)
 	{}
 };

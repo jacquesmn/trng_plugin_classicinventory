@@ -21,7 +21,8 @@
 #include "core.h"
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
+#include <random>
 
 #include <trng_core.h>
 
@@ -30,7 +31,12 @@ namespace core {
 
 float degrees_to_radians(float degrees)
 {
-	return float(degrees) * float(M_PI / 180.f);
+	return degrees * float(M_PI / 180.f);
+}
+
+float radians_to_degrees(float radians)
+{
+	return radians * float(180.f / M_PI);
 }
 
 uint16_t degrees_to_tr4_angle(float degrees)
@@ -63,6 +69,23 @@ float angle_diff_smallest(float angle_a_degrees, float angle_b_degrees)
 int32_t round(float x)
 {
 	return int32_t(x > 0.0 ? x + 0.5 : x - 0.5);
+}
+
+float random(float range_min, float range_max)
+{
+	std::random_device device;
+	std::mt19937 engine(device());
+
+	const std::uniform_real_distribution<> distribution(range_min, range_max);
+
+	return float(distribution(engine));
+}
+
+int random_sign()
+{
+	const auto sign = round(random(-1, 1));
+
+	return sign == 0 ? 1 : sign;
 }
 
 void jmn_PopMatrix()

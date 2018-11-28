@@ -677,14 +677,14 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager & entity_manager)
 		}
 		else {
 			// fade in and out
-			if (!item_display_pickup->alpha_allowed) {
+			if (!item_display_pickup->fade) {
 				pickup_display.alpha = 255;
 			}
 
 			const auto poly_alpha = reinterpret_cast<int32_t*>(0x4AB7B8);
 			*poly_alpha = core::round(pickup_display.alpha) << 24;
 
-			if (item_display_pickup->alpha_allowed) {
+			if (item_display_pickup->fade) {
 				if (pickup_display.rotation.y <= 45 && pickup_display.alpha < 255) {
 					pickup_display.alpha = min(255, pickup_display.alpha + 17);
 				}

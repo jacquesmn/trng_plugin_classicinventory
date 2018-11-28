@@ -19,6 +19,9 @@
 #pragma once
 #pragma pack(push, 1)
 
+#include <functional>
+
+#include "core.h"
 #include "ecs.h"
 #include "item.h"
 
@@ -116,34 +119,38 @@ struct HealthData : public ecs::Component {
 };
 
 struct CompassData : public ecs::Component {
+	std::function<float(void)> get_bearing;
 	int32_t needle_mesh_index;
 	core::Axis::Enum needle_mesh_axis;
-	float needle_angle;
+	float needle_attraction;
+	float needle_friction;
+	float needle_offset;
 
-	float needle_oscill_amplitude;
-	float needle_oscill_amplitude_min;
-	float needle_oscill_amplitude_max;
+	float needle_acceleration;
+	float needle_velocity;
 	float needle_oscill_angle;
-
-	uint32_t needle_oscill_amplitude_settle_frames;
-	uint32_t needle_oscill_period_frames;
-
+	float needle_angle;
 	float bearing;
 
 	CompassData(
+		std::function<float(void)> get_bearing,
 		int32_t needle_mesh_index,
-		core::Axis::Enum needle_mesh_axis = core::Axis::Y
+		core::Axis::Enum needle_mesh_axis = core::Axis::Y,
+		float needle_attraction = 1.0f,
+		float needle_friction = 0.03f,
+		float needle_offset = 180.f
 	)
 		:
+		get_bearing(get_bearing),
 		needle_mesh_index(needle_mesh_index),
 		needle_mesh_axis(needle_mesh_axis),
-		needle_angle(0),
-		needle_oscill_amplitude(0),
-		needle_oscill_amplitude_min(0),
-		needle_oscill_amplitude_max(0),
+		needle_attraction(needle_attraction),
+		needle_friction(needle_friction),
+		needle_offset(needle_offset),
+		needle_acceleration(0),
+		needle_velocity(0),
 		needle_oscill_angle(0),
-		needle_oscill_amplitude_settle_frames(0),
-		needle_oscill_period_frames(0),
+		needle_angle(0),
 		bearing(0)
 	{}
 };
@@ -228,6 +235,12 @@ struct MapData : public ecs::Component {
 		cancelable(true)
 	{}
 };
+
+// ----------------------------
+// ##### HELPER FUNCTIONS #####
+// ----------------------------
+float get_lara_bearing();
+float get_lara_item_bearing(int32_t ngle_index);
 
 }
 }

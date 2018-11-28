@@ -143,35 +143,37 @@ ecs::Entity* setup_tr4_item(
 }
 
 void setup_tr4_ammo(
-	int32_t item_id,
+	int32_t weapon_item_id,
 	int32_t ammo_item_id,
 	uint8_t *weapon_value,
 	uint8_t ammo_bit,
 	ecs::EntityManager &entity_manager
 )
 {
-	auto item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
-		return item_data.item_id == item_id;
+	auto weapon_item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
+		return item_data.item_id == weapon_item_id;
 	});
 
 	const auto ammo_item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == ammo_item_id;
 	});
 
-	if (!item || !ammo_item) {
+	if (!weapon_item || !ammo_item) {
 		return;
 	}
 
-	item->add_component(new item::ItemAmmo(
-		*ammo_item,
-		[=]() -> bool { return core::bit_set(*weapon_value, ammo_bit); },
-		[=]() -> void {
+	const auto loaded = [=]() -> bool {
+		return core::bit_set(*weapon_value, ammo_bit);
+	};
+
+	const auto load = [=]() -> void {
 		// unload previous ammo
 		core::set_bit(*weapon_value, (FWEAP_AMMO_NORMAL | FWEAP_AMMO_SUPER | FWEAP_AMMO_EXPLOSIVE), false);
 		// load new ammo
 		core::set_bit(*weapon_value, ammo_bit);
-	}
-	));
+	};
+
+	weapon_item->add_component(new item::ItemAmmo(*ammo_item, loaded, load));
 }
 
 void load_first_ammo(ecs::Entity &item)
@@ -253,11 +255,7 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		item_display_active->orient.x = 100;
 	}
 
-	auto &compass_data = item->add_component(new special::CompassData(1, core::Axis::Y));
-	compass_data.needle_oscill_amplitude_min = 3;
-	compass_data.needle_oscill_amplitude_max = 30;
-	compass_data.needle_oscill_amplitude_settle_frames = 120;
-	compass_data.needle_oscill_period_frames = 60;
+	item->add_component(new special::CompassData([]()->float { return special::get_lara_bearing(); }, 1));
 }
 
 void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
@@ -4325,7 +4323,7 @@ void customize_item_display(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 13) {
+	if (customize.NArguments < 14) {
 		return;
 	}
 
@@ -4340,7 +4338,7 @@ void customize_item_display(
 		return;
 	}
 
-	for (int32_t i = 1; i < customize.NArguments; i += 12) {
+	for (int32_t i = 1; i < customize.NArguments; i += 13) {
 		const auto type_id = customize.pVetArg[++cust_index];
 		const auto pos_x = customize.pVetArg[++cust_index];
 		const auto pos_y = customize.pVetArg[++cust_index];
@@ -4352,6 +4350,7 @@ void customize_item_display(
 		const auto orient_ignore_anim = customize.pVetArg[++cust_index];
 		const auto tilt = customize.pVetArg[++cust_index];
 		const auto scale = customize.pVetArg[++cust_index];
+		const auto spin = customize.pVetArg[++cust_index];
 		const auto fade_in_out = customize.pVetArg[++cust_index];
 
 		if (type_id < 1) {
@@ -4402,8 +4401,12 @@ void customize_item_display(
 			item_display_config->scale = scale / 100.f;
 		}
 
+		if (spin >= 0) {
+			item_display_config->spin = spin == CINV_TRUE;
+		}
+
 		if (fade_in_out >= 0) {
-			item_display_config->alpha_allowed = fade_in_out == CINV_TRUE;
+			item_display_config->fade = fade_in_out == CINV_TRUE;
 		}
 	}
 }
@@ -4833,10 +4836,10 @@ void customize_compass(
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto needle_mesh_index = customize.pVetArg[++cust_index];
 	const auto needle_mesh_axis = customize.pVetArg[++cust_index];
-	const auto needle_oscill_amp_max = customize.pVetArg[++cust_index];
-	const auto needle_oscill_amp_min = customize.pVetArg[++cust_index];
-	const auto needle_oscill_amp_settle_frames = customize.pVetArg[++cust_index];
-	const auto needle_oscill_period_frames = customize.pVetArg[++cust_index];
+	const auto needle_attraction = customize.pVetArg[++cust_index];
+	const auto needle_friction = customize.pVetArg[++cust_index];
+	const auto needle_offset = customize.pVetArg[++cust_index];
+	const auto get_target_tg = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -4847,26 +4850,37 @@ void customize_compass(
 
 	auto compass_data = item->get_component<special::CompassData>();
 	if (!compass_data) {
-		compass_data = &item->add_component(new special::CompassData(0, core::Axis::Y));
+		compass_data = &item->add_component(new special::CompassData([]() -> float { return special::get_lara_bearing(); }, 1));
 	}
 
 	if (needle_mesh_index >= 0) {
 		compass_data->needle_mesh_index = needle_mesh_index;
 	}
+
 	if (needle_mesh_axis >= 0) {
 		compass_data->needle_mesh_axis = static_cast<core::Axis::Enum>(needle_mesh_axis);
 	}
-	if (needle_oscill_amp_max >= 0) {
-		compass_data->needle_oscill_amplitude_max = needle_oscill_amp_max;
+
+	if (needle_attraction >= 0) {
+		compass_data->needle_attraction = needle_attraction / 100.f;
 	}
-	if (needle_oscill_amp_min >= 0) {
-		compass_data->needle_oscill_amplitude_min = needle_oscill_amp_min;
+
+	if (needle_friction >= 0) {
+		compass_data->needle_friction = min(100, needle_friction) / 100.f;
 	}
-	if (needle_oscill_amp_settle_frames >= 0) {
-		compass_data->needle_oscill_amplitude_settle_frames = needle_oscill_amp_settle_frames;
+
+	if (needle_offset >= 0) {
+		compass_data->needle_offset = float(min(360, needle_offset));
 	}
-	if (needle_oscill_period_frames >= 0) {
-		compass_data->needle_oscill_period_frames = needle_oscill_period_frames;
+
+	if (get_target_tg >= 0) {
+		compass_data->get_bearing = [=]() -> float {
+			PerformTriggerGroup(get_target_tg);
+
+			const auto ngle_index = Trng.pGlobTomb4->pBaseVariableTRNG->Globals.CurrentValue;
+
+			return special::get_lara_item_bearing(ngle_index);
+		};
 	}
 }
 
