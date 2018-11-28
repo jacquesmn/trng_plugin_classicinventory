@@ -85,6 +85,14 @@ bool bit_set(T &value, uint32_t bit, bool partial = false)
 	}
 }
 
+template <class T>
+void fill_array(T *arr, uint32_t arr_size, T value)
+{
+	for (uint32_t i = 0; i < arr_size; ++i) {
+		arr[i] = value;
+	}
+}
+
 float degrees_to_radians(float degrees);
 float radians_to_degrees(float radians);
 uint16_t degrees_to_tr4_angle(float degrees);
