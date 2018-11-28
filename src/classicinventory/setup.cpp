@@ -143,35 +143,37 @@ ecs::Entity* setup_tr4_item(
 }
 
 void setup_tr4_ammo(
-	int32_t item_id,
+	int32_t weapon_item_id,
 	int32_t ammo_item_id,
 	uint8_t *weapon_value,
 	uint8_t ammo_bit,
 	ecs::EntityManager &entity_manager
 )
 {
-	auto item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
-		return item_data.item_id == item_id;
+	auto weapon_item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
+		return item_data.item_id == weapon_item_id;
 	});
 
 	const auto ammo_item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == ammo_item_id;
 	});
 
-	if (!item || !ammo_item) {
+	if (!weapon_item || !ammo_item) {
 		return;
 	}
 
-	item->add_component(new item::ItemAmmo(
-		*ammo_item,
-		[=]() -> bool { return core::bit_set(*weapon_value, ammo_bit); },
-		[=]() -> void {
+	const auto loaded = [=]() -> bool {
+		return core::bit_set(*weapon_value, ammo_bit);
+	};
+
+	const auto load = [=]() -> void {
 		// unload previous ammo
 		core::set_bit(*weapon_value, (FWEAP_AMMO_NORMAL | FWEAP_AMMO_SUPER | FWEAP_AMMO_EXPLOSIVE), false);
 		// load new ammo
 		core::set_bit(*weapon_value, ammo_bit);
-	}
-	));
+	};
+
+	weapon_item->add_component(new item::ItemAmmo(*ammo_item, loaded, load));
 }
 
 void load_first_ammo(ecs::Entity &item)
