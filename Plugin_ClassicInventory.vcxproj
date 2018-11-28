@@ -164,10 +164,13 @@ powershell Compress-Archive -Path '$(ProjectDir)$(Configuration)\$(TargetFileNam
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="dist\Plugin_ClassicInventory.zip" />
+    <None Include="docs\Changelog.txt" />
+    <None Include="docs\Plugin_ClassicInventory.txt" />
     <None Include="Plugin_ClassicInventory.aps" />
     <None Include="Plugin_ClassicInventory.def" />
     <None Include="Plugin_ClassicInventory.props" />
     <None Include="Plugin_ClassicInventory.sln.DotSettings" />
+    <None Include="resources\Plugin_ClassicInventory.jpg" />
     <None Include="scripts\Plugin_ClassicInventory.btn" />
     <None Include="scripts\Plugin_ClassicInventory.script" />
     <None Include="scripts\Plugin_ClassicInventory.trg">
