@@ -369,8 +369,8 @@ public:
 
 	int32_t get() const;
 	bool set(int32_t qty) const;
-	bool increment(int32_t qty = 1) const;
-	bool decrement(int32_t qty = 1) const;
+	bool increase(int32_t qty = 1) const;
+	bool decrease(int32_t qty = 1) const;
 	bool unlimited() const;
 	bool zero() const;
 };

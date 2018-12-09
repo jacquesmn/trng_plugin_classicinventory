@@ -59,7 +59,7 @@ bool ItemQuantity::set(int32_t qty) const
 	return false;
 }
 
-bool ItemQuantity::increment(int32_t qty) const {
+bool ItemQuantity::increase(int32_t qty) const {
 	const auto quantity = get();
 
 	if (quantity != ITEM_QTY_UNLIMITED) {
@@ -69,7 +69,7 @@ bool ItemQuantity::increment(int32_t qty) const {
 	return false;
 }
 
-bool ItemQuantity::decrement(int32_t qty) const {
+bool ItemQuantity::decrease(int32_t qty) const {
 	const auto quantity = get();
 
 	if (quantity != ITEM_QTY_UNLIMITED) {
