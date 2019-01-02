@@ -3449,14 +3449,14 @@ void combo_combine(item::ComboData &combo_data)
 	const auto &item_a_qty = *item_first.get_component<item::ItemQuantity>();
 	const auto &item_b_qty = *item_second.get_component<item::ItemQuantity>();
 
-	item_a_qty.decrement();
-	item_b_qty.decrement();
+	item_a_qty.decrease();
+	item_b_qty.decrease();
 
 	if (item_final && item_final->has_component<item::ItemQuantity>()) {
-		item_final->get_component<item::ItemQuantity>()->increment();
+		item_final->get_component<item::ItemQuantity>()->increase();
 	}
 	if (item_extra && item_extra->has_component<item::ItemQuantity>()) {
-		item_extra->get_component<item::ItemQuantity>()->increment();
+		item_extra->get_component<item::ItemQuantity>()->increase();
 	}
 }
 
@@ -3482,9 +3482,9 @@ void combo_separate(item::ComboData &combo_data)
 	const auto &item_second_qty = *item_second.get_component<item::ItemQuantity>();
 	const auto &item_final_qty = *item_final->get_component<item::ItemQuantity>();
 
-	item_final_qty.decrement();
-	item_first_qty.increment();
-	item_second_qty.increment();
+	item_final_qty.decrease();
+	item_first_qty.increase();
+	item_second_qty.increase();
 }
 
 void setup_tr4_combo(
@@ -3981,11 +3981,7 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 {
 	const auto give_item = [](ecs::Entity *item) -> void {
 		if (item && item->has_component<item::ItemQuantity>()) {
-			auto &item_qty = *item->get_component<item::ItemQuantity>();
-
-			if (item_qty.get() == 0) {
-				item_qty.set(1);
-			}
+			item->get_component<item::ItemQuantity>()->increase();
 		}
 	};
 	const auto give_weapon = [give_item](ecs::Entity *item) -> void {

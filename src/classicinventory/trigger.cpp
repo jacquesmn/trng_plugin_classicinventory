@@ -49,7 +49,7 @@ void flipeffect_increase_item_qty(
 	}
 	auto &item_qty = *item->get_component<item::ItemQuantity>();
 
-	item_qty.increment(qty);
+	item_qty.increase(qty);
 }
 
 void flipeffect_decrease_item_qty(
@@ -68,7 +68,7 @@ void flipeffect_decrease_item_qty(
 	}
 	auto &item_qty = *item->get_component<item::ItemQuantity>();
 
-	item_qty.decrement(qty);
+	item_qty.decrease(qty);
 }
 
 void flipeffect_set_item_qty(

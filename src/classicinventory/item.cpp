@@ -59,21 +59,25 @@ bool ItemQuantity::set(int32_t qty) const
 	return false;
 }
 
-bool ItemQuantity::increment(int32_t qty) const {
-	const auto quantity = get();
+bool ItemQuantity::increase(int32_t qty) const {
+	const auto qty_old = get();
 
-	if (quantity != ITEM_QTY_UNLIMITED) {
-		return set(min(quantity_max, quantity + qty));
+	if (qty_old != ITEM_QTY_UNLIMITED) {
+		set(min(quantity_max, qty_old + qty));
+
+		return get() != qty_old;
 	}
 
 	return false;
 }
 
-bool ItemQuantity::decrement(int32_t qty) const {
-	const auto quantity = get();
+bool ItemQuantity::decrease(int32_t qty) const {
+	const auto qty_old = get();
 
-	if (quantity != ITEM_QTY_UNLIMITED) {
-		return set(max(quantity_min, quantity - qty));
+	if (qty_old != ITEM_QTY_UNLIMITED) {
+		set(max(quantity_min, qty_old - qty));
+
+		return get() != qty_old;
 	}
 
 	return false;

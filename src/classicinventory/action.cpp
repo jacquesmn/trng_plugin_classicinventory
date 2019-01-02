@@ -61,7 +61,7 @@ bool use_health(ecs::Entity &item, bool silent)
 		|| health_data.poison_points > 0;
 
 	if (!can_use
-		|| (!item_quantity.decrement() && item_quantity.get() != item::ITEM_QTY_UNLIMITED)) {
+		|| (!item_quantity.decrease() && item_quantity.get() != item::ITEM_QTY_UNLIMITED)) {
 		if (!silent) {
 			// lara says no
 			SoundEffect(2, nullptr, 0);
@@ -135,7 +135,7 @@ bool use_flare(ecs::Entity &item)
 		return false;
 	}
 
-	if (!item_quantity.decrement() && item_quantity.get() != item::ITEM_QTY_UNLIMITED) {
+	if (!item_quantity.decrease() && item_quantity.get() != item::ITEM_QTY_UNLIMITED) {
 		return false;
 	}
 

@@ -167,7 +167,7 @@ void patch_01_picked_up_object(int slot)
 		const auto &item_qty = *item->get_component<item::ItemQuantity>();
 
 		//TODO: customize the qty added
-		item_qty.increment();
+		item_qty.increase();
 	}
 }
 
