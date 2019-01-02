@@ -1,12 +1,15 @@
 #Changelog
 All notable changes to this project will be documented in this file.
 
+##[0.9.0.8] - 2019-01-02
+- Fix bug where Lara could be healed with the shortcut keys even without medipacks.
+
 ##[0.9.0.7] - 2018-11-28
-- Improve compass oscillation
-- Replace compass oscillation settings with attraction and friction
-- Add customizable offset for compass needle
-- Add customizable target for compass
-- Add option to disable spinning of items when selected
+- Improve compass oscillation.
+- Replace compass oscillation settings with attraction and friction.
+- Add customizable offset for compass needle.
+- Add customizable target for compass.
+- Add option to disable spinning of items when selected.
 
 ##[0.9.0.6] - 2018-11-18
 - Change ITEM_SELECT to ITEM_ACTIVATE for script constants.
@@ -48,6 +51,7 @@ All notable changes to this project will be documented in this file.
 ##[0.9.0.0] - 2018-10-24
 - First private beta release.
 
+[0.9.0.8]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/0e069cb504beff4835ed77b58b9a151867deea9c...f4085aed0e2ec04e5f94a54c41e4dacc1fcd2263
 [0.9.0.7]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/478d7a0158ff194cee214967621200ffbd040fb7...0e069cb504beff4835ed77b58b9a151867deea9c
 [0.9.0.6]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/25c2f4c3dc55b577eeb7e037717e832c44fa465b...478d7a0158ff194cee214967621200ffbd040fb7
 [0.9.0.5]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/7020d876ee7ad4fbe98eb50fcfee5302f1d5a793...25c2f4c3dc55b577eeb7e037717e832c44fa465b
