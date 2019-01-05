@@ -4127,6 +4127,30 @@ void setup_cheats(ecs::EntityManager &entity_manager)
 	}
 }
 
+void customize_inventory_data(
+	const StrGenericCustomize &customize,
+	ecs::EntityManager &entity_manager
+)
+{
+	if (customize.NArguments < 1) {
+		return;
+	}
+
+	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryData>();
+	if (!inventory) {
+		return;
+	}
+	auto &inventory_data = *inventory->get_component<inventory::InventoryData>();
+
+	int32_t cust_index = -1;
+
+	const auto enabled = customize.pVetArg[++cust_index];
+
+	if (enabled >= 0) {
+		inventory_data.enabled = enabled == CINV_TRUE;
+	}
+}
+
 void customize_ring(
 	const StrGenericCustomize &customize,
 	ecs::EntityManager &entity_manager
@@ -5511,6 +5535,10 @@ void customize_debug(
 
 void customize_inventory(ecs::EntityManager &entity_manager)
 {
+	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV, -1)) {
+		customize_inventory_data(*GET.pCust, entity_manager);
+	}
+
 	for (int32_t ring_id = ring::MIN_INVENTORY_RING_ID; ring_id <= ring::MAX_INVENTORY_RING_ID; ++ring_id) {
 		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_RING, ring_id)) {
 			customize_ring(*GET.pCust, entity_manager);
