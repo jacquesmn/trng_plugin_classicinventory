@@ -717,20 +717,24 @@ void PerformMyProgrAction(StrProgressiveAction *pAction)
 // callback called from trng for each frame in game cycle to perform your (common) progressive action
 void cbProgrActionMine(void)
 {
-	controller::get_controller(
-		ecs::get_entity_manager(),
-		ecs::get_system_manager()
-	).do_main();
+	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_main();
+	}
 }
 
 // callback called each time S_OutputPolyList is performed
 // BUG: Not called during fixed camera view
 void cbProgrActionDrawMine(void)
 {
-	controller::get_controller(
-		ecs::get_entity_manager(),
-		ecs::get_system_manager()
-	).do_main_draw();
+	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_main_draw();
+	}
 }
 
 // inside this function you'll type call to functions to intialise your new objects or customize that olds.
@@ -742,16 +746,30 @@ void cbInitObjects(void)
 // handles displaying and management of inventory
 int cbInventoryMain(WORD CBT_Flags, bool TestLoadedGame, int SelectedItem)
 {
+	if (!inventory::inventory_enabled(ecs::get_entity_manager())) {
+		return enumIRET.OK;
+	}
+
 	controller::get_controller(
 		ecs::get_entity_manager(),
 		ecs::get_system_manager()
 	).do_inventory();
 
+	return enumIRET.SKIP_ORIGINAL;
+}
+
+// handles post-management of inventory
+int cbInventoryAfter(WORD CBT_Flags, bool TestLoadedGame, int SelectedItem)
+{
+	if (!inventory::inventory_enabled(ecs::get_entity_manager())) {
+		return enumIRET.OK;
+	}
+
 	if (*Trng.pGlobTomb4->pAdr->pTestLoadOrNewLevel) {
 		return enumIRET.LOADED_GAME;
 	}
 
-	return enumIRET.OK;
+	return enumIRET.SKIP_ORIGINAL;
 }
 
 // callback for managing input
@@ -763,13 +781,15 @@ bool cbInputManager(
 	DWORD *pInputExtGameCommands
 )
 {
-	controller::get_controller(
-		ecs::get_entity_manager(),
-		ecs::get_system_manager()
-	).do_input(
-		VetInputKeyboard,
-		reinterpret_cast<uint32_t*>(pInputExtGameCommands)
-	);
+	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_input(
+			VetInputKeyboard,
+			reinterpret_cast<uint32_t*>(pInputExtGameCommands)
+		);
+	}
 
 	return SRET_OK;
 }
@@ -804,7 +824,8 @@ bool RequireMyCallBacks(void)
 	GET_CALLBACK(CB_PROGR_ACTION_MINE, 0, 0, cbProgrActionMine);
 	GET_CALLBACK(CB_PROGR_ACTION_DRAW_MINE, 0, 0, cbProgrActionDrawMine);
 	GET_CALLBACK(CB_INIT_OBJECTS, 0, 0, cbInitObjects);
-	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_REPLACE, 0, cbInventoryMain);
+	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_FIRST, 0, cbInventoryMain);
+	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_AFTER, 0, cbInventoryAfter);
 	GET_CALLBACK(CB_INPUT_MANAGER, CBT_FIRST, 0, cbInputManager);
 
 
