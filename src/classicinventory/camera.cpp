@@ -30,7 +30,7 @@ extern TYPE_AlterFOV AlterFOV;
 
 namespace classicinventory {
 
-void camera::InventoryCameraSystem::update(ecs::EntityManager & entity_manager, ecs::SystemManager &system_manager)
+void camera::InventoryCameraSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
 	if (!inventory) {

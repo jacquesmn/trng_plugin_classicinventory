@@ -46,7 +46,7 @@ enum Enum {
 
 class StateSystem : public ecs::System {
 private:
-	StateMachine & state_machine;
+	StateMachine &state_machine;
 
 public:
 	StateSystem(StateMachine &state_machine);
@@ -60,7 +60,7 @@ class StateMachine {
 private:
 	GamePhase::Enum current_phase;
 	std::unique_ptr<State> current_state;
-	ecs::EntityManager & entity_manager;
+	ecs::EntityManager &entity_manager;
 
 	void set_phase(GamePhase::Enum phase);
 

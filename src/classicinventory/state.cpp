@@ -1314,7 +1314,7 @@ void ItemCancelState::start(ecs::EntityManager &entity_manager)
 	clear_hud(entity_manager);
 }
 
-void ItemCancelState::end(ecs::EntityManager & entity_manager)
+void ItemCancelState::end(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
 	if (!inventory) {
@@ -2831,7 +2831,7 @@ void OptionsState::end(ecs::EntityManager &entity_manager)
 	inventory->remove_components<render::OptionsScreen>();
 }
 
-State* OptionsState::update(ecs::EntityManager & entity_manager)
+State* OptionsState::update(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<render::OptionsScreen>();
 	if (inventory) {
@@ -2875,7 +2875,7 @@ void PassportState::start(ecs::EntityManager &entity_manager)
 	}
 }
 
-State* PassportState::update(ecs::EntityManager & entity_manager)
+State* PassportState::update(ecs::EntityManager &entity_manager)
 {
 	// wait for all relevant motions to finish
 	const auto entities_in_motion = motion::get_entities_in_motion(entity_manager);
@@ -3983,7 +3983,7 @@ State* ClosingState::update(ecs::EntityManager &entity_manager)
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-ring::RingItem* get_selected_item(ecs::EntityManager & entity_manager)
+ring::RingItem* get_selected_item(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
 

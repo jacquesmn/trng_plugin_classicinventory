@@ -147,7 +147,7 @@ private:
 	std::vector<std::vector<std::vector<std::unique_ptr<Component>>>> component_store;
 
 public:
-	Entity & new_entity()
+	Entity& new_entity()
 	{
 		const auto entity_id = next_entity_id();
 

@@ -36,7 +36,7 @@ CheatSystem::CheatSystem(input::InputState &input_state)
 	input_state(input_state)
 {}
 
-void CheatSystem::init(ecs::EntityManager & entity_manager, ecs::SystemManager & system_manager)
+void CheatSystem::init(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
 {
 	if (!cheats_enabled()) {
 		return;
