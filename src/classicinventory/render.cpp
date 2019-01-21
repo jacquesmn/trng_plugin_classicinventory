@@ -439,7 +439,7 @@ void InventoryRenderSystem::draw_text(
 	);
 }
 
-void InventoryRenderSystem::draw_bars(ecs::EntityManager & entity_manager) const
+void InventoryRenderSystem::draw_bars(ecs::EntityManager &entity_manager) const
 {
 	auto entities = entity_manager.find_entities_with_component<ScreenBar>();
 
@@ -543,7 +543,7 @@ void InventoryRenderSystem::draw_options(ecs::EntityManager &entity_manager) con
 	}
 }
 
-void InventoryRenderSystem::set_lighting(ecs::EntityManager & entity_manager) const
+void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager) const
 {
 	/*
 	* Lighting is based on Lara's current position.
@@ -587,7 +587,7 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager & entity_manager) co
 	calculate_lighting();
 }
 
-void InventoryRenderSystem::restore_lighting(ecs::EntityManager & entity_manager) const
+void InventoryRenderSystem::restore_lighting(ecs::EntityManager &entity_manager) const
 {
 	const auto entity = entity_manager.find_entity_with_component<LightingLocation>();
 	if (!entity) {
@@ -651,7 +651,7 @@ void GameRenderSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemMa
 	entity_manager.remove_components<render::PickupDisplay>();
 }
 
-void GameRenderSystem::draw_pickups(ecs::EntityManager & entity_manager)
+void GameRenderSystem::draw_pickups(ecs::EntityManager &entity_manager)
 {
 	// pick first pickup
 	const auto pickup = entity_manager.find_entity_with_component<PickupDisplay>([](const PickupDisplay &pickup_display) -> bool {

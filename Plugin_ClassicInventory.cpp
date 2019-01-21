@@ -580,6 +580,9 @@ int cbConditionMine(WORD ConditionIndex, int ItemIndex, WORD Extra, WORD Activat
 	else if (ConditionIndex == 104) {
 		condition_met = trigger::condition_item_last_used(item_id, ecs::get_entity_manager());
 	}
+	else if (ConditionIndex == 105) {
+		condition_met = trigger::condition_inventory_enabled(Extra != 0, ecs::get_entity_manager());
+	}
 	else {
 		SendToLog("WARNING: condition trigger number %d has not been handled in cbConditionMine() function", ConditionIndex);
 	}

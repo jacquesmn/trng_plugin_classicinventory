@@ -321,6 +321,7 @@
 102:Inventory. There are less than (E) <#>
 103:Inventory. The item currently selected is <#>
 104:Inventory. The item last used was <#>
+105:Inventory. The classic ring inventory is <E>
 <END>
 
 <START_CONDITION_100_B_H>
@@ -350,4 +351,9 @@
 
 <START_CONDITION_104_O_H>
 #SAME_OF#=EFFECT_700_T
+<END>
+
+<START_CONDITION_105_B_H>
+0:Disabled
+1:Enabled
 <END>

@@ -63,6 +63,8 @@ bool condition_item_is_selected(int32_t item_id, ecs::EntityManager &entity_mana
 
 bool condition_item_last_used(int32_t item_id, ecs::EntityManager &entity_manager);
 
+bool condition_inventory_enabled(bool enabled, ecs::EntityManager &entity_manager);
+
 }
 }
 

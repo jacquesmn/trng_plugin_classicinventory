@@ -149,7 +149,7 @@ bool use_flare(ecs::Entity &item)
 	return true;
 }
 
-bool use_binoculars(ecs::Entity & item)
+bool use_binoculars(ecs::Entity &item)
 {
 	if (!item.has_component<item::ItemQuantity>()) {
 		return false;

@@ -29,7 +29,7 @@ namespace text {
 
 TextConfig* get_text_config(
 	TextType::Enum text_type,
-	ecs::EntityManager & entity_manager
+	ecs::EntityManager &entity_manager
 )
 {
 	const auto inventory = entity_manager.find_entity_with_component<TextConfig>();
