@@ -208,5 +208,13 @@ bool condition_item_last_used(
 	return MyData.Save.Local.inventory_data.item_id_used == item_id;
 }
 
+bool condition_inventory_enabled(
+	bool enabled,
+	ecs::EntityManager& entity_manager
+)
+{
+	return enabled == inventory::inventory_enabled(entity_manager);
+}
+
 }
 }
