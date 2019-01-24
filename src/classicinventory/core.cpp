@@ -73,8 +73,8 @@ int32_t round(float x)
 
 float random(float range_min, float range_max)
 {
-	std::random_device device;
-	std::mt19937 engine(device());
+	static std::random_device device;
+	static std::mt19937 engine(device());
 
 	const std::uniform_real_distribution<> distribution(range_min, range_max);
 
@@ -83,9 +83,9 @@ float random(float range_min, float range_max)
 
 int random_sign()
 {
-	const auto sign = round(random(-1, 1));
+	const auto sign = round(random(0, 1));
 
-	return sign == 0 ? 1 : sign;
+	return sign == 0 ? -1 : 1;
 }
 
 void jmn_PopMatrix()
