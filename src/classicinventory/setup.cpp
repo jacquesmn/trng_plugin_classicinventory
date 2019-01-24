@@ -4720,13 +4720,13 @@ void customize_ammo(
 				return PerformTriggerGroup(loaded_cgroup) > 0;
 			};
 		}
-		
+
 		if (load_tgroup >= 0) {
 			item_ammo->load = [=]() -> void {
 				PerformTriggerGroup(load_tgroup);
 			};
 		}
-		
+
 		if (unload_tgroup >= 0) {
 			item_ammo->unload = [=]() -> void {
 				PerformTriggerGroup(unload_tgroup);
@@ -5544,15 +5544,40 @@ void customize_debug(
 	}
 }
 
+bool find_customize_command(
+	int32_t id_first,
+	int32_t id_second,
+	StrGenericCustomize*& result
+)
+{
+	result = nullptr;
+
+	for (int32_t i = 0; i < MyData.BaseCustomizeMine.TotCustomize; ++i) {
+		const auto customize = &MyData.BaseCustomizeMine.pVetCustomize[i];
+
+		if (customize->CustValue == id_first) {
+			if (id_second == -1 || id_second == customize->pVetArg[0]) {
+				result = customize;
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 void customize_inventory(ecs::EntityManager &entity_manager)
 {
-	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV, -1)) {
-		customize_inventory_data(*GET.pCust, entity_manager);
+	StrGenericCustomize* customize = nullptr;
+
+	if (find_customize_command(CUST_CINV, -1, customize)) {
+		customize_inventory_data(*customize, entity_manager);
 	}
 
 	for (int32_t ring_id = ring::MIN_INVENTORY_RING_ID; ring_id <= ring::MAX_INVENTORY_RING_ID; ++ring_id) {
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_RING, ring_id)) {
-			customize_ring(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_RING, ring_id, customize)) {
+			customize_ring(*customize, entity_manager);
 		}
 	}
 
@@ -5561,87 +5586,87 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 			continue;
 		}
 
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_ITEM, item_id)) {
-			customize_item(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_ITEM, item_id, customize)) {
+			customize_item(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_ITEM_RING, item_id)) {
-			customize_item_ring(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_ITEM_RING, item_id, customize)) {
+			customize_item_ring(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_ITEM_MODEL, item_id)) {
-			customize_item_model(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_ITEM_MODEL, item_id, customize)) {
+			customize_item_model(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_ITEM_DISPLAY, item_id)) {
-			customize_item_display(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_ITEM_DISPLAY, item_id, customize)) {
+			customize_item_display(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_ITEM_QUANTITY, item_id)) {
-			customize_item_quantity(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_ITEM_QUANTITY, item_id, customize)) {
+			customize_item_quantity(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_ITEM_ANIMATION, item_id)) {
-			customize_item_animation(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_ITEM_ANIMATION, item_id, customize)) {
+			customize_item_animation(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_ITEM_ACTION, item_id)) {
-			customize_item_action(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_ITEM_ACTION, item_id, customize)) {
+			customize_item_action(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_ITEM_SFX, item_id)) {
-			customize_item_sfx(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_ITEM_SFX, item_id, customize)) {
+			customize_item_sfx(*customize, entity_manager);
 		}
 
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_AMMO, item_id)) {
-			customize_ammo(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_AMMO, item_id, customize)) {
+			customize_ammo(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_EXAMINE, item_id)) {
-			customize_examine(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_EXAMINE, item_id, customize)) {
+			customize_examine(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_HEALTH, item_id)) {
-			customize_health(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_HEALTH, item_id, customize)) {
+			customize_health(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_COMPASS, item_id)) {
-			customize_compass(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_COMPASS, item_id, customize)) {
+			customize_compass(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_STOPWATCH, item_id)) {
-			customize_stopwatch(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_STOPWATCH, item_id, customize)) {
+			customize_stopwatch(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_PASSPORT, item_id)) {
-			customize_passport(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_PASSPORT, item_id, customize)) {
+			customize_passport(*customize, entity_manager);
 		}
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_MAP, item_id)) {
-			customize_map(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_MAP, item_id, customize)) {
+			customize_map(*customize, entity_manager);
 		}
 	}
 
 	for (int32_t type = 1; type < inventory::DurationType::NONE; ++type) {
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_DURATION, type)) {
-			customize_duration(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_DURATION, type, customize)) {
+			customize_duration(*customize, entity_manager);
 		}
 	}
 	for (int32_t type = 1; type < sound::SfxType::NONE; ++type) {
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_SFX, type)) {
-			customize_sfx(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_SFX, type, customize)) {
+			customize_sfx(*customize, entity_manager);
 		}
 	}
 	for (int32_t type = 1; type < text::TextType::NONE; ++type) {
-		if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_TEXT, type)) {
-			customize_text(*GET.pCust, entity_manager);
+		if (find_customize_command(CUST_CINV_TEXT, type, customize)) {
+			customize_text(*customize, entity_manager);
 		}
 	}
 
-	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_COMBO, -1)) {
-		customize_combo(*GET.pCust, entity_manager);
+	if (find_customize_command(CUST_CINV_COMBO, -1, customize)) {
+		customize_combo(*customize, entity_manager);
 	}
-	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_DISPLAY, -1)) {
-		customize_display(*GET.pCust, entity_manager);
+	if (find_customize_command(CUST_CINV_DISPLAY, -1, customize)) {
+		customize_display(*customize, entity_manager);
 	}
-	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_CAMERA, -1)) {
-		customize_camera(*GET.pCust, entity_manager);
+	if (find_customize_command(CUST_CINV_CAMERA, -1, customize)) {
+		customize_camera(*customize, entity_manager);
 	}
-	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_LIGHTING, -1)) {
-		customize_lighting(*GET.pCust, entity_manager);
+	if (find_customize_command(CUST_CINV_LIGHTING, -1, customize)) {
+		customize_lighting(*customize, entity_manager);
 	}
-	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_CHEATS, -1)) {
-		customize_cheats(*GET.pCust, entity_manager);
+	if (find_customize_command(CUST_CINV_CHEATS, -1, customize)) {
+		customize_cheats(*customize, entity_manager);
 	}
-	if (Get(enumGET.MY_CUSTOMIZE_COMMAND, CUST_CINV_DEBUG, -1)) {
-		customize_debug(*GET.pCust, entity_manager);
+	if (find_customize_command(CUST_CINV_DEBUG, -1, customize)) {
+		customize_debug(*customize, entity_manager);
 	}
 }
 
