@@ -167,13 +167,14 @@ void setup_tr4_ammo(
 	};
 
 	const auto load = [=]() -> void {
-		// unload previous ammo
-		core::set_bit(*weapon_value, (FWEAP_AMMO_NORMAL | FWEAP_AMMO_SUPER | FWEAP_AMMO_EXPLOSIVE), false);
-		// load new ammo
 		core::set_bit(*weapon_value, ammo_bit);
 	};
 
-	weapon_item->add_component(new item::ItemAmmo(*ammo_item, loaded, load));
+	const auto unload = [=]() -> void {
+		core::set_bit(*weapon_value, ammo_bit, false);
+	};
+
+	weapon_item->add_component(new item::ItemAmmo(*ammo_item, loaded, load, unload));
 }
 
 void load_first_ammo(ecs::Entity &item)
@@ -181,6 +182,8 @@ void load_first_ammo(ecs::Entity &item)
 	const auto item_ammo = item.get_component<item::ItemAmmo>();
 
 	if (item_ammo && item_ammo->load) {
+		item::unload_ammo(item);
+
 		item_ammo->load();
 	}
 }
@@ -4677,7 +4680,7 @@ void customize_ammo(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 4) {
+	if (customize.NArguments < 5) {
 		return;
 	}
 
@@ -4692,10 +4695,11 @@ void customize_ammo(
 		return;
 	}
 
-	for (int32_t i = 1; i < customize.NArguments; i += 3) {
+	for (int32_t i = 1; i < customize.NArguments; i += 4) {
 		const auto ammo_item_id = customize.pVetArg[++cust_index];
 		const auto loaded_cgroup = customize.pVetArg[++cust_index];
 		const auto load_tgroup = customize.pVetArg[++cust_index];
+		const auto unload_tgroup = customize.pVetArg[++cust_index];
 
 		auto ammo = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 			return item_data.item_id == ammo_item_id;
@@ -4716,9 +4720,16 @@ void customize_ammo(
 				return PerformTriggerGroup(loaded_cgroup) > 0;
 			};
 		}
+		
 		if (load_tgroup >= 0) {
 			item_ammo->load = [=]() -> void {
 				PerformTriggerGroup(load_tgroup);
+			};
+		}
+		
+		if (unload_tgroup >= 0) {
+			item_ammo->unload = [=]() -> void {
+				PerformTriggerGroup(unload_tgroup);
 			};
 		}
 	}

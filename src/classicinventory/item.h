@@ -449,16 +449,19 @@ struct ItemAmmo : public ecs::Component {
 	ecs::Entity &ammo_item;
 	std::function<bool(void)> loaded;
 	std::function<void(void)> load;
+	std::function<void(void)> unload;
 
 	ItemAmmo(
 		ecs::Entity &ammo_item,
 		const std::function<bool()> loaded = []() -> bool { return false; },
-		const std::function<void()> load = []() -> void {}
+		const std::function<void()> load = []() -> void {},
+		const std::function<void()> unload = []() -> void {}
 	)
 		:
 		ammo_item(ammo_item),
 		loaded(loaded),
-		load(load)
+		load(load),
+		unload(unload)
 	{}
 };
 
@@ -569,6 +572,10 @@ void deactivate_item_actions(ecs::Entity &item);
 void reset_item_animation(ecs::Entity &item);
 void spin_item(ecs::Entity &item, uint32_t frames);
 void restore_item_spin(ecs::Entity &item, uint32_t frames = 0, float speed = 1);
+
+item::ItemAmmo* get_loaded_ammo(ecs::Entity &weapon_item);
+bool load_ammo(ecs::Entity &weapon_item, int32_t ammo_item_id);
+void unload_ammo(ecs::Entity &weapon_item);
 
 }
 }

@@ -333,5 +333,40 @@ void restore_item_spin(ecs::Entity &item, uint32_t frames, float speed)
 	}
 }
 
+ItemAmmo* get_loaded_ammo(ecs::Entity &weapon_item)
+{
+	return weapon_item.get_component<item::ItemAmmo>([](item::ItemAmmo &item_ammo) -> bool {
+		return item_ammo.loaded();
+	});
+}
+
+bool load_ammo(ecs::Entity &weapon_item, int32_t ammo_item_id)
+{
+	const auto ammo = weapon_item.get_component<item::ItemAmmo>([&](item::ItemAmmo &item_ammo) -> bool {
+		return item_ammo.ammo_item.get_component<item::ItemData>([&](item::ItemData &item_data) -> bool {
+			return item_data.item_id == ammo_item_id;
+		}) != nullptr;
+	});
+
+	if (ammo) {
+		ammo->load();
+
+		return true;
+	}
+
+	return false;
+}
+
+void unload_ammo(ecs::Entity &weapon_item)
+{
+	const auto ammos = weapon_item.get_components<item::ItemAmmo>([&](item::ItemAmmo &ammo) -> bool {
+		return ammo.loaded();
+	});
+	
+	std::for_each(ammos.begin(), ammos.end(), [](item::ItemAmmo *ammo) -> void {
+		ammo->unload();
+	});
+}
+
 }
 }
