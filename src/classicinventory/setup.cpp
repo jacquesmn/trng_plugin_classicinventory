@@ -5555,12 +5555,11 @@ bool find_customize_command(
 	for (int32_t i = 0; i < MyData.BaseCustomizeMine.TotCustomize; ++i) {
 		const auto customize = &MyData.BaseCustomizeMine.pVetCustomize[i];
 
-		if (customize->CustValue == id_first) {
-			if (id_second == -1 || id_second == customize->pVetArg[0]) {
-				result = customize;
+		if (id_first == customize->CustValue
+			&& (id_second == -1 || id_second == customize->pVetArg[0])) {
+			result = customize;
 
-				return true;
-			}
+			return true;
 		}
 	}
 
