@@ -1,6 +1,11 @@
 #Changelog
 All notable changes to this project will be documented in this file.
 
+##[0.9.1.1] - 2019-01-26
+- Remove excessive tomb4_log.exe warnings about missing customize commands.
+- Add UnloadTriggerGroupId field to CUST_CINV_AMMO customize command.
+- Fix bug where incorrect ammo type was shown as loaded.
+
 ##[0.9.1.0] - 2019-01-21
 - Add condition trigger to check if classic ring inventory is enabled or not.
 
@@ -57,6 +62,7 @@ All notable changes to this project will be documented in this file.
 ##[0.9.0.0] - 2018-10-24
 - First private beta release.
 
+[0.9.1.1]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/c9a81fab37569542f775461fc92292ed60f30e61...f3e88fb1d59f82fd1fabe3109a27b06884d06fd7
 [0.9.1.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f405c6a3e6685be07c0b911118167b2e6386e738...c9a81fab37569542f775461fc92292ed60f30e61
 [0.9.0.9]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f4085aed0e2ec04e5f94a54c41e4dacc1fcd2263...f405c6a3e6685be07c0b911118167b2e6386e738
 [0.9.0.8]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/0e069cb504beff4835ed77b58b9a151867deea9c...f4085aed0e2ec04e5f94a54c41e4dacc1fcd2263
