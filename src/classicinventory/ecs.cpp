@@ -58,12 +58,5 @@ SystemManager& get_system_manager()
 	return *system_manager;
 }
 
-void test()
-{
-	auto &system_manager = new_system_manager();
-
-	system_manager.add_system<System>(nullptr);
-}
-
 }
 }

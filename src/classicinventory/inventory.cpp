@@ -226,7 +226,9 @@ InventoryRing* build_ammo_ring(
 
 				ammo_items.push_back(&ammo_item);
 
-				if (item_ammo.loaded() && ammo_item.has_component<item::ItemData>()) {
+				if (!ammo_loaded_item_id
+					&& item_ammo.loaded()
+					&& ammo_item.has_component<item::ItemData>()) {
 					auto &item_data = *ammo_item.get_component<item::ItemData>();
 
 					ammo_loaded_item_id = &item_data.item_id;

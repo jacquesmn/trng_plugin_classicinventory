@@ -295,9 +295,8 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 
 						// add text for ammo 
 						if (item.has_component<item::ItemAmmo>()) {
-							auto item_ammo = item.get_component<item::ItemAmmo>([](item::ItemAmmo &item_ammo) -> bool {
-								return item_ammo.loaded();
-							});
+							auto item_ammo = item::get_loaded_ammo(item);
+							
 							if (item_ammo) {
 								auto &ammo_item = item_ammo->ammo_item;
 								if (ammo_item.has_component<item::ItemData>()
@@ -934,9 +933,8 @@ void ItemActiveState::start(ecs::EntityManager &entity_manager)
 
 		// add text for loaded ammo, if any
 		if (item_active.has_component<item::ItemAmmo>()) {
-			auto item_ammo = item_active.get_component<item::ItemAmmo>([](item::ItemAmmo &item_ammo) -> bool {
-				return item_ammo.loaded();
-			});
+			auto item_ammo = item::get_loaded_ammo(item_active);
+			
 			if (item_ammo) {
 				auto &ammo_item = item_ammo->ammo_item;
 				if (ammo_item.has_component<item::ItemData>()
@@ -1777,31 +1775,25 @@ State* AmmoLoadState::update(ecs::EntityManager &entity_manager)
 			auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
 
 			if (inventory_state.item_active) {
-				auto &item_active = inventory_state.item_active->item;
+				auto &weapon_item = inventory_state.item_active->item;
 
 				const auto ring_context = inventory_state.ring;
 				if (ring_context) {
+					// unload current ammo before loading
+					item::unload_ammo(weapon_item);
+
 					// load ammo
 					if (ring_context->ring.has_component<ring::RingState>()) {
 						auto &ring_state = *ring_context->ring.get_component<ring::RingState>();
 
 						if (ring_state.item) {
-							auto &item_selected = ring_state.item->item;
+							auto &ammo_item = ring_state.item->item;
 
-							if (item_selected.has_component<item::ItemData>()) {
-								auto item_id = item_selected.get_component<item::ItemData>()->item_id;
+							if (ammo_item.has_component<item::ItemData>()) {
+								const auto ammo_item_id = ammo_item.get_component<item::ItemData>()->item_id;
 
-								const auto ammo = item_active.get_component<item::ItemAmmo>([&](item::ItemAmmo &item_ammo) -> bool {
-									return item_ammo.ammo_item.get_component<item::ItemData>([&](item::ItemData &item_data) -> bool {
-										return item_data.item_id == item_id;
-									}) != nullptr;
-								});
-
-								if (ammo) {
-									ammo->load();
-
-									// add sfx
-									add_sfx(sound::SfxType::LOAD_AMMO, false, *inventory, &item_active);
+								if (item::load_ammo(weapon_item, ammo_item_id)) {
+									add_sfx(sound::SfxType::LOAD_AMMO, false, *inventory, &weapon_item);
 								}
 							}
 						}
