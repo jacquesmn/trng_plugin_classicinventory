@@ -96,7 +96,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "$(TRLEDir)"</Command>
     <PostBuildEvent>
       <Command>copy /y "$(ProjectDir)$(Configuration)\$(TargetFileName)" "$(TRLEDir)"
 if not exist "$(SolutionDir)dist" mkdir "$(SolutionDir)dist"
-powershell Compress-Archive -Path '$(ProjectDir)$(Configuration)\$(TargetFileName)', '$(SolutionDir)docs\*', '$(SolutionDir)scripts\*', '$(SolutionDir)resources\*' -DestinationPath '$(SolutionDir)dist\$(TargetName).zip' -Force</Command>
+powershell Compress-Archive -Path '$(ProjectDir)$(Configuration)\$(TargetFileName)', '$(SolutionDir)doc\*', '$(SolutionDir)scripts\*', '$(SolutionDir)resources\*' -DestinationPath '$(SolutionDir)dist\$(TargetName).zip' -Force</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -164,8 +164,9 @@ powershell Compress-Archive -Path '$(ProjectDir)$(Configuration)\$(TargetFileNam
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="dist\Plugin_ClassicInventory.zip" />
-    <None Include="docs\Changelog.txt" />
-    <None Include="docs\Plugin_ClassicInventory.txt" />
+    <None Include="doc\Changelog.txt" />
+    <None Include="doc\Plugin_ClassicInventory.txt" />
+    <None Include="doc\Readme.txt" />
     <None Include="Plugin_ClassicInventory.aps" />
     <None Include="Plugin_ClassicInventory.def" />
     <None Include="Plugin_ClassicInventory.props" />
