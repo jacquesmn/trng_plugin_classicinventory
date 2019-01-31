@@ -4,6 +4,24 @@
 // TYPE_HERE: here you can type your structure definitions like it has been done
 // in the "structures.h" file for trng dll
 
+typedef struct StrSavegameGlobalInventoryData {
+	int item_qty[512];
+	WORD map_marker_active[512];
+}SavegameGlobalInventoryData;
+
+typedef struct StrSavegameLocalInventoryData {
+	int ring_id_selected;
+	int item_id_selected;
+	int item_id_used;
+
+	StrSavegameLocalInventoryData()
+		:
+		ring_id_selected(-1),
+		item_id_selected(-1),
+		item_id_used(-1)
+	{}
+}SavegameLocalInventoryData;
+
 // --------------- PRESET STRUCTURE ZONE -----------------------------
 // Please, don't remove structures and fields you find in this "PRESET ZONE". They will be used by some
 // preset functions of your plugin sources
@@ -14,15 +32,30 @@ typedef struct StrSavegameGlobalData {
 	//           (only one for all levels)
 	// note: the size of this structure should be always even (if you add BYTE variable, remember to compensate that 
 	//       with another BYTE vairable or placefolder)
+	SavegameGlobalInventoryData inventory_data;
 
-	
+	SavegameGlobalInventoryData placeholder_inventory_data;
+
+	StrSavegameGlobalData()
+		:
+		inventory_data(SavegameGlobalInventoryData()),
+		placeholder_inventory_data(SavegameGlobalInventoryData())
+	{}
 }SavegameGlobalDataFields;
 
 typedef struct StrSavegameLocalData {
 	// FOR_YOU:
 	// define here your variables that you wish were saved (and then restored) to/from savegame in LOCAL section (one for each different level)
 	// note: the size of this structure should be always even (if you add BYTE variable, compensate it with another BYTE vairable or placefolder)
+	SavegameLocalInventoryData inventory_data;
 
+	SavegameLocalInventoryData placeholder_inventory_data;
+
+	StrSavegameLocalData()
+		:
+		inventory_data(SavegameLocalInventoryData()),
+		placeholder_inventory_data(SavegameLocalInventoryData())
+	{}
 }SavegameLocalDataFields;
 
 

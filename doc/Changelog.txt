@@ -1,0 +1,79 @@
+#Changelog
+All notable changes to this project will be documented in this file.
+
+##[1.0.0.0] - 2019-01-31
+- First public release.
+
+##[0.9.1.1] - 2019-01-26
+- Remove excessive tomb4_log.exe warnings about missing customize commands.
+- Add UnloadTriggerGroupId field to CUST_CINV_AMMO customize command.
+- Fix bug where incorrect ammo type was shown as loaded.
+
+##[0.9.1.0] - 2019-01-21
+- Add condition trigger to check if classic ring inventory is enabled or not.
+
+##[0.9.0.9] - 2019-01-06
+- Add option to disable classic ring inventory per level.
+
+##[0.9.0.8] - 2019-01-02
+- Fix bug where Lara could be healed with the shortcut keys even without medipacks.
+
+##[0.9.0.7] - 2018-11-28
+- Improve compass oscillation.
+- Replace compass oscillation settings with attraction and friction.
+- Add customizable offset for compass needle.
+- Add customizable target for compass.
+- Add option to disable spinning of items when selected.
+
+##[0.9.0.6] - 2018-11-18
+- Change ITEM_SELECT to ITEM_ACTIVATE for script constants.
+- Disable cheats if related TRNG Setting is set.
+- Improve customizing of item quantities.
+- Add default item quantity for new items.
+
+##[0.9.0.5] - 2018-11-12
+- Add divider setting for item quantities.
+- Add option to disable fade in+out of item pickup displays.
+
+##[0.9.0.4] - 2018-11-03
+- Fix bug with cheat activation.
+- Add default BITS cheat.
+- Change default GUNS cheat to GUN.
+- Remove default WEAPON cheat (replaced by GUN).
+- Add description about default cheats.
+- Improve health item usage.
+- Fix action menu sfx.
+- Remove poison warp effect from inventory.
+- Add note about animation frame rate issue.
+
+##[0.9.0.3] - 2018-10-27
+- Fix crash when setting camera FOV to 0.
+- Fix bug with not being able to customize existing cheats having less than 5 keys.
+- Fix bug with enum values for cheat hint types not matching script constants.
+- Fix issue with cheats activated in incorrect phase.
+- Improve logic to adjust item quantities.
+- Store quantities for compass and memcards in savegame by default.
+
+##[0.9.0.2] - 2018-10-27
+- Ignore flipmaps for default lighting calculation.
+- Add debug info for lighting location.
+- Add NG Center logo.
+
+##[0.9.0.1] - 2018-10-25
+- Fix and improve default lighting calculation.
+
+##[0.9.0.0] - 2018-10-24
+- First private beta release.
+
+[1.0.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f3e88fb1d59f82fd1fabe3109a27b06884d06fd7...87bbe968ce12c8fcee5f81c99793ac8ab7a664a2
+[0.9.1.1]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/c9a81fab37569542f775461fc92292ed60f30e61...f3e88fb1d59f82fd1fabe3109a27b06884d06fd7
+[0.9.1.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f405c6a3e6685be07c0b911118167b2e6386e738...c9a81fab37569542f775461fc92292ed60f30e61
+[0.9.0.9]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f4085aed0e2ec04e5f94a54c41e4dacc1fcd2263...f405c6a3e6685be07c0b911118167b2e6386e738
+[0.9.0.8]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/0e069cb504beff4835ed77b58b9a151867deea9c...f4085aed0e2ec04e5f94a54c41e4dacc1fcd2263
+[0.9.0.7]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/478d7a0158ff194cee214967621200ffbd040fb7...0e069cb504beff4835ed77b58b9a151867deea9c
+[0.9.0.6]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/25c2f4c3dc55b577eeb7e037717e832c44fa465b...478d7a0158ff194cee214967621200ffbd040fb7
+[0.9.0.5]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/7020d876ee7ad4fbe98eb50fcfee5302f1d5a793...25c2f4c3dc55b577eeb7e037717e832c44fa465b
+[0.9.0.4]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/d315892df52465a8c5f86aa77939e5722e7ccc5f...7020d876ee7ad4fbe98eb50fcfee5302f1d5a793
+[0.9.0.3]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/fb90e4a794d92a3f309f5c005a6f53ba58ef33a8...d315892df52465a8c5f86aa77939e5722e7ccc5f
+[0.9.0.2]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/656219dac0718c53a7fa43bc357735b615111639...fb90e4a794d92a3f309f5c005a6f53ba58ef33a8
+[0.9.0.1]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/24e8b8163b090f382bd7caacb0b022eb5ad89104...656219dac0718c53a7fa43bc357735b615111639

@@ -5,38 +5,26 @@
 
 // ************  Top/Header section ************
 #include "stdafx.h"
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
-#include "bass.h"		// prototypes for extra sound library: bass.dll
-	// Following header files will be updated for every new version of 
-	// the tomb_NextGeneration.dll, so it's better you don't change them
-	//  because they will be replaced for any new update.
 
-#include "Tomb_NextGeneration.h" // mnemonic constants defined in tomb_NextGeneration.dll
-#include "structures.h" // structure of tomb4 program and trng dll
-#include "DefTomb4Funct.h" // defines of tomb4 procedure prototypes
+#include <trng_core.h>
 #include "functions.h"  // assigments of real tomb4 address to each tomb4 procedures
-#include "macros.h"  // definition of macros
+#include "functions_mine.h" // assigments of real discovered tomb4 address to each discovered tomb4 procedures
 
-	// FOR_YOU:
-	// While the followings are the headers you can use 
-	// to type your structures, constants and new tomb4 procedures you 
-	// discovered. 
-	// Following files are only yours and trng will not ever change them:
-#include "macros_mine.h"  // here you define your own macros
-#include "constants_mine.h" // here you define your mnemonic constants
-#include "structures_mine.h" // here you type your structure definitions
-#include "Tomb4Discoveries_mine.h" // here type tomb4 procedures you discovered
+#include <classicinventory/ecs.h>
+#include <classicinventory/controller.h>
+#include <classicinventory/item.h>
+#include <classicinventory/ring.h>
+#include <classicinventory/setup.h>
+#include <classicinventory/trigger.h>
 
-#include "trng.h" // list of trng functions imported from trng.cpp source. 
+using namespace classicinventory;
 
 #pragma warning( error : 4706 )
 #pragma warning(disable: 4996)
 
 // ************  Early function declarations ************
 
- 
+
 // ************  Global Variables Section *************
 
 // FOR_YOU:
@@ -62,7 +50,7 @@
 
 // Variables and memory zone to TYPE_HERE:
 
-HINSTANCE MyDllInstance=NULL;  // the instance handle of your dll
+HINSTANCE MyDllInstance = NULL;  // the instance handle of your dll
 
 extern char BufferLog[4096]; // temporary global buffer to host error and warning messages
 
@@ -76,11 +64,12 @@ extern char BufferLog[4096]; // temporary global buffer to host error and warnin
 // If you chose an address used from other plugins you'll get an error and
 // the game will be aborted
 // note: if you don't mean use code patches you can let 0x0 in following line
-DWORD MyTomb4PatcherAddress = 0x0; // <- TYPE_HERE: the new address you chose
-								
+DWORD MyTomb4PatcherAddress = 0x5F5978; // <- TYPE_HERE: the new address you chose
+
+
 // this text will contain your plugin name (omitting .dll extension).
 // it will be used to give a title to messagebox for error messages or warnings
-char TexMyPluginName[80];  
+char TexMyPluginName[80];
 // in this MyData structure you can store all global variables for your plugin
 // you have to define them in structures_mine.h source inside structure "StrMyData" or for variable
 // to save and restore in savegames, in "StrSavegameGlobalData" or "StrSavegameLocalData" structures
@@ -96,6 +85,29 @@ StrMyData MyData;
 // because they are necessary to do work the plugin with the trng dll
 // Anyway in many of these functions you can add your code
 
+// Date creation: 27 Sep 2018 17:55:30
+// Called from: 0x43E760
+// MOV AX,0
+// JMP DWORD PTR DS:[<ClassicInventoryPatcher>]
+int patch_have_i_got_object(void)
+{
+	static BYTE VetBytes[] = { 0x66, 0xB8, 0x0, 0x0, 0xFF, 0x25, 0x78, 0x59, 0x5F, 0x0 };
+
+	return ApplyRelocatorPatch(0x43E760, VetBytes, 10, 0x43E760, 0x43E849);
+}
+
+// Date creation: 27 Sep 2018 18:28:25
+// Called from: 0x43E380
+// MOV AX,1
+// JMP DWORD PTR DS:[<ClassicInventoryPatcher>]
+int patch_picked_up_object(void)
+{
+	static BYTE VetBytes[] = { 0x66, 0xB8, 0x1, 0x0, 0xFF, 0x25, 0x78, 0x59, 0x5F, 0x0 };
+
+	return ApplyRelocatorPatch(0x43E380, VetBytes, 10, 0x43E380, 0x43E75A);
+}
+
+
 
 // FOR_YOU: In this function you insert the callings of functions used to change tomb4 code
 // You can get these functions, in the correct format, using Trng Core -> Asm Souce Editor -> Debugging menu
@@ -109,6 +121,9 @@ bool CreateMyCodePatches(void)
 	// SET_PATCH(Path_RedirCollision)
 	// to call the function Patch_RedirCollision() created with TrngPatcher program (command Assmembly->Create Dynamic Patch Generator)
 
+	// SET_PATCH(patch_have_i_got_object);
+	// SET_PATCH(patch_picked_up_object);
+
 	return true;
 }
 
@@ -119,12 +134,49 @@ bool CreateMyCodePatches(void)
 // type them in the order of ax value. So first asm proc in the list, will be called
 // with ax=0, while the second in the list will be called with ax=1 ect.
 
+bool patch_00_have_i_got_object(int slot)
+{
+	auto &entity_manager = ecs::get_entity_manager();
 
+	const auto item_id = item::tr4_slot_to_item_id(slot);
+	const auto item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
+		return item_data.item_id == item_id;
+	});
+
+	if (item && item->has_component<item::ItemQuantity>()) {
+		const auto &item_qty = *item->get_component<item::ItemQuantity>();
+
+		if (item_qty.get() != 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void patch_01_picked_up_object(int slot)
+{
+	auto &entity_manager = ecs::get_entity_manager();
+
+	const auto item_id = item::tr4_slot_to_item_id(slot);
+	const auto item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
+		return item_data.item_id == item_id;
+	});
+
+	if (item && item->has_component<item::ItemQuantity>()) {
+		const auto &item_qty = *item->get_component<item::ItemQuantity>();
+
+		//TODO: customize the qty added
+		item_qty.increase();
+	}
+}
 
 void *SubPatchArray[] = {
-	
-// TYPE_HERE your asm procedure names to call from tomb4 code
-	NULL
+
+	// TYPE_HERE your asm procedure names to call from tomb4 code
+		&patch_00_have_i_got_object,
+		&patch_01_picked_up_object,
+		NULL
 };
 
 
@@ -135,9 +187,9 @@ void *SubPatchArray[] = {
 // the number of subpatch to call
 
 BEGIN_ASM_PROC(MainPatcher)
-	and eax, 0ffffh
-	mov eax, dword ptr [SubPatchArray+eax*4];
-	jmp eax
+and eax, 0ffffh
+mov eax, dword ptr[SubPatchArray + eax * 4];
+jmp eax
 END_ASM_PROC
 
 
@@ -146,7 +198,7 @@ END_ASM_PROC
 
 // TYPE_HERE: your callback function
 
-void cbInitProgram(int NumberLoadedPlugins, char *VetPluginNames[]) 
+void cbInitProgram(int NumberLoadedPlugins, char *VetPluginNames[])
 {
 
 	// save number of plugins (enclosed yours and the tomb_nextgeneration.dll ) and their names
@@ -173,6 +225,14 @@ void cbInitLevel(void)
 	// it will be called only once for level, when all items has been already initialized
 	// and just a moment before entering in main game cycle.
 
+	// initialize inventory
+	auto &entity_manager = ecs::new_entity_manager();
+	auto &system_manager = ecs::new_system_manager();
+
+	setup::setup(entity_manager);
+
+	auto &controller = controller::new_controller(entity_manager, system_manager);
+	controller.init();
 }
 
 // called everytime player save the game (but also when lara move from a level to another HUB saving). 
@@ -196,15 +256,15 @@ DWORD cbSaveMyData(BYTE **pAdrZone, int SavingType)
 		// now we can free the temporary memory used to save the data in previous call
 		if (pVetExtras != NULL) {
 			FreeMemory(pVetExtras);
-			pVetExtras=NULL;
+			pVetExtras = NULL;
 		}
 
 		return 0;
 	}
 
 
-	TotNWords=0;
-	pVetExtras = (WORD *) GetMemory(16);
+	TotNWords = 0;
+	pVetExtras = (WORD *)GetMemory(16);
 	// save id of my plugin in first word
 
 	pVetExtras[TotNWords++] = Trng.IdMyPlugin;
@@ -213,15 +273,15 @@ DWORD cbSaveMyData(BYTE **pAdrZone, int SavingType)
 		// save local data
 
 		// save Local structure
-		AddNGToken(NGTAG_LOCAL_DATA, NO_ARRAY, sizeof(StrSavegameLocalData), &MyData.Save.Local, 
-						&pVetExtras, &TotNWords);
+		AddNGToken(NGTAG_LOCAL_DATA, NO_ARRAY, sizeof(StrSavegameLocalData), &MyData.Save.Local,
+			&pVetExtras, &TotNWords);
 
 
 		// save all (currently enabled) progressive actions
 		// before saving, compact progressive action array to remove intermediate free records
-		TotNewActions=0;
+		TotNewActions = 0;
 
-		for (i=0;i<MyData.TotProgrActions;i++) {
+		for (i = 0; i < MyData.TotProgrActions; i++) {
 			if (MyData.VetProgrActions[i].ActionType != AXN_FREE) {
 
 				MyData.VetProgrActions[TotNewActions] = MyData.VetProgrActions[i];
@@ -230,29 +290,29 @@ DWORD cbSaveMyData(BYTE **pAdrZone, int SavingType)
 			}
 		}
 		// update new valuese after recompatting
-		MyData.LastProgrActionIndex =0;
-		MyData.TotProgrActions= TotNewActions;
+		MyData.LastProgrActionIndex = 0;
+		MyData.TotProgrActions = TotNewActions;
 
 		// store all progressive action records
-		AddNGToken(NGTAG_PROGRESSIVE_ACTIONS, MyData.TotProgrActions, sizeof(StrProgressiveAction), 
-				&MyData.VetProgrActions[0], &pVetExtras, &TotNWords);
+		AddNGToken(NGTAG_PROGRESSIVE_ACTIONS, MyData.TotProgrActions, sizeof(StrProgressiveAction),
+			&MyData.VetProgrActions[0], &pVetExtras, &TotNWords);
 
 	}
 
 	if (SavingType & SAVT_GLOBAL_DATA) {
 		// save global data
-		AddNGToken(NGTAG_GLOBAL_DATA, NO_ARRAY, sizeof(StrSavegameGlobalData), &MyData.Save.Global , 
-						&pVetExtras, &TotNWords);
+		AddNGToken(NGTAG_GLOBAL_DATA, NO_ARRAY, sizeof(StrSavegameGlobalData), &MyData.Save.Global,
+			&pVetExtras, &TotNWords);
 	}
 	// write final sequence
 	AddTokenFinalSequence(&pVetExtras, &TotNWords);
 
 	// return to trng the infos about start of memory where there are our data and their size:
-	*pAdrZone = (BYTE *) pVetExtras;
+	*pAdrZone = (BYTE *)pVetExtras;
 	SizeData = TotNWords * 2;
 
 	return SizeData;
-	
+
 
 }
 // called when a savegame will be loaded (but also when lara move from a level to another)
@@ -269,13 +329,13 @@ void cbLoadMyData(BYTE *pAdrZone, DWORD SizeData)
 	int i;
 	WORD TotActions;
 
-	
-	pVetExtras = (WORD*) pAdrZone;
 
-	Indice=0;
+	pVetExtras = (WORD*)pAdrZone;
 
-	while (ParseNgField(pVetExtras ,Indice, &ParseField)==true) {
-		
+	Indice = 0;
+
+	while (ParseNgField(pVetExtras, Indice, &ParseField) == true) {
+
 		// recover different ng token
 		switch (ParseField.Type) {
 		case NGTAG_LOCAL_DATA:
@@ -287,10 +347,10 @@ void cbLoadMyData(BYTE *pAdrZone, DWORD SizeData)
 			// global data
 			memcpy(&MyData.Save.Global, ParseField.pData, sizeof(StrSavegameGlobalData));
 			break;
-			
+
 		case NGTAG_PROGRESSIVE_ACTIONS:
 			// progressive actions
-			i= ParseField.StartDataIndex;
+			i = ParseField.StartDataIndex;
 			// read tot actions value
 			TotActions = pVetExtras[i++];
 			// copy all tot records
@@ -298,26 +358,25 @@ void cbLoadMyData(BYTE *pAdrZone, DWORD SizeData)
 			MyData.TotProgrActions = TotActions;
 			break;
 		}
-		Indice= ParseField.NextIndex; 
+		Indice = ParseField.NextIndex;
 	}
-
 }
 // free memory used to store all data about your customize commands loaded in previous level
 void FreeMemoryCustomize(void)
 {
 	int i;
 
-	for (i=0;i<MyData.BaseCustomizeMine.TotCustomize;i++) {
+	for (i = 0; i < MyData.BaseCustomizeMine.TotCustomize; i++) {
 		FreeMemory(MyData.BaseCustomizeMine.pVetCustomize[i].pVetArg);
 	}
 
 	if (MyData.BaseCustomizeMine.TotCustomize > 0) {
 		FreeMemory(MyData.BaseCustomizeMine.pVetCustomize);
-		MyData.BaseCustomizeMine.TotCustomize=0;
+		MyData.BaseCustomizeMine.TotCustomize = 0;
 	}
 
 
-	MyData.BaseCustomizeMine.pVetCustomize=NULL;
+	MyData.BaseCustomizeMine.pVetCustomize = NULL;
 }
 
 // free memory used to store all data about your parameters commands loaded in previous level
@@ -325,16 +384,16 @@ void FreeMemoryParameters(void)
 {
 	int i;
 
-	for (i=0;i<MyData.BaseParametersMine.TotParameters;i++) {
+	for (i = 0; i < MyData.BaseParametersMine.TotParameters; i++) {
 		FreeMemory(MyData.BaseParametersMine.pVetParameters[i].pVetArg);
 	}
 
 	if (MyData.BaseParametersMine.TotParameters > 0) {
 		FreeMemory(MyData.BaseParametersMine.pVetParameters);
-		MyData.BaseParametersMine.TotParameters=0;
+		MyData.BaseParametersMine.TotParameters = 0;
 	}
 
-	MyData.BaseParametersMine.pVetParameters=NULL;
+	MyData.BaseParametersMine.pVetParameters = NULL;
 }
 
 // this procedure will be called at end of any level
@@ -346,7 +405,7 @@ void FreeLevelResources(void)
 	FreeMemoryCustomize();
 	// free memory used to store all data about your parameters commands loaded in previous level
 	FreeMemoryParameters();
-	MyData.BaseAssignSlotMine.TotAssign=0;
+	MyData.BaseAssignSlotMine.TotAssign = 0;
 
 }
 // it will be called before beginning the loading for a new level.
@@ -360,12 +419,12 @@ void cbInitLoadNewLevel(void)
 	StrProgressiveAction *pAction;
 
 	// clear all LOCAL variables
-	ClearMemory(&MyData.Save.Local,sizeof(StrSavegameLocalData));
+	ClearMemory(&MyData.Save.Local, sizeof(StrSavegameLocalData));
 
 	// clear progressive actions
-	pAction= &MyData.VetProgrActions[0];
+	pAction = &MyData.VetProgrActions[0];
 
-	for (i=0;i<MyData.TotProgrActions;i++) {
+	for (i = 0; i < MyData.TotProgrActions; i++) {
 		if (pAction->ActionType != AXN_FREE) {
 			// here you could analise to free resoruce allocated from this specific action
 
@@ -373,8 +432,22 @@ void cbInitLoadNewLevel(void)
 		}
 	}
 
-	MyData.TotProgrActions=0;
-	MyData.LastProgrActionIndex=0;
+	MyData.TotProgrActions = 0;
+	MyData.LastProgrActionIndex = 0;
+
+	// clear GLOBAL inventory state
+	// GLOBAL state will still be carried over between levels
+	// this is just to prevent GLOBAL state from being carried over to the title screen and subsequent new-game
+	ClearMemory(&MyData.Save.Global.inventory_data, sizeof(MyData.Save.Global.inventory_data));
+
+	// init inventory state
+	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
+	MyData.Save.Local.inventory_data.item_id_selected = item::ItemId::NONE;
+	MyData.Save.Local.inventory_data.item_id_used = item::ItemId::NONE;
+
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = 1;
 
 	// here you can initialise other variables of MyData different than Local and progressive actions
 	// free resources allocate in previous level
@@ -388,27 +461,72 @@ void cbInitLoadNewLevel(void)
 // you have to elaborate it and then return a TRET_.. value (most common is TRET_PERFORM_ONCE_AND_GO)
 int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode)
 {
-	int RetValue;
-	WORD TimerFull;
+	int RetValue = enumTRET.PERFORM_ONCE_AND_GO;
 
-	RetValue = enumTRET.PERFORM_ONCE_AND_GO;
 	// if the flip has no Extra paremeter you can handle a Timer value with values upto 32767
 	// in this case you'll use the following TimerFull variable, where (with following code) we set a unique big number 
 	// pasting togheter the timer+extra arguments:
-	TimerFull = Timer | (Extra << 8);
+	WORD TimerFull = Timer | (Extra << 8);
 
-	switch (FlipIndex) {
-		// here type the "case Number:" for each flipeffect number. At end of the code you'll use the "break;" instruction to signal the code ending
-		// Note: when you'll add your first "case Number:" then you can remove the following "case -1: and break;" instructions
-	case -1: 
-		break;
-	default:
+	const auto item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
+
+	if (FlipIndex == 700) {
+		trigger::flipeffect_increase_item_qty(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 701) {
+		trigger::flipeffect_decrease_item_qty(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 702) {
+		trigger::flipeffect_set_item_qty(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 703) {
+		trigger::flipeffect_set_item_qty(item_id, item::ITEM_QTY_UNLIMITED, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 704) {
+		trigger::flipeffect_set_item_qty(item_id, 0, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 705) {
+		trigger::flipeffect_open_inventory_at_item(
+			item_id,
+			trigger::ItemSelectType::SELECT,
+			trigger::ItemMissingResponse::SILENCE,
+			false,
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		);
+	}
+	else if (FlipIndex == 706) {
+		trigger::flipeffect_open_inventory_at_item(
+			item_id,
+			trigger::ItemSelectType::SELECT,
+			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
+			true,
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		);
+	}
+	else if (FlipIndex == 707) {
+		trigger::flipeffect_open_inventory_at_item(
+			item_id,
+			trigger::ItemSelectType::ACTIVATE,
+			static_cast<trigger::ItemMissingResponse::Enum>(Extra),
+			true,
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		);
+	}
+	else if (FlipIndex == 708) {
+		trigger::flipeffect_show_pickup_notifier(item_id, ecs::get_entity_manager());
+	}
+	else {
 		SendToLog("WARNING: Flipeffect trigger number %d has not been handled in cbFlipEffectMine() function", FlipIndex);
-		break;
 	}
 
 	// if there was the one-shot button enabled, return TRET_PERFORM_NEVER_MORE
-	if (ActivationMode & enumSCANF.BUTTON_ONE_SHOT) RetValue= enumTRET.PERFORM_NEVER_MORE; 
+	if (ActivationMode & enumSCANF.BUTTON_ONE_SHOT) {
+		RetValue = enumTRET.PERFORM_NEVER_MORE;
+	}
+
 	return RetValue;
 }
 // this procedure will be called everytime an action trigger of yours will be engaged 
@@ -416,8 +534,8 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 int cbActionMine(WORD ActionIndex, int ItemIndex, WORD Extra, WORD ActivationMode)
 {
 	int RetValue;
-	
-	RetValue=TRET_PERFORM_ONCE_AND_GO;
+
+	RetValue = TRET_PERFORM_ONCE_AND_GO;
 
 	switch (ActionIndex) {
 		// type here the code per your action trigger.
@@ -429,9 +547,9 @@ int cbActionMine(WORD ActionIndex, int ItemIndex, WORD Extra, WORD ActivationMod
 		SendToLog("WARNING: action trigger number %d has not been handled in cbActionMine() function", ActionIndex);
 		break;
 	}
-	
+
 	// if there was the one-shot button enabled, return TRET_PERFORM_NEVER_MORE
-	if (ActivationMode & enumSCANF.BUTTON_ONE_SHOT) RetValue= enumTRET.PERFORM_NEVER_MORE;
+	if (ActivationMode & enumSCANF.BUTTON_ONE_SHOT) RetValue = enumTRET.PERFORM_NEVER_MORE;
 	return RetValue;
 
 
@@ -441,24 +559,40 @@ int cbActionMine(WORD ActionIndex, int ItemIndex, WORD Extra, WORD ActivationMod
 // you have to elaborate it and then return a CTRET_.. value (most common is CTRET_ONLY_ONCE_ON_TRUE)
 int cbConditionMine(WORD ConditionIndex, int ItemIndex, WORD Extra, WORD ActivationMode)
 {
-	int RetValue;
-	
-	RetValue=CTRET_ONLY_ONCE_ON_TRUE;
+	int RetValue = CTRET_ONLY_ONCE_ON_TRUE;
 
-	switch (ConditionIndex){
-		// type here the code for your condition trigger, inserting the code in the section
-		// beginning with "case NumberOfAction:" and ending with row "break;"
-	case -1:
-		// note: remove this "case -1:" and its "break;" it has been added only to avoid warning messages about empty switch
-		break;
-	default:
-		SendToLog("WARNING: condition trigger number %d has not been handled in cbConditionMine() function", ConditionIndex);
-		break;
+	bool condition_met = false;
 
+	const auto item_id = ItemIndex - abs(item::MIN_INVENTORY_ITEM_ID);
 
+	if (ConditionIndex == 100) {
+		condition_met = Extra != 0;
 	}
+	else if (ConditionIndex == 101) {
+		condition_met = trigger::condition_item_qty_at_least(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (ConditionIndex == 102) {
+		condition_met = trigger::condition_item_qty_less_than(item_id, Extra, ecs::get_entity_manager());
+	}
+	else if (ConditionIndex == 103) {
+		condition_met = trigger::condition_item_is_selected(item_id, ecs::get_entity_manager());
+	}
+	else if (ConditionIndex == 104) {
+		condition_met = trigger::condition_item_last_used(item_id, ecs::get_entity_manager());
+	}
+	else if (ConditionIndex == 105) {
+		condition_met = trigger::condition_inventory_enabled(Extra != 0, ecs::get_entity_manager());
+	}
+	else {
+		SendToLog("WARNING: condition trigger number %d has not been handled in cbConditionMine() function", ConditionIndex);
+	}
+
+	if (condition_met) {
+		RetValue |= CTRET_IS_TRUE;
+	}
+
 	return RetValue;
-	  
+
 }
 
 // this procedure vill be called for each Customize=CUST_... command read from script
@@ -481,23 +615,23 @@ void cbCustomizeMine(WORD CustomizeValue, int NumberOfItems, short *pItemArray)
 	int TotCust;
 
 	// ask memory to have another (new) record of StrGenericCustomize structure
-	TotCust= MyData.BaseCustomizeMine.TotCustomize;
+	TotCust = MyData.BaseCustomizeMine.TotCustomize;
 	TotCust++;
 	SizeMem = TotCust * sizeof(StrGenericCustomize);
-	MyData.BaseCustomizeMine.pVetCustomize = 
-				(StrGenericCustomize *) ResizeMemory(MyData.BaseCustomizeMine.pVetCustomize, SizeMem);
+	MyData.BaseCustomizeMine.pVetCustomize =
+		(StrGenericCustomize *)ResizeMemory(MyData.BaseCustomizeMine.pVetCustomize, SizeMem);
 
-	pMyCust = & MyData.BaseCustomizeMine.pVetCustomize[TotCust-1];
-	
+	pMyCust = &MyData.BaseCustomizeMine.pVetCustomize[TotCust - 1];
+
 	// now require memory for all arguments (NumberOfItems) store in pItemArray
 
-	pMyCust->pVetArg = (short *) GetMemory(2 * NumberOfItems);
+	pMyCust->pVetArg = (short *)GetMemory(2 * NumberOfItems);
 	// copy data
 	pMyCust->NArguments = NumberOfItems;
-	memcpy(pMyCust->pVetArg, pItemArray, 2*NumberOfItems);
+	memcpy(pMyCust->pVetArg, pItemArray, 2 * NumberOfItems);
 	pMyCust->CustValue = CustomizeValue;
 
-	MyData.BaseCustomizeMine.TotCustomize= TotCust;
+	MyData.BaseCustomizeMine.TotCustomize = TotCust;
 	// ---- end of default managemnt for generic customize -------------	
 }
 // callback called everytime in current level section of the script it has been found an AssignSlot command
@@ -538,22 +672,23 @@ void cbParametersMine(WORD ParameterValue, int NumberOfItems, short *pItemArray)
 	int TotParam;
 
 	// ask memory to have another (new) record of StrGenericparameters structure
-	TotParam= MyData.BaseParametersMine.TotParameters;
+	TotParam = MyData.BaseParametersMine.TotParameters;
 	TotParam++;
 	SizeMem = TotParam * sizeof(StrGenericParameters);
-	MyData.BaseParametersMine.pVetParameters = 
-		(StrGenericParameters *) ResizeMemory(MyData.BaseParametersMine.pVetParameters, SizeMem);
+	MyData.BaseParametersMine.pVetParameters =
+		(StrGenericParameters *)ResizeMemory(MyData.BaseParametersMine.pVetParameters, SizeMem);
 
-	pMyParam = & MyData.BaseParametersMine.pVetParameters[TotParam-1];
-	
+	pMyParam = &MyData.BaseParametersMine.pVetParameters[TotParam - 1];
+
 	// now require memory for all arguments (NumberOfItems) store in pItemArray
 
-	pMyParam->pVetArg = (short *) GetMemory(2 * NumberOfItems);
+	pMyParam->pVetArg = (short *)GetMemory(2 * NumberOfItems);
 	// copy data
 	pMyParam->NArguments = NumberOfItems;
-	memcpy(pMyParam->pVetArg, pItemArray, 2*NumberOfItems);
+	memcpy(pMyParam->pVetArg, pItemArray, 2 * NumberOfItems);
+	pMyParam->ParamValue = ParameterValue; // was missing in original plugin source
 
-	MyData.BaseParametersMine.TotParameters= TotParam;
+	MyData.BaseParametersMine.TotParameters = TotParam;
 	// ---- end of default managemnt for generic parameters -------------
 
 
@@ -562,55 +697,106 @@ void cbParametersMine(WORD ParameterValue, int NumberOfItems, short *pItemArray)
 // this procedure will be called every game cycle (at begin of cycle)
 void cbCycleBegin(void)
 {
-
 }
 
-// Not yet linked! To link it add to RequireMyCallBacks() function the row:
-//  	GET_CALLBACK(CB_CYCLE_END, 0, 0, cbCycleEnd);
 // this procedure will be called everygame cycle, at end.
 // you have to return a RET_CYCLE_ value
 int cbCycleEnd(void)
 {
-
-
-	return RET_CYCLE_CONTINUE;	
+	return RET_CYCLE_CONTINUE;
 }
 
 // this function will be called for each your (common) progressive action to be peformed
 void PerformMyProgrAction(StrProgressiveAction *pAction)
 {
-
-
 	switch (pAction->ActionType) {
-// replace the "case -1:" with your first "case AXN_...:" progressive action to manage)		
+		// replace the "case -1:" with your first "case AXN_...:" progressive action to manage)		
 	case -1:
 		break;
 
 	}
-
 }
+
 // callback called from trng for each frame in game cycle to perform your (common) progressive action
 void cbProgrActionMine(void)
 {
-	int i;
-	StrProgressiveAction *pAction;
-
-	pAction = &MyData.VetProgrActions[0];
-	for (i=0;i<MyData.TotProgrActions;i++) {
-		if (pAction->ActionType != AXN_FREE) {
-			PerformMyProgrAction(pAction);
-		}
-		pAction++;
+	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_main();
 	}
-
-
 }
+
+// callback called each time S_OutputPolyList is performed
+// BUG: Not called during fixed camera view
+void cbProgrActionDrawMine(void)
+{
+	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_main_draw();
+	}
+}
+
 // inside this function you'll type call to functions to intialise your new objects or customize that olds.
 // this callback will be called at start of loading new level and a bit after having started to load level data
-void cbInitObjects(void) 
+void cbInitObjects(void)
 {
-
 }
+
+// handles displaying and management of inventory
+int cbInventoryMain(WORD CBT_Flags, bool TestLoadedGame, int SelectedItem)
+{
+	if (!inventory::inventory_enabled(ecs::get_entity_manager())) {
+		return enumIRET.OK;
+	}
+
+	controller::get_controller(
+		ecs::get_entity_manager(),
+		ecs::get_system_manager()
+	).do_inventory();
+
+	return enumIRET.SKIP_ORIGINAL;
+}
+
+// handles post-management of inventory
+int cbInventoryAfter(WORD CBT_Flags, bool TestLoadedGame, int SelectedItem)
+{
+	if (!inventory::inventory_enabled(ecs::get_entity_manager())) {
+		return enumIRET.OK;
+	}
+
+	if (*Trng.pGlobTomb4->pAdr->pTestLoadOrNewLevel) {
+		return enumIRET.LOADED_GAME;
+	}
+
+	return enumIRET.SKIP_ORIGINAL;
+}
+
+// callback for managing input
+// this way we can override inputs if needed
+bool cbInputManager(
+	BYTE VetInputKeyboard[],
+	WORD *pInputGameCommands,
+	DWORD *pInputCommandFlags,
+	DWORD *pInputExtGameCommands
+)
+{
+	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_input(
+			VetInputKeyboard,
+			reinterpret_cast<uint32_t*>(pInputExtGameCommands)
+		);
+	}
+
+	return SRET_OK;
+}
+
 
 
 // FOR_YOU:
@@ -620,25 +806,30 @@ void cbInitObjects(void)
 // one for each callback you need
 bool RequireMyCallBacks(void)
 {
-// ************  RequireMyCallBacks() function  *****************
-	// protype of GET_CALLBACK:
-	// GET_CALLBACK(CallBackCB, CBT_Flags, Index, MyProcToCall)
-	// default callbacks required always 
-	GET_CALLBACK(CB_INIT_PROGRAM, 0, 0, cbInitProgram)
-	GET_CALLBACK(CB_INIT_GAME, 0, 0, cbInitGame)
-	GET_CALLBACK(CB_INIT_LEVEL, 0,0, cbInitLevel)
-	GET_CALLBACK(CB_SAVING_GAME, 0, 0, cbSaveMyData)
-	GET_CALLBACK(CB_LOADING_GAME, 0, 0, cbLoadMyData)
-	GET_CALLBACK(CB_INIT_LOAD_NEW_LEVEL, 0,0, cbInitLoadNewLevel);
+	// ************  RequireMyCallBacks() function  *****************
+		// protype of GET_CALLBACK:
+		// GET_CALLBACK(CallBackCB, CBT_Flags, Index, MyProcToCall)
+		// default callbacks required always 
+	GET_CALLBACK(CB_INIT_PROGRAM, 0, 0, cbInitProgram);
+	GET_CALLBACK(CB_INIT_GAME, 0, 0, cbInitGame);
+	GET_CALLBACK(CB_INIT_LEVEL, 0, 0, cbInitLevel);
+	GET_CALLBACK(CB_SAVING_GAME, 0, 0, cbSaveMyData);
+	GET_CALLBACK(CB_LOADING_GAME, 0, 0, cbLoadMyData);
+	GET_CALLBACK(CB_INIT_LOAD_NEW_LEVEL, 0, 0, cbInitLoadNewLevel);
 	GET_CALLBACK(CB_FLIPEFFECT_MINE, 0, 0, cbFlipEffectMine);
-	GET_CALLBACK(CB_ACTION_MINE, 0,0, cbActionMine);
-	GET_CALLBACK(CB_CONDITION_MINE,0,0,cbConditionMine);
-	GET_CALLBACK(CB_CUSTOMIZE_MINE, 0,0, cbCustomizeMine);
+	GET_CALLBACK(CB_ACTION_MINE, 0, 0, cbActionMine);
+	GET_CALLBACK(CB_CONDITION_MINE, 0, 0, cbConditionMine);
+	GET_CALLBACK(CB_CUSTOMIZE_MINE, 0, 0, cbCustomizeMine);
 	GET_CALLBACK(CB_PARAMETER_MINE, 0, 0, cbParametersMine);
-	GET_CALLBACK(CB_ASSIGN_SLOT_MINE, 0,0, cbAssignSlotMine);
+	GET_CALLBACK(CB_ASSIGN_SLOT_MINE, 0, 0, cbAssignSlotMine);
 	GET_CALLBACK(CB_CYCLE_BEGIN, 0, 0, cbCycleBegin);
+	GET_CALLBACK(CB_CYCLE_END, 0, 0, cbCycleEnd);
 	GET_CALLBACK(CB_PROGR_ACTION_MINE, 0, 0, cbProgrActionMine);
+	GET_CALLBACK(CB_PROGR_ACTION_DRAW_MINE, 0, 0, cbProgrActionDrawMine);
 	GET_CALLBACK(CB_INIT_OBJECTS, 0, 0, cbInitObjects);
+	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_FIRST, 0, cbInventoryMain);
+	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_AFTER, 0, cbInventoryAfter);
+	GET_CALLBACK(CB_INPUT_MANAGER, CBT_FIRST, 0, cbInputManager);
 
 
 	return true;
@@ -653,16 +844,16 @@ bool RequireMyCallBacks(void)
 // is missing) you have to exit from this function returning: false
 bool InitializeAll(void)
 {
-// ************  InitializeAll() function  ****************
-	//  perform all your patches
+	// ************  InitializeAll() function  ****************
+		//  perform all your patches
 	CALL_CHECK(CreateMyCodePatches)
 
-	// call the function that requires all callback you need
-	CALL_CHECK(RequireMyCallBacks)
+		// call the function that requires all callback you need
+		CALL_CHECK(RequireMyCallBacks)
 
-	// TYPE_HERE: code to allocate global resource to use in the whole game
+		// TYPE_HERE: code to allocate global resource to use in the whole game
 
-	return true;
+		return true;
 }
 
 // FOR_YOU: Tyis function will be called when tomb4 game is to be closed.
@@ -670,35 +861,35 @@ bool InitializeAll(void)
 // resource you had allocated in the InitializeAll() function 
 void ReleaseAll(void)
 {
-// ************  ReleaseAll() function  ******************
+	// ************  ReleaseAll() function  ******************
 	FreeLevelResources();
 }
 
 
-BOOL APIENTRY DllMain( HINSTANCE hInstanceDll, 
-                       DWORD  ul_reason_for_call, 
-                       LPVOID lpReserved)
+BOOL APIENTRY DllMain(HINSTANCE hInstanceDll,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved)
 {
 
-    switch (ul_reason_for_call)
+	switch (ul_reason_for_call)
 	{
-		case DLL_PROCESS_ATTACH:
-			MyDllInstance = hInstanceDll;
-			GetTrngInfo();
-			// control per check control value about size and alignment with globtomb4 structure
-			if (CheckControlGlobTomb4() == false) return FALSE;
+	case DLL_PROCESS_ATTACH:
+		MyDllInstance = hInstanceDll;
+		GetTrngInfo();
+		// control per check control value about size and alignment with globtomb4 structure
+		if (CheckControlGlobTomb4() == false) return FALSE;
 
-			if  (InitializeAll()==false) {
-				return FALSE;
-			}
-			return TRUE;
-			
+		if (InitializeAll() == false) {
+			return FALSE;
+		}
+		return TRUE;
 
-		case DLL_PROCESS_DETACH:
-			ReleaseAll();
-			break;
-    }
-    return TRUE;
+
+	case DLL_PROCESS_DETACH:
+		ReleaseAll();
+		break;
+	}
+	return TRUE;
 }
 
 
