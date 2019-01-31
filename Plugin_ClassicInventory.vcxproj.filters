@@ -202,10 +202,11 @@
     <None Include="Plugin_ClassicInventory.props" />
     <None Include="dist\Plugin_ClassicInventory.zip" />
     <None Include="scripts\Plugin_ClassicInventory.txt" />
-    <None Include="docs\Changelog.txt" />
-    <None Include="docs\Plugin_ClassicInventory.txt" />
     <None Include="resources\Plugin_ClassicInventory.jpg">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="doc\Changelog.txt" />
+    <None Include="doc\Plugin_ClassicInventory.txt" />
+    <None Include="doc\Readme.txt" />
   </ItemGroup>
 </Project>
