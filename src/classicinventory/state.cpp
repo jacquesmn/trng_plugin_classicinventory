@@ -296,7 +296,7 @@ void IdleState::start(ecs::EntityManager &entity_manager)
 						// add text for ammo 
 						if (item.has_component<item::ItemAmmo>()) {
 							auto item_ammo = item::get_loaded_ammo(item);
-							
+
 							if (item_ammo) {
 								auto &ammo_item = item_ammo->ammo_item;
 								if (ammo_item.has_component<item::ItemData>()
@@ -507,24 +507,28 @@ void RingRotateState::start(ecs::EntityManager &entity_manager)
 	}
 	const auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
 
-	if (inventory_state.ring && inventory->has_component<inventory::InventoryDuration>()) {
-		const auto &inventory_duration = *inventory->get_component<inventory::InventoryDuration>();
+	if (inventory_state.ring
+		&& inventory_state.ring->ring.has_component<ring::RingState>()
+		&& inventory->has_component<inventory::InventoryDuration>()
+		&& inventory->has_component<inventory::InventoryDisplay>()) {
 		auto &ring = inventory_state.ring->ring;
+		auto &ring_state = *ring.get_component<ring::RingState>();
 
-		inventory::rotate_ring(ring, inventory_duration.ring_rotate_frames, direction == RIGHT);
+		const auto &inventory_duration = *inventory->get_component<inventory::InventoryDuration>();
+		const auto &inventory_display = *inventory->get_component<inventory::InventoryDisplay>();
 
-		if (ring.has_component<ring::RingState>()) {
-			auto &ring_state = *ring.get_component<ring::RingState>();
+		if (!inventory_display.ring_rotate_lock || ring_state.item_count > 1) {
+			inventory::rotate_ring(ring, inventory_duration.ring_rotate_frames, direction == RIGHT);
 
 			// restore current item's rotation
 			if (ring_state.item_count > 0) {
 				item::restore_item_spin(ring_state.item->item, uint32_t(inventory_duration.item_spin_frames * 0.5));
 			}
+
+			// add sfx
+			add_sfx(sound::SfxType::RING_ROTATE, false, *inventory);
 		}
 	}
-
-	// add sfx
-	add_sfx(sound::SfxType::RING_ROTATE, false, *inventory);
 }
 
 State* RingRotateState::update(ecs::EntityManager &entity_manager)
@@ -934,7 +938,7 @@ void ItemActiveState::start(ecs::EntityManager &entity_manager)
 		// add text for loaded ammo, if any
 		if (item_active.has_component<item::ItemAmmo>()) {
 			auto item_ammo = item::get_loaded_ammo(item_active);
-			
+
 			if (item_ammo) {
 				auto &ammo_item = item_ammo->ammo_item;
 				if (ammo_item.has_component<item::ItemData>()

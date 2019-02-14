@@ -65,6 +65,7 @@ struct InventoryDisplay : public ecs::Component {
 	float camera_fov_closed;
 	float camera_fov_opened;
 	float item_base_size;
+	bool ring_rotate_lock;
 
 	InventoryDisplay()
 		:
@@ -79,7 +80,8 @@ struct InventoryDisplay : public ecs::Component {
 		camera_ring_change_pitch(0),
 		camera_fov_closed(80),
 		camera_fov_opened(80),
-		item_base_size(0)
+		item_base_size(0),
+		ring_rotate_lock(true)
 	{}
 };
 

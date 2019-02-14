@@ -5111,7 +5111,7 @@ void customize_display(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 2) {
+	if (customize.NArguments < 3) {
 		return;
 	}
 
@@ -5125,12 +5125,16 @@ void customize_display(
 
 	const auto ring_radius = customize.pVetArg[++cust_index];
 	const auto item_base_size = customize.pVetArg[++cust_index];
+	const auto ring_rotate_lock = customize.pVetArg[++cust_index];
 
 	if (ring_radius >= 0) {
 		inventory_display.ring_radius_opened = ring_radius;
 	}
 	if (item_base_size >= 0) {
 		inventory_display.item_base_size = item_base_size;
+	}
+	if (ring_rotate_lock >= 0) {
+		inventory_display.ring_rotate_lock = ring_rotate_lock == CINV_TRUE;
 	}
 }
 
