@@ -3565,22 +3565,26 @@ State* DebugState::update(ecs::EntityManager &entity_manager)
 				auto light_loc_x = lara.CordX;
 				auto light_loc_y = lara.CordY;
 				auto light_loc_z = lara.CordZ;
+				auto light_loc_radius = 0;
 
 				const auto light_loc = inventory->get_component<render::LightingLocation>();
 				if (light_loc
 					&& light_loc->room >= 0
 					&& light_loc->x >= 0
-					&& light_loc->z >= 0) {
+					&& light_loc->z >= 0
+					&& light_loc->radius >= 0) {
 					light_loc_room = light_loc->room;
 					light_loc_x = light_loc->x;
 					light_loc_y = light_loc->y;
 					light_loc_z = light_loc->z;
+					light_loc_radius = light_loc->radius;
 				}
 
 				text << " Room=" << light_loc_room
 					<< ", X=" << light_loc_x
 					<< ", Y=" << light_loc_y
-					<< ", Z=" << light_loc_z;
+					<< ", Z=" << light_loc_z
+					<< ", Radius=" << light_loc_radius;
 
 				screen_text->text = text.str();
 			}
@@ -3655,11 +3659,13 @@ State* DebugState::update(ecs::EntityManager &entity_manager)
 		}
 
 		if (item.has_component<item::ItemData>()
-			&& item.has_component<item::ItemDisplay>()
-			&& item.has_component<item::ItemModel>()) {
+			&& item.has_component<item::ItemRing>()
+			&& item.has_component<item::ItemModel>()
+			&& item.has_component<item::ItemDisplay>()) {
 			auto &item_data = *item.get_component<item::ItemData>();
-			auto &item_display = *item.get_component<item::ItemDisplay>();
+			auto &item_ring = *item.get_component<item::ItemRing>();
 			auto &item_model = *item.get_component<item::ItemModel>();
+			auto &item_display = *item.get_component<item::ItemDisplay>();
 
 			if (++text_index < screen_texts.size()) {
 				auto screen_text = screen_texts.at(text_index);
@@ -3673,11 +3679,13 @@ State* DebugState::update(ecs::EntityManager &entity_manager)
 			if (++text_index < screen_texts.size()) {
 				auto screen_text = screen_texts.at(text_index);
 				if (screen_text) {
+					short item_model_mesh_mask = min(INT16_MAX, item_model.config->mesh_mask);
+
 					std::ostringstream text("");
 					text << "Item Model:"
 						<< " Slot=" << item_model.config->slot_id
-						<< ", Mesh-Mask=" << "0x" << std::hex << item_model.config->mesh_mask << std::dec
-						<< " (" << std::bitset<32>(int(item_model.config->mesh_mask)) << ")";
+						<< ", Mesh-Mask=" << item_model_mesh_mask
+						<< " (" << std::bitset<15>(item_model_mesh_mask) << ")";
 					screen_text->text = text.str();
 				}
 			}
@@ -3749,6 +3757,15 @@ State* DebugState::update(ecs::EntityManager &entity_manager)
 				if (screen_text) {
 					std::ostringstream text("");
 					text << "Item Scale: " << core::round(item_display.scale * 100) << " (T/G)";
+					screen_text->text = text.str();
+				}
+			}
+
+			if (++text_index < screen_texts.size()) {
+				auto screen_text = screen_texts.at(text_index);
+				if (screen_text) {
+					std::ostringstream text("");
+					text << "Item Sort Index: " << item_ring.sort_index;
 					screen_text->text = text.str();
 				}
 			}
