@@ -5420,7 +5420,7 @@ void customize_lighting(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 4) {
+	if (customize.NArguments < 5) {
 		return;
 	}
 
@@ -5436,11 +5436,16 @@ void customize_lighting(
 	const auto cord_x = customize.pVetArg[++cust_index];
 	const auto cord_y = customize.pVetArg[++cust_index];
 	const auto cord_z = customize.pVetArg[++cust_index];
+	const auto radius = customize.pVetArg[++cust_index];
 
 	light_loc.room = room_index;
 	light_loc.x = cord_x;
 	light_loc.y = cord_y;
 	light_loc.z = cord_z;
+
+	if (radius >= 0) {
+		light_loc.radius = radius;
+	}
 }
 
 void customize_cheats(

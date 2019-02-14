@@ -41,6 +41,7 @@ typedef int(__cdecl *TYPE_ShowSaveScreen) (int loading_or_saving, bool clear_scr
 typedef void(__cdecl *TYPE_DoStatScreen) ();
 typedef void(__cdecl *TYPE_DoOptions) ();
 typedef void(__cdecl *TYPE_S_PauseMenu) ();
+typedef void(__cdecl *TYPE_InitWaterTable) ();
 
 // discovered by AODfan
 typedef int(__cdecl* TYPE_phd_atan) (int x, int y);
