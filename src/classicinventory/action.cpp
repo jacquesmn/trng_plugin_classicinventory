@@ -178,7 +178,9 @@ bool use_binoculars(ecs::Entity &item)
 
 	if (lara_info.TestIsHoldingWeapon
 		|| in_hands_now == enumHOLD.FLARE
-		|| in_hands_now == enumHOLD.ANY_TORCH) {
+		|| in_hands_now == enumHOLD.ANY_TORCH
+		|| in_hands_now == enumHOLD.OUT_TORCH
+		|| in_hands_now == enumHOLD.FIRED_TORCH) {
 		hand_flags = enumFLH.IS_THROWING;
 	}
 
@@ -216,6 +218,8 @@ bool equip_weapon(ecs::Entity &item)
 		|| (!lara_info.TestIsHoldingWeapon
 			&& in_hands_now != enumHOLD.FLARE
 			&& in_hands_now != enumHOLD.ANY_TORCH
+			&& in_hands_now != enumHOLD.OUT_TORCH
+			&& in_hands_now != enumHOLD.FIRED_TORCH
 			&& hand_flags != 0)) {
 		// lara can't equip weapon now
 		SoundEffect(2, nullptr, 0);
