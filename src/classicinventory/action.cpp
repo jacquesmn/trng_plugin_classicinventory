@@ -204,22 +204,20 @@ bool equip_weapon(ecs::Entity &item)
 		return false;
 	}
 
-	if (Trng.pGlobTomb4->TestTakeAwayWeapons) {
-		return false;
-	}
-
 	Get(enumGET.INFO_LARA, 0, 0);
 	auto &lara_info = GET.LaraInfo;
 
+	const auto weapons_disabled = core::bit_set(Trng.pGlobTomb4->StatusNG, SNG_DISABLE_WEAPONS);
 	auto &in_hands_next = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNext;
 	auto &in_hands_now = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow;
 	auto &hand_flags = *Trng.pGlobTomb4->pAdr->pFlagsLaraHands;
 
-	if (!lara_info.TestIsHoldingWeapon
-		&& in_hands_now != enumHOLD.FLARE
-		&& in_hands_now != enumHOLD.ANY_TORCH
-		&& hand_flags != 0) {
-		// lara is busy doing something important
+	if (weapons_disabled
+		|| (!lara_info.TestIsHoldingWeapon
+			&& in_hands_now != enumHOLD.FLARE
+			&& in_hands_now != enumHOLD.ANY_TORCH
+			&& hand_flags != 0)) {
+		// lara can't equip weapon now
 		SoundEffect(2, nullptr, 0);
 		return false;
 	}
