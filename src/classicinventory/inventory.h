@@ -211,6 +211,8 @@ void rotate_ring(ecs::Entity &ring, uint32_t duration_frames, bool clockwise);
 
 bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item_b);
 
+void add_health_bar(ecs::Entity &item);
+
 inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager);
 
 inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_manager);
