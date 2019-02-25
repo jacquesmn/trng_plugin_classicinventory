@@ -19,6 +19,7 @@
 #pragma once
 #pragma pack(push, 1)
 
+#include <trng_core.h>
 #include "core.h"
 #include "ecs.h"
 
@@ -106,10 +107,7 @@ struct LightingLocation : public ecs::Component {
 	int32_t z;
 	int32_t radius;
 
-	int32_t backup_room;
-	int32_t backup_x;
-	int32_t backup_y;
-	int32_t backup_z;
+	StrBackupLara backup_lara;
 	bool backup_lara_in_water;
 
 	LightingLocation(
