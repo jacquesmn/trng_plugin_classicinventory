@@ -56,7 +56,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_CLASSICINVENTORY_EXPORTS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
       <ExpandAttributedSource>true</ExpandAttributedSource>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)src;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -85,7 +85,7 @@ copy /y "$(SolutionDir)scripts\$(TargetName).trg", "$(TRLEDir)"</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_CLASSICINVENTORY_EXPORTS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)src;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
