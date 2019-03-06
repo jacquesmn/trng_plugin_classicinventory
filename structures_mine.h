@@ -5,8 +5,8 @@
 // in the "structures.h" file for trng dll
 
 typedef struct StrSavegameGlobalInventoryData {
-	int item_qty[512];
-	WORD map_marker_active[512];
+	int item_qty[256];
+	BYTE map_marker_active[256];
 }SavegameGlobalInventoryData;
 
 typedef struct StrSavegameLocalInventoryData {
