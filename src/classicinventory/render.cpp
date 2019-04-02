@@ -588,9 +588,6 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager, flo
 	lara->CordX = core::round(light_loc_ring.x);
 	lara->CordY = light_loc.y;
 	lara->CordZ = core::round(light_loc_ring.y);
-	lara->OrientationV = 0;
-	lara->OrientationH = 0;
-	lara->OrientationT = 0;
 	lara->AnimationNow = 103; // standing idle, prevents animation poses from influencing lighting
 	lara->FrameNow = 0;
 
