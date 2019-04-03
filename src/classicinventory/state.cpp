@@ -856,11 +856,11 @@ State* ItemActivateState::update(ecs::EntityManager &entity_manager)
 	// wait for all relevant motions to finish
 	const auto entities_in_motion = motion::get_entities_in_motion(entity_manager);
 
+	auto item_active = get_active_item(entity_manager);
+
 	if (!motions_done) {
 		if (entities_in_motion.empty()) {
 			motions_done = true;
-
-			auto item_active = get_active_item(entity_manager);
 
 			if (item_active) {
 				// start animation, if any and not already
@@ -878,14 +878,15 @@ State* ItemActivateState::update(ecs::EntityManager &entity_manager)
 							item_animation->frame_end,
 							abs(core::round(item_animation->frame_end - item_animation->frame_start))
 						));
+
+						return this;
 					}
 				}
 			}
 		}
 	}
-	else if (entities_in_motion.empty()) {
-		auto item_active = get_active_item(entity_manager);
-
+	
+	if (motions_done && entities_in_motion.empty()) {
 		// go to special state depending on item components
 		if (item_active) {
 			if (item_active->item.has_component<special::PassportData>()) {
