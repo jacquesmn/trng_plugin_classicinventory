@@ -885,7 +885,7 @@ State* ItemActivateState::update(ecs::EntityManager &entity_manager)
 			}
 		}
 	}
-	
+
 	if (motions_done && entities_in_motion.empty()) {
 		// go to special state depending on item components
 		if (item_active) {
@@ -1337,10 +1337,6 @@ State* ItemCancelState::start(ecs::EntityManager &entity_manager)
 				}
 			}
 
-			if (item_active.has_component<item::ItemDisplay>()) {
-				item_active.get_component<item::ItemDisplay>()->alpha_enabled = true;
-			}
-
 			if (play_sfx) {
 				// add sfx
 				add_sfx(sound::SfxType::ITEM_CANCEL, false, *inventory, &item_active);
@@ -1363,6 +1359,15 @@ void ItemCancelState::end(ecs::EntityManager &entity_manager)
 		return;
 	}
 	auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
+
+	auto ring_item_active = inventory_state.item_active;
+	if (ring_item_active) {
+		auto &item_active = ring_item_active->item;
+
+		if (item_active.has_component<item::ItemDisplay>()) {
+			item_active.get_component<item::ItemDisplay>()->alpha_enabled = true;
+		}
+	}
 
 	// clear active item
 	inventory_state.item_active = nullptr;
@@ -2498,6 +2503,7 @@ State* ExamineState::start(ecs::EntityManager &entity_manager)
 					true,
 					true,
 					true,
+					true,
 					true
 				);
 				const auto item_display_examine = item_display->config;
@@ -2555,8 +2561,6 @@ State* ExamineState::start(ecs::EntityManager &entity_manager)
 						duration_frames
 					));
 				}
-
-				item_display->alpha_enabled = false;
 			}
 
 			item::restore_item_spin(item_active, duration_frames);
@@ -2635,6 +2639,8 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 							true,
 							true,
 							true,
+							true,
+							false,
 							true
 						);
 						const auto item_display_active = item_display->config;
@@ -2713,8 +2719,6 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 								duration_frames
 							));
 						}
-
-						item_display->alpha_enabled = true;
 					}
 
 					inventory::fade_in_ring(inventory_state.ring->ring, core::round(duration_frames * 0.25f));
