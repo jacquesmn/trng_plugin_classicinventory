@@ -1194,14 +1194,14 @@ State* ItemActiveState::do_action(
 
 				return new ItemCancelState([]() -> State* {
 					return new ClosingState(false);
-				}, false, false, true, false);
+				}, false, false, false, false);
 			}
 			else {
 				inventory_state->item_used = inventory_state->item_active;
 
 				return new ItemCancelState([]() -> State* {
 					return new ClosingState(false);
-				}, false, false, true, false);
+				}, false, false, false, false);
 			}
 
 			// change to context ring for selected context action
