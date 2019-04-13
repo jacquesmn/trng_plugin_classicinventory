@@ -180,8 +180,9 @@ enum Enum {
 
 namespace ItemAnimationType {
 enum Enum {
-	IDLE = 1,
+	SELECTED = 1,
 	ACTIVATE,
+	ACTION,
 	CANCEL,
 	PASSPORT_PAGE2,
 	PASSPORT_PAGE3
@@ -386,7 +387,7 @@ struct ItemAnimation : public ecs::Component {
 	bool active;
 
 	ItemAnimation(
-		ItemAnimationType::Enum type = ItemAnimationType::IDLE,
+		ItemAnimationType::Enum type = ItemAnimationType::SELECTED,
 		int32_t anim_index = 0,
 		float frame = 0,
 		float frame_start = 0,
@@ -569,7 +570,9 @@ void change_item_display(
 
 void remove_item_motion(ecs::Entity &item, bool keep_background = true);
 void deactivate_item_actions(ecs::Entity &item);
-void reset_item_animation(ecs::Entity &item);
+void start_item_animation(ecs::Entity &item, item::ItemAnimation &animation, bool loop = false);
+void restore_item_animation(ecs::Entity &item, item::ItemAnimation &animation);
+void reset_item_animations(ecs::Entity &item);
 void spin_item(ecs::Entity &item, uint32_t frames);
 void restore_item_spin(ecs::Entity &item, uint32_t frames = 0, float speed = 1);
 

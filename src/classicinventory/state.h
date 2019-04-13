@@ -109,7 +109,8 @@ public:
 
 class IdleState : public State {
 public:
-	State* start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager &entity_manager) override;
+	void end(ecs::EntityManager &entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 

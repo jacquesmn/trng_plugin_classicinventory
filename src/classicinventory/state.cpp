@@ -229,12 +229,6 @@ State* OpeningState::start(ecs::EntityManager &entity_manager)
 
 		}
 
-		// reset animations
-		auto items = entity_manager.find_entities_with_component<item::ItemAnimation>();
-		for (auto item_it = items.begin(); item_it != items.end(); ++item_it) {
-			item::reset_item_animation(**item_it);
-		}
-
 		// add sfx
 		add_sfx(sound::SfxType::INVENTORY_OPEN, false, *inventory);
 
@@ -391,16 +385,45 @@ State* IdleState::start(ecs::EntityManager &entity_manager)
 			item::change_item_model(*item, item::ItemModelType::IDLE);
 		});
 
-		// spin selected item
-		const auto inventory_duration = inventory::get_inventory_duration(entity_manager);
-		const auto item_selected = get_selected_item(entity_manager);
+		const auto ring_item_selected = get_selected_item(entity_manager);
+		if (ring_item_selected) {
+			auto &item_selected = ring_item_selected->item;
 
-		if (item_selected && inventory_duration) {
-			item::spin_item(item_selected->item, inventory_duration->item_spin_frames);
+			// spin selected item
+			const auto inventory_duration = inventory::get_inventory_duration(entity_manager);
+			if (inventory_duration) {
+				item::spin_item(item_selected, inventory_duration->item_spin_frames);
+			}
+
+			// play selected animation
+			if (item_selected.has_component<item::ItemAnimation>()) {
+				const auto item_animation = item_selected.get_component<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
+					return item_animation.type == item::ItemAnimationType::SELECTED;
+				});
+				if (item_animation) {
+					item::start_item_animation(item_selected, *item_animation, true);
+				}
+			}
 		}
 	}
 
 	return this;
+}
+
+void IdleState::end(ecs::EntityManager &entity_manager)
+{
+	const auto ring_item_selected = get_selected_item(entity_manager);
+
+	if (ring_item_selected) {
+		auto &item_selected = ring_item_selected->item;
+
+		const auto item_animation = item_selected.get_component<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
+			return item_animation.type == item::ItemAnimationType::SELECTED;
+		});
+		if (item_animation) {
+			item::restore_item_animation(item_selected, *item_animation);
+		}
+	}
 }
 
 State* IdleState::update(ecs::EntityManager &entity_manager)
@@ -513,11 +536,6 @@ State* RingRotateState::start(ecs::EntityManager &entity_manager)
 			if (!inventory_display.ring_rotate_lock || ring_state.item_count > 1) {
 				inventory::rotate_ring(ring, inventory_duration.ring_rotate_frames, direction == RIGHT);
 
-				// restore current item's rotation
-				if (ring_state.item_count > 0) {
-					item::restore_item_spin(ring_state.item->item, uint32_t(inventory_duration.item_spin_frames * 0.5));
-				}
-
 				// add sfx
 				add_sfx(sound::SfxType::RING_ROTATE, false, *inventory);
 			}
@@ -604,9 +622,6 @@ State* RingChangeState::start(ecs::EntityManager &entity_manager)
 			}
 			else if (type == FADE) {
 				inventory::fade_out_ring(inventory_state.ring->ring, core::round(inventory_duration.ring_change_frames * 0.25f));
-			}
-			else if (type == INSTANT) {
-				close_ring(inventory_state.ring->ring, inventory_display);
 			}
 		}
 
@@ -786,8 +801,6 @@ State* ItemActivateState::start(ecs::EntityManager &entity_manager)
 				}
 			}
 
-			item::reset_item_animation(item_active);
-
 			item::restore_item_spin(item_active, duration_frames);
 
 			item::change_item_model(item_active, item::ItemModelType::ACTIVE);
@@ -799,14 +812,7 @@ State* ItemActivateState::start(ecs::EntityManager &entity_manager)
 				});
 
 				if (item_animation && !item_animation->wait_for_motions) {
-					item_animation->active = true;
-
-					item_active.add_component(new motion::Motion(
-						item_animation->frame,
-						item_animation->frame_start,
-						item_animation->frame_end,
-						abs(core::round(item_animation->frame_end - item_animation->frame_start))
-					));
+					item::start_item_animation(item_active, *item_animation);
 				}
 			}
 
@@ -870,14 +876,7 @@ State* ItemActivateState::update(ecs::EntityManager &entity_manager)
 					});
 
 					if (item_animation && !item_animation->active) {
-						item_animation->active = true;
-
-						item_active->item.add_component(new motion::Motion(
-							item_animation->frame,
-							item_animation->frame_start,
-							item_animation->frame_end,
-							abs(core::round(item_animation->frame_end - item_animation->frame_start))
-						));
+						item::start_item_animation(item_active->item, *item_animation);
 
 						return this;
 					}
@@ -1324,16 +1323,7 @@ State* ItemCancelState::start(ecs::EntityManager &entity_manager)
 				});
 
 				if (item_animation && item_animation->wait_for_motions) {
-					item::reset_item_animation(item_active);
-
-					item_animation->active = true;
-
-					item_active.add_component(new motion::Motion(
-						item_animation->frame,
-						item_animation->frame_start,
-						item_animation->frame_end,
-						abs(core::round(item_animation->frame_end - item_animation->frame_start))
-					));
+					item::start_item_animation(item_active, *item_animation);
 				}
 			}
 
@@ -1376,7 +1366,7 @@ void ItemCancelState::end(ecs::EntityManager &entity_manager)
 	if (restore_model) {
 		auto ring_item_selected = get_selected_item(entity_manager);
 		if (ring_item_selected) {
-			item::reset_item_animation(ring_item_selected->item);
+			item::reset_item_animations(ring_item_selected->item);
 
 			item::change_item_model(ring_item_selected->item, item::ItemModelType::IDLE);
 		}
@@ -1406,16 +1396,7 @@ State* ItemCancelState::update(ecs::EntityManager &entity_manager)
 						});
 
 						if (item_animation && !item_animation->active) {
-							item::reset_item_animation(item_active);
-
-							item_animation->active = true;
-
-							item_active.add_component(new motion::Motion(
-								item_animation->frame,
-								item_animation->frame_start,
-								item_animation->frame_end,
-								abs(core::round(item_animation->frame_end - item_animation->frame_start))
-							));
+							item::start_item_animation(item_active, *item_animation);
 						}
 					}
 
@@ -2313,7 +2294,7 @@ State* ComboTryState::update(ecs::EntityManager &entity_manager)
 									item_selected.get_component<item::ItemDisplay>()->alpha_enabled = false;
 								}
 
-								return new RingChangeState(RingChangeState::FADE, get_next_ring, []() -> State* {
+								return new RingChangeState(RingChangeState::INSTANT, get_next_ring, []() -> State* {
 									return new IdleState();
 								}, false);
 							}
@@ -2969,12 +2950,7 @@ State* PassportState::update(ecs::EntityManager &entity_manager)
 					}
 
 					if (anim_to_play) {
-						item::reset_item_animation(item_active);
-
-						// add sfx for page flip
-						if (passport_data.page != 0 && passport_data.page_sound_id >= 0) {
-							item_active.add_component(new sound::SoundFX(passport_data.page_sound_id));
-						}
+						item::reset_item_animations(item_active);
 
 						// add animation for page flip
 						const auto frame_start = reverse ? anim_to_play->frame_end : anim_to_play->frame_start;
@@ -2987,6 +2963,11 @@ State* PassportState::update(ecs::EntityManager &entity_manager)
 							frame_end,
 							abs(core::round(frame_end - frame_start))
 						));
+
+						// add sfx for page flip
+						if (passport_data.page != 0 && passport_data.page_sound_id >= 0) {
+							item_active.add_component(new sound::SoundFX(passport_data.page_sound_id));
+						}
 
 						return this;
 					}
@@ -3195,7 +3176,7 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 					}
 
 					// add animation for page flip
-					item::reset_item_animation(item_active);
+					item::reset_item_animations(item_active);
 
 					const auto frame_start = reverse ? anim_to_play->frame_end : anim_to_play->frame_start;
 					const auto frame_end = reverse ? anim_to_play->frame_start : anim_to_play->frame_end;

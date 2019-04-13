@@ -186,6 +186,9 @@ void build_ring(
 
 		// change display
 		item::change_item_display(item, item::ItemDisplayType::IDLE);
+
+		// reset animations
+		item::reset_item_animations(item);
 	}
 
 	// close item loop
