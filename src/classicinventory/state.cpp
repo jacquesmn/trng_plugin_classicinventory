@@ -1366,9 +1366,11 @@ void ItemCancelState::end(ecs::EntityManager &entity_manager)
 	if (restore_model) {
 		auto ring_item_selected = get_selected_item(entity_manager);
 		if (ring_item_selected) {
-			item::reset_item_animations(ring_item_selected->item);
+			auto &item_selected = ring_item_selected->item;
 
-			item::change_item_model(ring_item_selected->item, item::ItemModelType::IDLE);
+			item::reset_item_animations(item_selected);
+
+			item::change_item_model(item_selected, item::ItemModelType::IDLE);
 		}
 	}
 }
