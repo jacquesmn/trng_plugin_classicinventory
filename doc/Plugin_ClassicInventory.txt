@@ -60,8 +60,6 @@ See the Set Trigger Type window for this plugin in NGLE to see what triggers and
 
 Known Issues and Workarounds
 ----------------------------
-* Items have a water effect applied when the camera is underwater. A custom lighting scheme might be able to drown out the colour tint, but the wave effect is still present.
-
 * Item meshes can be a bit jittery when in motion.
 
 * Item animations only support a frame rate of 1. Any higher rate will result in sped up animations.

@@ -578,9 +578,11 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager, flo
 	// backup Lara's location
 	const auto lara = Trng.pGlobTomb4->pAdr->pLara;
 	bool &lara_in_water = *reinterpret_cast<bool*>(0x80EBB0);
+	bool &camera_underwater = *reinterpret_cast<bool *>(0x7FE73C);
 
 	light_loc.backup_lara = StrBackupLara();
 	light_loc.backup_lara_in_water = lara_in_water;
+	light_loc.backup_camera_underwater = camera_underwater;
 	BackupLara(&light_loc.backup_lara, lara);
 
 	// move Lara to lighting location
@@ -591,8 +593,11 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager, flo
 	lara->AnimationNow = 103; // standing idle, prevents animation poses from influencing lighting
 	lara->FrameNow = 0;
 
-	// set to false to prevent water effect when Lara touches water
+	// set to false to prevent water effect when Lara touches water 
 	lara_in_water = false;
+	
+	// set to false to prevent water effect when camera is underwater
+	camera_underwater = false;
 
 	calculate_lighting();
 }
@@ -615,9 +620,11 @@ void InventoryRenderSystem::restore_lighting(ecs::EntityManager &entity_manager)
 	// restore Lara's location
 	const auto lara = Trng.pGlobTomb4->pAdr->pLara;
 	bool &lara_in_water = *reinterpret_cast<bool*>(0x80EBB0);
+	bool &camera_underwater = *reinterpret_cast<bool *>(0x7FE73C);
 
 	RestoreLara(&light_loc.backup_lara, lara);
 	lara_in_water = light_loc.backup_lara_in_water;
+	camera_underwater = light_loc.backup_camera_underwater;
 
 	calculate_lighting();
 }

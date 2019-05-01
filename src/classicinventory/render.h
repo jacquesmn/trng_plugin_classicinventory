@@ -109,6 +109,7 @@ struct LightingLocation : public ecs::Component {
 
 	StrBackupLara backup_lara;
 	bool backup_lara_in_water;
+	bool backup_camera_underwater;
 
 	LightingLocation(
 		int32_t room = 0,
