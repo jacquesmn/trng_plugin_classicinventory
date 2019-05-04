@@ -578,7 +578,7 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager, flo
 	// backup Lara's location
 	const auto lara = Trng.pGlobTomb4->pAdr->pLara;
 	bool &lara_in_water = *reinterpret_cast<bool*>(0x80EBB0);
-	bool &camera_underwater = *reinterpret_cast<bool *>(0x7FE73C);
+	bool &camera_underwater = *reinterpret_cast<bool*>(0x7FE73C);
 
 	light_loc.backup_lara = StrBackupLara();
 	light_loc.backup_lara_in_water = lara_in_water;
@@ -620,7 +620,7 @@ void InventoryRenderSystem::restore_lighting(ecs::EntityManager &entity_manager)
 	// restore Lara's location
 	const auto lara = Trng.pGlobTomb4->pAdr->pLara;
 	bool &lara_in_water = *reinterpret_cast<bool*>(0x80EBB0);
-	bool &camera_underwater = *reinterpret_cast<bool *>(0x7FE73C);
+	bool &camera_underwater = *reinterpret_cast<bool*>(0x7FE73C);
 
 	RestoreLara(&light_loc.backup_lara, lara);
 	lara_in_water = light_loc.backup_lara_in_water;

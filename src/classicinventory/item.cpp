@@ -381,10 +381,6 @@ void restore_item_spin(ecs::Entity &item, uint32_t frames, float speed)
 	if (item.has_component<item::ItemDisplay>()) {
 		auto &item_display = *item.get_component<item::ItemDisplay>();
 
-		if (!item_display.spin) {
-			return;
-		}
-
 		// check if spinning
 		auto motion_spin = item.get_component<motion::Motion>([&](motion::Motion &motion) -> bool {
 			return &motion.value == &item_display.rot.y && motion.loop && !motion.background;
