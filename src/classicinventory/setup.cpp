@@ -3497,6 +3497,8 @@ void setup_tr4_combo(
 	int32_t item_id_extra,
 	bool vice_versa,
 	bool separable,
+	std::function<void(item::ComboData&)> combine_logic,
+	std::function<void(item::ComboData&)> separate_logic,
 	ecs::EntityManager &entity_manager
 )
 {
@@ -3528,74 +3530,110 @@ void setup_tr4_combo(
 		vice_versa,
 		separable
 	));
-	combo_data.combine = combo_combine;
-	combo_data.separate = combo_separate;
+	combo_data.combine = combine_logic ? combine_logic : combo_combine;
+	combo_data.separate = separate_logic ? separate_logic : combo_separate;
 }
 
 void setup_combos(ecs::EntityManager &entity_manager)
 {
-	setup_tr4_combo(item::ItemId::REVOLVER, item::ItemId::LASERSIGHT, item::ItemId::REVOLVER_LASERSIGHT_COMBO, item::ItemId::NONE, true, true, entity_manager);
-	setup_tr4_combo(item::ItemId::CROSSBOW, item::ItemId::LASERSIGHT, item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::NONE, true, true, entity_manager);
+	// special combine logic
+	const auto combine_logic_revolver_lasersight = [](item::ComboData& cd) -> void {
+		combo_combine(cd);
 
-	setup_tr4_combo(item::ItemId::PUZZLE1_COMBO1, item::ItemId::PUZZLE1_COMBO2, item::ItemId::PUZZLE1, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PUZZLE2_COMBO1, item::ItemId::PUZZLE2_COMBO2, item::ItemId::PUZZLE2, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PUZZLE3_COMBO1, item::ItemId::PUZZLE3_COMBO2, item::ItemId::PUZZLE3, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PUZZLE4_COMBO1, item::ItemId::PUZZLE4_COMBO2, item::ItemId::PUZZLE4, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PUZZLE5_COMBO1, item::ItemId::PUZZLE5_COMBO2, item::ItemId::PUZZLE5, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PUZZLE6_COMBO1, item::ItemId::PUZZLE6_COMBO2, item::ItemId::PUZZLE6, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PUZZLE7_COMBO1, item::ItemId::PUZZLE7_COMBO2, item::ItemId::PUZZLE7, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PUZZLE8_COMBO1, item::ItemId::PUZZLE8_COMBO2, item::ItemId::PUZZLE8, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::KEY1_COMBO1, item::ItemId::KEY1_COMBO2, item::ItemId::KEY1, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::KEY2_COMBO1, item::ItemId::KEY2_COMBO2, item::ItemId::KEY2, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::KEY3_COMBO1, item::ItemId::KEY3_COMBO2, item::ItemId::KEY3, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::KEY4_COMBO1, item::ItemId::KEY4_COMBO2, item::ItemId::KEY4, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::KEY5_COMBO1, item::ItemId::KEY5_COMBO2, item::ItemId::KEY5, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::KEY6_COMBO1, item::ItemId::KEY6_COMBO2, item::ItemId::KEY6, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::KEY7_COMBO1, item::ItemId::KEY7_COMBO2, item::ItemId::KEY7, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::KEY8_COMBO1, item::ItemId::KEY8_COMBO2, item::ItemId::KEY8, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PICKUP1_COMBO1, item::ItemId::PICKUP1_COMBO2, item::ItemId::PICKUP1, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PICKUP2_COMBO1, item::ItemId::PICKUP2_COMBO2, item::ItemId::PICKUP2, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PICKUP3_COMBO1, item::ItemId::PICKUP3_COMBO2, item::ItemId::PICKUP3, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::PICKUP4_COMBO1, item::ItemId::PICKUP4_COMBO2, item::ItemId::PICKUP4, item::ItemId::NONE, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::CLOCKWORK_BEETLE_COMBO1, item::ItemId::CLOCKWORK_BEETLE_COMBO2, item::ItemId::CLOCKWORK_BEETLE, item::ItemId::NONE, true, false, entity_manager);
+		// if Lara is holding revolver, set right-hand mesh to one with lasersight
+		if (PerformConditionTrigger(NULL, 35, 2, 0)) {
+			PerformFlipeffect(NULL, 100, 10, 11);
+		}
+	};
+	const auto combine_logic_crossbow_lasersight = [](item::ComboData& cd) -> void {
+		combo_combine(cd);
 
-	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_EMPTY, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_EMPTY, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_EMPTY, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_1, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, true, false, entity_manager);
+		// if Lara is holding crossbow, set right-hand mesh to one with lasersight
+		if (PerformConditionTrigger(NULL, 35, 6, 0)) {
+			PerformFlipeffect(NULL, 100, 10, 10);
+		}
+	};
 
-	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_EMPTY, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN1_EMPTY, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_3, true, false, entity_manager);
+	// special separate logic
+	const auto separate_logic_revolver_lasersight = [](item::ComboData& cd) -> void {
+		combo_separate(cd);
 
-	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_EMPTY, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_EMPTY, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_1, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_4, true, false, entity_manager);
+		// if Lara is holding revolver, set right-hand mesh to one without lasersight
+		if (PerformConditionTrigger(NULL, 35, 2, 0)) {
+			PerformFlipeffect(NULL, 100, 10, 6);
+		}
+	};
+	const auto separate_logic_crossbow_lasersight = [](item::ComboData& cd) -> void {
+		combo_separate(cd);
 
-	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_EMPTY, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_EMPTY, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_EMPTY, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_EMPTY, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_1, true, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_2, true, false, entity_manager);
+		// if Lara is holding crossbow, set right-hand mesh to one without lasersight
+		if (PerformConditionTrigger(NULL, 35, 6, 0)) {
+			PerformFlipeffect(NULL, 100, 10, 4);
+		}
+	};
 
-	setup_tr4_combo(item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_EMPTY, false, false, entity_manager);
+	setup_tr4_combo(item::ItemId::REVOLVER, item::ItemId::LASERSIGHT, item::ItemId::REVOLVER_LASERSIGHT_COMBO, item::ItemId::NONE, true, true, combine_logic_revolver_lasersight, separate_logic_revolver_lasersight, entity_manager);
+	setup_tr4_combo(item::ItemId::CROSSBOW, item::ItemId::LASERSIGHT, item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::NONE, true, true, combine_logic_crossbow_lasersight, separate_logic_crossbow_lasersight, entity_manager);
 
-	setup_tr4_combo(item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_1, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, false, false, entity_manager);
+	setup_tr4_combo(item::ItemId::PUZZLE1_COMBO1, item::ItemId::PUZZLE1_COMBO2, item::ItemId::PUZZLE1, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PUZZLE2_COMBO1, item::ItemId::PUZZLE2_COMBO2, item::ItemId::PUZZLE2, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PUZZLE3_COMBO1, item::ItemId::PUZZLE3_COMBO2, item::ItemId::PUZZLE3, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PUZZLE4_COMBO1, item::ItemId::PUZZLE4_COMBO2, item::ItemId::PUZZLE4, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PUZZLE5_COMBO1, item::ItemId::PUZZLE5_COMBO2, item::ItemId::PUZZLE5, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PUZZLE6_COMBO1, item::ItemId::PUZZLE6_COMBO2, item::ItemId::PUZZLE6, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PUZZLE7_COMBO1, item::ItemId::PUZZLE7_COMBO2, item::ItemId::PUZZLE7, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PUZZLE8_COMBO1, item::ItemId::PUZZLE8_COMBO2, item::ItemId::PUZZLE8, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::KEY1_COMBO1, item::ItemId::KEY1_COMBO2, item::ItemId::KEY1, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::KEY2_COMBO1, item::ItemId::KEY2_COMBO2, item::ItemId::KEY2, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::KEY3_COMBO1, item::ItemId::KEY3_COMBO2, item::ItemId::KEY3, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::KEY4_COMBO1, item::ItemId::KEY4_COMBO2, item::ItemId::KEY4, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::KEY5_COMBO1, item::ItemId::KEY5_COMBO2, item::ItemId::KEY5, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::KEY6_COMBO1, item::ItemId::KEY6_COMBO2, item::ItemId::KEY6, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::KEY7_COMBO1, item::ItemId::KEY7_COMBO2, item::ItemId::KEY7, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::KEY8_COMBO1, item::ItemId::KEY8_COMBO2, item::ItemId::KEY8, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PICKUP1_COMBO1, item::ItemId::PICKUP1_COMBO2, item::ItemId::PICKUP1, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PICKUP2_COMBO1, item::ItemId::PICKUP2_COMBO2, item::ItemId::PICKUP2, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PICKUP3_COMBO1, item::ItemId::PICKUP3_COMBO2, item::ItemId::PICKUP3, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::PICKUP4_COMBO1, item::ItemId::PICKUP4_COMBO2, item::ItemId::PICKUP4, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::CLOCKWORK_BEETLE_COMBO1, item::ItemId::CLOCKWORK_BEETLE_COMBO2, item::ItemId::CLOCKWORK_BEETLE, item::ItemId::NONE, true, false, nullptr, nullptr, entity_manager);
 
-	setup_tr4_combo(item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_EMPTY, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_1, false, false, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_EMPTY, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_EMPTY, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_EMPTY, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_1, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_EMPTY, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, true, false, nullptr, nullptr, entity_manager);
 
-	setup_tr4_combo(item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, false, false, entity_manager);
-	setup_tr4_combo(item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_3, false, false, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_EMPTY, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN1_EMPTY, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_3, true, false, nullptr, nullptr, entity_manager);
+
+	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_EMPTY, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_EMPTY, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_1, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_4, true, false, nullptr, nullptr, entity_manager);
+
+	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_EMPTY, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_EMPTY, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_EMPTY, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_EMPTY, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_1, true, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN2_5, item::ItemId::WATERSKIN1_2, true, false, nullptr, nullptr, entity_manager);
+
+	setup_tr4_combo(item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN2_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN2_1, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_EMPTY, false, false, nullptr, nullptr, entity_manager);
+
+	setup_tr4_combo(item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_1, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN2_3, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, false, false, nullptr, nullptr, entity_manager);
+
+	setup_tr4_combo(item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_EMPTY, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN2_2, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_1, false, false, nullptr, nullptr, entity_manager);
+
+	setup_tr4_combo(item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_1, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_2, false, false, nullptr, nullptr, entity_manager);
+	setup_tr4_combo(item::ItemId::WATERSKIN2_4, item::ItemId::WATERSKIN1_2, item::ItemId::WATERSKIN1_3, item::ItemId::WATERSKIN2_3, false, false, nullptr, nullptr, entity_manager);
 
 	// TRNG custom combos
 	// BUG: pVetNewCombine not reset between levels
