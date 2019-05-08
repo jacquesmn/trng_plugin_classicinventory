@@ -19,8 +19,7 @@
 #pragma once
 #pragma pack(push,1)
 
-#include <set>
-
+#include <trng_core.h>
 #include "ecs.h"
 
 namespace classicinventory {
@@ -45,9 +44,6 @@ enum Enum {
 }
 
 class SoundSystem : public ecs::System {
-private:
-	std::set<int32_t> played_sound_ids;
-
 public:
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 
@@ -67,6 +63,11 @@ struct SoundFX : public ecs::Component {
 		stop(stop)
 	{}
 };
+
+// ----------------------------
+// ##### HELPER FUNCTIONS #####
+// ----------------------------
+StrSoundInfos* find_tr4_sound_info(int32_t sound_id);
 
 }
 }

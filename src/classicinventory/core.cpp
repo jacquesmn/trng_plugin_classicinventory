@@ -105,9 +105,7 @@ int random_sign()
 
 void jmn_PopMatrix(uint32_t num)
 {
-	for (uint32_t i = 0; i < num; ++i) {
-		*Trng.pGlobTomb4->pAdr->pZonaRecord30 -= 48;
-	}
+	*Trng.pGlobTomb4->pAdr->pZonaRecord30 -= 48 * num;
 }
 
 }

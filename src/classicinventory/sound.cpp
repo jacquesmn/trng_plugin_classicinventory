@@ -20,9 +20,7 @@
 
 #include "sound.h"
 
-#include <algorithm>
-
-#include <trng_core.h>
+#include "core.h"
 
 extern TYPE_SoundEffect SoundEffect;
 extern TYPE_StopSoundEffect StopSoundEffect;
@@ -50,9 +48,6 @@ void SoundSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager 
 			}
 			else {
 				SoundEffect(sfx.sound_id, nullptr, 2);
-
-				// sfx might be looping so keep track of sfx played and stop on cleanup
-				played_sound_ids.insert(sfx.sound_id);
 			}
 		}
 	}
@@ -63,13 +58,19 @@ void SoundSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager 
 void SoundSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
 {
 	entity_manager.remove_components<SoundFX>();
+}
 
-	// stop all sfx played by system
-	// this will insure any looping sfx is stopped
-	// can't use SoundStopAllSamples as that will stop other sfx as well
-	std::for_each(played_sound_ids.begin(), played_sound_ids.end(), [](const int32_t &sound_id) -> void {
-		StopSoundEffect(sound_id);
-	});
+StrSoundInfos* find_tr4_sound_info(int32_t sound_id)
+{
+	auto *sound_indices = reinterpret_cast<short*>(*reinterpret_cast<int*>(0x7F7580));
+	auto *sound_infos = reinterpret_cast<StrSoundInfos*>(*reinterpret_cast<int*>(0x7F7584));
+
+	const auto tr4_sound_index = sound_indices[sound_id];
+	if (tr4_sound_index >= 0) {
+		return &sound_infos[tr4_sound_index];
+	}
+
+	return nullptr;
 }
 
 }
