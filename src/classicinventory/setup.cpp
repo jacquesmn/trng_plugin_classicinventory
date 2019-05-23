@@ -2700,7 +2700,7 @@ void setup_WATERSKIN1_EMPTY(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -2750,7 +2750,7 @@ void setup_WATERSKIN1_1(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -2800,7 +2800,7 @@ void setup_WATERSKIN1_2(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -2850,7 +2850,7 @@ void setup_WATERSKIN1_3(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -2900,7 +2900,7 @@ void setup_WATERSKIN2_EMPTY(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -2950,7 +2950,7 @@ void setup_WATERSKIN2_1(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -3000,7 +3000,7 @@ void setup_WATERSKIN2_2(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -3050,7 +3050,7 @@ void setup_WATERSKIN2_3(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -3100,7 +3100,7 @@ void setup_WATERSKIN2_4(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -3150,7 +3150,7 @@ void setup_WATERSKIN2_5(ecs::EntityManager &entity_manager)
 	item_action.action = [=]() -> void {
 		action::exchange_waterskins(*item);
 	};
-	item_action.replace_default = false;
+	item_action.replace_tr4 = false;
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -3541,16 +3541,16 @@ void setup_combos(ecs::EntityManager &entity_manager)
 		combo_combine(cd);
 
 		// if Lara is holding revolver, set right-hand mesh to one with lasersight
-		if (PerformConditionTrigger(NULL, 35, 2, 0)) {
-			PerformFlipeffect(NULL, 100, 10, 11);
+		if (PerformConditionTrigger(nullptr, 35, 2, 0)) {
+			PerformFlipeffect(nullptr, 100, 10, 11);
 		}
 	};
 	const auto combine_logic_crossbow_lasersight = [](item::ComboData& cd) -> void {
 		combo_combine(cd);
 
 		// if Lara is holding crossbow, set right-hand mesh to one with lasersight
-		if (PerformConditionTrigger(NULL, 35, 6, 0)) {
-			PerformFlipeffect(NULL, 100, 10, 10);
+		if (PerformConditionTrigger(nullptr, 35, 6, 0)) {
+			PerformFlipeffect(nullptr, 100, 10, 10);
 		}
 	};
 
@@ -3559,16 +3559,16 @@ void setup_combos(ecs::EntityManager &entity_manager)
 		combo_separate(cd);
 
 		// if Lara is holding revolver, set right-hand mesh to one without lasersight
-		if (PerformConditionTrigger(NULL, 35, 2, 0)) {
-			PerformFlipeffect(NULL, 100, 10, 6);
+		if (PerformConditionTrigger(nullptr, 35, 2, 0)) {
+			PerformFlipeffect(nullptr, 100, 10, 6);
 		}
 	};
 	const auto separate_logic_crossbow_lasersight = [](item::ComboData& cd) -> void {
 		combo_separate(cd);
 
 		// if Lara is holding crossbow, set right-hand mesh to one without lasersight
-		if (PerformConditionTrigger(NULL, 35, 6, 0)) {
-			PerformFlipeffect(NULL, 100, 10, 4);
+		if (PerformConditionTrigger(nullptr, 35, 6, 0)) {
+			PerformFlipeffect(nullptr, 100, 10, 4);
 		}
 	};
 
@@ -4593,11 +4593,13 @@ void customize_item_action(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 7) {
+	if (customize.NArguments < 8) {
 		return;
 	}
 
-	const auto item_id = customize.pVetArg[0];
+	int32_t cust_index = -1;
+
+	const auto item_id = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -4606,13 +4608,29 @@ void customize_item_action(
 		return;
 	}
 
-	for (int32_t i = 1; i < customize.NArguments; i += 6) {
-		const auto type = customize.pVetArg[i];
-		const auto name_stridex = customize.pVetArg[i + 1];
-		const auto sort_index = customize.pVetArg[i + 2];
-		const auto replace = customize.pVetArg[i + 3];
-		const auto enabled_cgroup = customize.pVetArg[i + 4];
-		const auto action_tgroup = customize.pVetArg[i + 5];
+	const auto actions_flags = customize.pVetArg[++cust_index];
+	const auto confirm = actions_flags > 0 && core::bit_set(actions_flags, item::ItemActionFlag::CONFIRM);
+
+	if (confirm) {
+		auto item_actions_config = item->get_component<item::ItemActions>();
+		if (!item_actions_config) {
+			item_actions_config = &item->add_component(new item::ItemActions());
+		}
+
+		item_actions_config->confirm_single_action = confirm;
+	}
+
+	for (int32_t i = 2; i < customize.NArguments; i += 6) {
+		const auto type = customize.pVetArg[++cust_index];
+		const auto name_stridex = customize.pVetArg[++cust_index];
+		const auto sort_index = customize.pVetArg[++cust_index];
+		const auto action_flags = customize.pVetArg[++cust_index];
+		const auto enabled_cgroup = customize.pVetArg[++cust_index];
+		const auto action_tgroup = customize.pVetArg[++cust_index];
+
+		const auto replace = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::REPLACE);
+		const auto disable = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::DISABLE);
+		const auto instant = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::INSTANT);
 
 		if (type == -1) {
 			continue;
@@ -4638,29 +4656,38 @@ void customize_item_action(
 			item_action->sort_index = sort_index;
 		}
 
-		if (replace >= 0 && !item_action->action) {
-			item_action->replace_default = replace == CINV_TRUE;
+		if (type != item::ItemActionType::CUSTOM && !item_action->action) {
+			item_action->replace_tr4 = replace;
 		}
 
-		if (enabled_cgroup >= 0) {
-			const auto enabled_proc = item_action->enabled;
+		item_action->instant = instant;
 
+		if (disable) {
 			item_action->enabled = [=]() -> bool {
-				bool enabled = true;
-
-				if (enabled_proc && replace != CINV_TRUE) {
-					enabled = enabled_proc();
-				}
-
-				return enabled && PerformTriggerGroup(enabled_cgroup) > 0;
+				return false;
 			};
+		}
+		else {
+			if (enabled_cgroup >= 0) {
+				const auto enabled_proc = item_action->enabled;
+
+				item_action->enabled = [=]() -> bool {
+					bool enabled = true;
+
+					if (enabled_proc && !replace) {
+						enabled = enabled_proc();
+					}
+
+					return enabled && PerformTriggerGroup(enabled_cgroup) > 0;
+				};
+			}
 		}
 
 		if (action_tgroup >= 0) {
 			const auto action_proc = item_action->action;
 
 			item_action->action = [=]() -> void {
-				if (action_proc && replace != CINV_TRUE) {
+				if (action_proc && !replace) {
 					action_proc();
 				}
 

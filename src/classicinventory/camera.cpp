@@ -80,8 +80,6 @@ void camera::InventoryCameraSystem::update(ecs::EntityManager &entity_manager, e
 	poison1 = 0;
 	poison2 = 0;
 
-	// TODO: disable water-effect when camera is underwater
-	
 	int16_t camera_angles[2];
 	phd_GetVectorAngles(
 		camera_tgt_x - camera_pos_x,

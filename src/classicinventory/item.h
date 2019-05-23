@@ -207,6 +207,15 @@ enum Enum {
 };
 }
 
+namespace ItemActionFlag {
+enum Enum {
+	DISABLE = 1,
+	REPLACE = 2,
+	INSTANT = 4,
+	CONFIRM = 8
+};
+}
+
 struct ItemData : public ecs::Component {
 	int32_t item_id;
 	script::ScriptString name;
@@ -405,11 +414,21 @@ struct ItemAnimation : public ecs::Component {
 	{}
 };
 
+struct ItemActions : public ecs::Component {
+	bool confirm_single_action;
+
+	ItemActions()
+		:
+		confirm_single_action(false)
+	{}
+};
+
 struct ItemAction : public ecs::Component {
 	script::ScriptString name;
 	int32_t sort_index;
 	ItemActionType::Enum type;
-	bool replace_default;
+	bool replace_tr4;
+	bool instant;
 	std::function<void(void)> action;
 	std::function<bool(void)> enabled;
 
@@ -425,7 +444,8 @@ struct ItemAction : public ecs::Component {
 		name(name),
 		sort_index(0),
 		type(type),
-		replace_default(true),
+		replace_tr4(true),
+		instant(false),
 		action(action),
 		enabled(enabled),
 		active(false)

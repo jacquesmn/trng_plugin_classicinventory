@@ -108,7 +108,7 @@ void StateSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager
 				item_action->action();
 			}
 
-			if (!item_action || !item_action->replace_default) {
+			if (!item_action || !item_action->replace_tr4) {
 				*Trng.pGlobTomb4->pAdr->pInventoryChosenItem = tr4_slot_id;
 			}
 		}
@@ -926,7 +926,11 @@ State* ItemActiveState::start(ecs::EntityManager &entity_manager)
 			auto item_actions = item_active.get_components<item::ItemAction>([](item::ItemAction &item_action) -> bool {
 				return item_action.enabled();
 			});
-			if (item_actions.size() == 1) {
+			const auto item_actions_config = item_active.get_component<item::ItemActions>();
+
+			// perform first action if single-action item and no-confirm
+			if (item_actions.size() == 1
+				&& (!item_actions_config || !item_actions_config->confirm_single_action)) {
 				const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
 
 				if (inventory) {
@@ -1192,12 +1196,20 @@ State* ItemActiveState::do_action(
 			else if (active_action->type == item::ItemActionType::EXIT_TO_TITLE) {
 				action::exit_to_title();
 
+				if (active_action->instant) {
+					return new ClosedState();
+				}
+
 				return new ItemCancelState([]() -> State* {
 					return new ClosingState(false);
 				}, false, false, false, false);
 			}
 			else {
 				inventory_state->item_used = inventory_state->item_active;
+
+				if (active_action->instant) {
+					return new ClosedState();
+				}
 
 				return new ItemCancelState([]() -> State* {
 					return new ClosingState(false);
@@ -3130,6 +3142,10 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 						else if (action->type == item::ItemActionType::EXIT_TO_TITLE) {
 							action::exit_to_title();
 
+							if (action->instant) {
+								return new ClosedState();
+							}
+
 							get_post_closing_state = []() -> State* {
 								return new ItemCancelState([]() -> State* {
 									return new ClosingState(false);
@@ -3147,6 +3163,10 @@ State* PassportState::input(input::InputState &input_state, ecs::EntityManager &
 								auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
 
 								inventory_state.item_used = inventory_state.item_active;
+							}
+
+							if (action->instant) {
+								return new ClosedState();
 							}
 
 							get_post_closing_state = []() -> State* {
@@ -3341,6 +3361,10 @@ State* MapState::input(input::InputState &input_state, ecs::EntityManager &entit
 							auto &inventory_state = *inventory->get_component<inventory::InventoryState>();
 
 							inventory_state.item_used = inventory_state.item_active;
+
+							if (action.instant) {
+								return new ClosedState();
+							}
 
 							return new ItemCancelState([]() -> State* {
 								return new ClosingState(false);
