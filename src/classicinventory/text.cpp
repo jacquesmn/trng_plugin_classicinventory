@@ -20,9 +20,11 @@
 
 #include "text.h"
 
+#include <regex>
 #include <sstream>
 
 #include "render.h"
+#include "script.h"
 
 namespace classicinventory {
 namespace text {
@@ -33,7 +35,7 @@ TextConfig* get_text_config(
 )
 {
 	const auto inventory = entity_manager.find_entity_with_component<TextConfig>();
-	
+
 	if (inventory) {
 		return inventory->get_component<TextConfig>([&](TextConfig &config) -> bool {
 			return config.type == text_type;
@@ -92,22 +94,22 @@ void add_text(
 
 std::string build_item_text(const std::string& item_name, const item::ItemQuantity *item_qty, bool force_qty)
 {
-	std::ostringstream item_text;
-
 	if (item_qty) {
 		const auto qty = item_qty->get();
 
 		if (qty == item::ITEM_QTY_UNLIMITED) {
-			item_text << "Unlimited ";
+			const auto unlimited = script::ScriptString(script::StringIndex::UNLIMITED);
+
+			return std::regex_replace(unlimited.get_string(), std::regex("%s"), item_name);;
 		}
 		else if (qty > 1 || force_qty) {
-			item_text << qty << " x ";
+			std::ostringstream item_text;
+			item_text << qty << " x " << item_name;
+			return item_text.str();
 		}
 	}
 
-	item_text << item_name;
-
-	return item_text.str();
+	return item_name;
 }
 
 }
