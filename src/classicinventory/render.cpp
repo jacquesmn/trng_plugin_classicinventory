@@ -312,20 +312,27 @@ void InventoryRenderSystem::draw_item(
 		if (item.has_component<special::CompassData>()) {
 			auto &compass_data = *item.get_component<special::CompassData>();
 
-			if (compass_data.needle_mesh_index == mesh_index) {
-				// rotate compass needle
-				mesh_rot_special = core::degrees_to_tr4_angle(compass_data.needle_angle);
-				mesh_rot_special_axis = compass_data.needle_mesh_axis;
+			auto &pointers = compass_data.pointers;
+			for (auto pointer_it = pointers.begin(); pointer_it != pointers.end(); ++pointer_it) {
+				auto &pointer = *pointer_it;
 
-				// make needle transparent if cheats are enabled
-				if (cheat::cheats_enabled()) {
-					const auto cheat_entity = entity_manager.find_entity_with_component <cheat::CheatConfig>([](const cheat::CheatConfig &config) -> bool {
-						return config.enabled()
-							&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
-					});
-					if (cheat_entity) {
-						*poly_alpha = min(128, *poly_alpha >> 24) << 24;
+				if (pointer.mesh_index == mesh_index) {
+					// rotate compass needle
+					mesh_rot_special = core::degrees_to_tr4_angle(pointer.angle);
+					mesh_rot_special_axis = pointer.mesh_axis;
+
+					// make needle transparent if cheats are enabled
+					if (cheat::cheats_enabled()) {
+						const auto cheat_entity = entity_manager.find_entity_with_component <cheat::CheatConfig>([](const cheat::CheatConfig &config) -> bool {
+							return config.enabled()
+								&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
+						});
+						if (cheat_entity) {
+							*poly_alpha = min(128, *poly_alpha >> 24) << 24;
+						}
 					}
+
+					break;
 				}
 			}
 		}

@@ -258,7 +258,9 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		item_display_active->orient.x = 100;
 	}
 
-	item->add_component(new special::CompassData([]()->float { return special::get_lara_bearing(); }, 1));
+
+	auto &compass_data = item->add_component(new special::CompassData());
+	compass_data.pointers.push_back(special::CompassPointer([]()->float { return special::get_lara_bearing(); }, 1));
 }
 
 void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
@@ -4923,19 +4925,13 @@ void customize_compass(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 7) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
 	int32_t cust_index = -1;
 
 	const auto item_id = customize.pVetArg[++cust_index];
-	const auto needle_mesh_index = customize.pVetArg[++cust_index];
-	const auto needle_mesh_axis = customize.pVetArg[++cust_index];
-	const auto needle_attraction = customize.pVetArg[++cust_index];
-	const auto needle_friction = customize.pVetArg[++cust_index];
-	const auto needle_offset = customize.pVetArg[++cust_index];
-	const auto get_target_tg = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -4946,37 +4942,61 @@ void customize_compass(
 
 	auto compass_data = item->get_component<special::CompassData>();
 	if (!compass_data) {
-		compass_data = &item->add_component(new special::CompassData([]() -> float { return special::get_lara_bearing(); }, 1));
+		compass_data = &item->add_component(new special::CompassData());
 	}
 
-	if (needle_mesh_index >= 0) {
-		compass_data->needle_mesh_index = needle_mesh_index;
-	}
+	for (uint32_t i = 1, pointer_index = 0; i < customize.NArguments; i += 8, ++pointer_index) {
+		const auto pointer_mesh_index = customize.pVetArg[++cust_index];
+		const auto pointer_mesh_axis = customize.pVetArg[++cust_index];
+		const auto pointer_attraction = customize.pVetArg[++cust_index];
+		const auto pointer_friction = customize.pVetArg[++cust_index];
+		const auto pointer_offset = customize.pVetArg[++cust_index];
+		const auto pointer_jitter = customize.pVetArg[++cust_index];
+		const auto pointer_frequency_frame = customize.pVetArg[++cust_index];
+		const auto get_target_tg = customize.pVetArg[++cust_index];
 
-	if (needle_mesh_axis >= 0) {
-		compass_data->needle_mesh_axis = static_cast<core::Axis::Enum>(needle_mesh_axis);
-	}
+		if (pointer_index >= compass_data->pointers.size()) {
+			compass_data->pointers.push_back(special::CompassPointer([]() -> float { return special::get_lara_bearing(); }, 1));
+		}
+		auto &pointer = compass_data->pointers.at(pointer_index);
 
-	if (needle_attraction >= 0) {
-		compass_data->needle_attraction = needle_attraction / 100.f;
-	}
+		if (pointer_mesh_index >= 0) {
+			pointer.mesh_index = pointer_mesh_index;
+		}
 
-	if (needle_friction >= 0) {
-		compass_data->needle_friction = min(100, needle_friction) / 100.f;
-	}
+		if (pointer_mesh_axis >= 0) {
+			pointer.mesh_axis = static_cast<core::Axis::Enum>(pointer_mesh_axis);
+		}
 
-	if (needle_offset >= 0) {
-		compass_data->needle_offset = float(min(360, needle_offset));
-	}
+		if (pointer_attraction >= 0) {
+			pointer.attraction = pointer_attraction / 100.f;
+		}
 
-	if (get_target_tg >= 0) {
-		compass_data->get_bearing = [=]() -> float {
-			PerformTriggerGroup(get_target_tg);
+		if (pointer_friction >= 0) {
+			pointer.friction = min(100, pointer_friction) / 100.f;
+		}
 
-			const auto ngle_index = Trng.pGlobTomb4->pBaseVariableTRNG->Globals.CurrentValue;
+		if (pointer_offset >= 0) {
+			pointer.offset = float(min(360, pointer_offset));
+		}
 
-			return special::get_lara_item_bearing(ngle_index);
-		};
+		if (pointer_jitter >= 0) {
+			pointer.jitter = pointer_jitter;
+		}
+
+		if (pointer_frequency_frame > 0) {
+			pointer.frequency_frames = pointer_frequency_frame;
+		}
+
+		if (get_target_tg >= 0) {
+			pointer.get_bearing = [=, &pointer]() -> float {
+				PerformTriggerGroup(get_target_tg);
+
+				const auto ngle_index = Trng.pGlobTomb4->pBaseVariableTRNG->Globals.CurrentValue;
+
+				return special::get_lara_item_bearing(ngle_index, pointer.jitter);
+			};
+		}
 	}
 }
 
@@ -5033,7 +5053,7 @@ void customize_stopwatch(
 		stopwatch_data->second_hand_mesh_axis = static_cast<core::Axis::Enum>(second_hand_mesh_axis);
 	}
 
-	if (frequency_frames >= 0) {
+	if (frequency_frames > 0) {
 		stopwatch_data->frequency_frames = frequency_frames;
 	}
 }
@@ -5684,9 +5704,6 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 			customize_item_sfx(*customize, entity_manager);
 		}
 
-		if (find_customize_command(CUST_CINV_AMMO, item_id, customize)) {
-			customize_ammo(*customize, entity_manager);
-		}
 		if (find_customize_command(CUST_CINV_EXAMINE, item_id, customize)) {
 			customize_examine(*customize, entity_manager);
 		}
@@ -5704,6 +5721,16 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 		}
 		if (find_customize_command(CUST_CINV_MAP, item_id, customize)) {
 			customize_map(*customize, entity_manager);
+		}
+	}
+
+	for (int32_t item_id = item::MIN_INVENTORY_ITEM_ID; item_id <= item::MAX_INVENTORY_ITEM_ID; ++item_id) {
+		if (item_id == item::ItemId::NONE) {
+			continue;
+		}
+
+		if (find_customize_command(CUST_CINV_AMMO, item_id, customize)) {
+			customize_ammo(*customize, entity_manager);
 		}
 	}
 

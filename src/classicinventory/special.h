@@ -40,7 +40,12 @@ public:
 };
 
 class CompassSystem : public ecs::System {
+private:
+	bool first_update;
+
 public:
+	CompassSystem();
+
 	void init(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
@@ -118,40 +123,55 @@ struct HealthData : public ecs::Component {
 	{}
 };
 
-struct CompassData : public ecs::Component {
+struct CompassPointer : public ecs::Component {
 	std::function<float(void)> get_bearing;
-	int32_t needle_mesh_index;
-	core::Axis::Enum needle_mesh_axis;
-	float needle_attraction;
-	float needle_friction;
-	float needle_offset;
+	int32_t mesh_index;
+	core::Axis::Enum mesh_axis;
+	float attraction;
+	float friction;
+	float offset;
+	int32_t jitter;
+	int32_t frequency_frames;
 
-	float needle_acceleration;
-	float needle_velocity;
-	float needle_oscill_angle;
-	float needle_angle;
+	float acceleration;
+	float velocity;
+	float oscill_angle;
+	float angle;
 	float bearing;
 
-	CompassData(
+	CompassPointer(
 		std::function<float(void)> get_bearing,
-		int32_t needle_mesh_index,
-		core::Axis::Enum needle_mesh_axis = core::Axis::Y,
-		float needle_attraction = 1.0f,
-		float needle_friction = 0.03f,
-		float needle_offset = 180.f
+		int32_t mesh_index,
+		core::Axis::Enum mesh_axis = core::Axis::Y,
+		float attraction = 1.0f,
+		float friction = 0.03f,
+		float offset = 180.f,
+		int jitter = 0,
+		int32_t frequency_frames = 1
 	)
 		:
 		get_bearing(get_bearing),
-		needle_mesh_index(needle_mesh_index),
-		needle_mesh_axis(needle_mesh_axis),
-		needle_attraction(needle_attraction),
-		needle_friction(needle_friction),
-		needle_offset(needle_offset),
-		needle_acceleration(0),
-		needle_velocity(0),
-		needle_oscill_angle(0),
-		needle_angle(0),
+		mesh_index(mesh_index),
+		mesh_axis(mesh_axis),
+		attraction(attraction),
+		friction(friction),
+		offset(offset),
+		jitter(jitter),
+		frequency_frames(frequency_frames),
+		acceleration(0),
+		velocity(0),
+		oscill_angle(0),
+		angle(0),
 		bearing(0)
+	{}
+};
+
+struct CompassData : public ecs::Component {
+	std::vector<CompassPointer> pointers;
+
+	CompassData()
+		:
+		pointers(std::vector<CompassPointer>())
 	{}
 };
 
@@ -240,7 +260,7 @@ struct MapData : public ecs::Component {
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
 float get_lara_bearing();
-float get_lara_item_bearing(int32_t ngle_index);
+float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter = 0);
 
 }
 }
