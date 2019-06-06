@@ -58,3 +58,5 @@ TYPE_GunMiss GunMiss = (TYPE_GunMiss)0x40B060;
 
 // discovered by ChocolateFan
 TYPE_SeedRandomControl SeedRandomControl = (TYPE_SeedRandomControl)0x48EB90;
+TYPE_DrawHealthBar DrawHealthBar = (TYPE_DrawHealthBar)0x47B590;
+TYPE_SayNo SayNo = (TYPE_SayNo)0x45ECB0;

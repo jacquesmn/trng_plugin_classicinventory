@@ -56,6 +56,7 @@ extern TYPE_DrawRooms DrawRooms;
 extern TYPE_phd_GetVectorAngles phd_GetVectorAngles;
 extern TYPE_phd_GenerateW2V phd_GenerateW2V;
 extern TYPE_AlterFOV AlterFOV;
+extern TYPE_DrawHealthBar DrawHealthBar;
 extern void BackupLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 extern void RestoreLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 
@@ -448,24 +449,16 @@ void InventoryRenderSystem::draw_text(
 
 void InventoryRenderSystem::draw_bars(ecs::EntityManager &entity_manager) const
 {
-	auto entities = entity_manager.find_entities_with_component<ScreenBar>();
+	auto entities = entity_manager.find_entities_with_component<HealthBar>();
 
 	for (auto entity_it = entities.begin(); entity_it != entities.end(); ++entity_it) {
 		auto &entity = **entity_it;
 
-		auto bars = entity.get_components<ScreenBar>();
+		auto bars = entity.get_components<HealthBar>();
 		for (auto bar_it = bars.begin(); bar_it != bars.end(); ++bar_it) {
-			auto &screen_bar = **bar_it;
+			auto &bar = **bar_it;
 
-			draw_bar(
-				screen_bar.x,
-				screen_bar.y,
-				screen_bar.width,
-				screen_bar.height,
-				screen_bar.percent,
-				screen_bar.colour1,
-				screen_bar.colour2
-			);
+			DrawHealthBar(bar.percent);
 		}
 	}
 }
@@ -483,11 +476,11 @@ void InventoryRenderSystem::draw_bar(
 	// position and size needs to be based on resolution of 640x480
 	// game will adjust proportionally to fit current resolution
 
-	screen_x = core::round((screen_x / 1000.f) * 640.f);
-	screen_y = core::round((screen_y / 1000.f) * Trng.pGlobTomb4->ScreenSizeY); // not computed from 480, bug?
+	screen_x = screen_x * 640 / 1000;
+	screen_y = screen_y * Trng.pGlobTomb4->ScreenSizeY / 1000; // not computed from 480, bug?
 
-	width = core::round((width / 1000.f) * 640.f);
-	height = core::round((height / 1000.f) * 480.f);
+	width = width * 640 / 10000;
+	height = height * 480 / 1000;
 
 	DoBar(screen_x, screen_y, width, height, percent, colour1, colour2);
 }
@@ -602,7 +595,7 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager, flo
 
 	// set to false to prevent water effect when Lara touches water 
 	lara_in_water = false;
-	
+
 	// set to false to prevent water effect when camera is underwater
 	camera_underwater = false;
 
