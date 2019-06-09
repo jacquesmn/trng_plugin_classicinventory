@@ -1,6 +1,24 @@
 #Changelog
 All notable changes to this project will be documented in this file.
 
+##[1.1.0.0] - 2019-05-24
+- Show health bar also during item activated phase.
+- Set correct hand mesh for Lara when combining/separating lasersight.
+- Use "Unlimited %s" string template in script instead of hardcoded value.
+- Single-action items now require pressing enter/action only once by default.
+- Allow equipping weapons while holding torch.
+- Add option for CUST_CINV_DISPLAY to prevent rotating of rings when there's only 1 item.
+- Add radius for CUST_CINV_LIGHTING to allow different lighting for different sections of the rings.
+- Add flags for CUST_CINV_ITEM_ACTION for additional customization.
+- Add animation support for item selected phase.
+- Add additional info to debug mode.
+- Remove water-effect when camera is underwater.
+- Fix bug where weapons could still be equipped through inventory when weapons are disabled.
+- Fix issue with inventory lighting changing slightly during Lara's animations, e.g. pushing/pulling pushables.
+- Fix issue where different weapon could not be equipped while extracting/holstering current weapon.
+- Fix issue with sfx being cut-off when exiting inventory, i.e. when sound duration is longer than closing duration.
+- Fix wrong IDs for beetle combo items.
+
 ##[1.0.0.0] - 2019-01-31
 - First public release.
 
@@ -65,6 +83,7 @@ All notable changes to this project will be documented in this file.
 ##[0.9.0.0] - 2018-10-24
 - First private beta release.
 
+[1.1.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/87bbe968ce12c8fcee5f81c99793ac8ab7a664a2...3fbadf55306cead61c2d78f3469e0658c76ac16c
 [1.0.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f3e88fb1d59f82fd1fabe3109a27b06884d06fd7...87bbe968ce12c8fcee5f81c99793ac8ab7a664a2
 [0.9.1.1]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/c9a81fab37569542f775461fc92292ed60f30e61...f3e88fb1d59f82fd1fabe3109a27b06884d06fd7
 [0.9.1.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f405c6a3e6685be07c0b911118167b2e6386e738...c9a81fab37569542f775461fc92292ed60f30e61
