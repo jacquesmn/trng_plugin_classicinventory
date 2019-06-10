@@ -19,12 +19,19 @@
 #pragma once
 #pragma pack(push,1)
 
+#include <trng_core.h>
 #include "ecs.h"
 
 namespace classicinventory {
 namespace setup {
 
-void setup(ecs::EntityManager &entity_manager);
+void setup_phase1(ecs::EntityManager &entity_manager);
+
+void setup_phase2(ecs::EntityManager &entity_manager);
+
+void customize_phase1(const StrGenericCustomize &customize, ecs::EntityManager &entity_manager);
+
+void customize_phase2(ecs::EntityManager &entity_manager);
 
 }
 }
