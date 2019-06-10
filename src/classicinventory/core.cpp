@@ -66,6 +66,21 @@ float angle_diff_smallest(float angle_a_degrees, float angle_b_degrees)
 	return fmod(((angle_b_degrees - angle_a_degrees) + 540), 360) - 180;
 }
 
+void point_on_circle(
+	Vector2D origin,
+	float radius,
+	float angle_degrees,
+	Vector2D &result
+)
+{
+	wrap_angle(angle_degrees);
+
+	const auto angle_radians = degrees_to_radians(angle_degrees);
+
+	result.x = origin.x + radius * cos(angle_radians);
+	result.y = origin.y + radius * sin(angle_radians);
+}
+
 int32_t round(float x)
 {
 	return int32_t(x > 0.0 ? x + 0.5 : x - 0.5);
@@ -88,9 +103,9 @@ int random_sign()
 	return sign == 0 ? -1 : 1;
 }
 
-void jmn_PopMatrix()
+void jmn_PopMatrix(uint32_t num)
 {
-	*Trng.pGlobTomb4->pAdr->pZonaRecord30 -= 48;
+	*Trng.pGlobTomb4->pAdr->pZonaRecord30 -= 48 * num;
 }
 
 }

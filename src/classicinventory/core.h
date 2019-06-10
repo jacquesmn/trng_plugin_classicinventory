@@ -99,10 +99,11 @@ uint16_t degrees_to_tr4_angle(float degrees);
 float tr4_angle_to_degrees(uint16_t angle);
 void wrap_angle(float &degrees);
 float angle_diff_smallest(float angle_a_degrees, float angle_b_degrees);
+void point_on_circle(Vector2D origin, float radius, float angle_degrees, Vector2D &result);
 int32_t round(float x);
 float random(float range_min, float range_max);
 int random_sign();
-void jmn_PopMatrix();
+void jmn_PopMatrix(uint32_t num=1);
 
 }
 }

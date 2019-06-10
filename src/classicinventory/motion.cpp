@@ -118,13 +118,13 @@ void Motion::accelerate(float speed)
 	this->frames = uint32_t(this->frames / speed);
 }
 
-void Motion::restore(uint32_t frames)
+void Motion::restore(uint32_t frames, bool shortest_route)
 {
 	loop = false;
 	restoring = true;
 
 	// restore via shortest route
-	if (frame < (this->frames * 0.5)) {
+	if (shortest_route && frame < (this->frames * 0.5)) {
 		reverse();
 	}
 

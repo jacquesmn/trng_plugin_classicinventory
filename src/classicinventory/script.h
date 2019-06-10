@@ -26,7 +26,8 @@ namespace script {
 
 namespace StringIndex {
 enum Enum {
-	USE = 40,
+	UNLIMITED = 39,
+	USE,
 	CHOOSE_AMMO,
 	COMBINE,
 	SEPARATE,

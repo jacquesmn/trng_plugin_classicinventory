@@ -271,13 +271,70 @@ void deactivate_item_actions(ecs::Entity &item)
 	});
 }
 
-void reset_item_animation(ecs::Entity &item)
+void start_item_animation(ecs::Entity &item, item::ItemAnimation &animation, bool loop)
+{
+	const auto frames = abs(core::round(animation.frame_end - animation.frame_start));
+
+
+	// check if already animating
+	auto motion_anim = item.get_component<motion::Motion>([&](motion::Motion &motion) -> bool {
+		return &motion.value == &animation.frame;
+	});
+
+	if (motion_anim) {
+		// resume animation
+		if (motion_anim->restoring) {
+			motion_anim->end = animation.frame_end; // reset end frame
+
+			motion_anim->resume(motion::Motion::FORWARD, frames);
+
+			motion_anim->loop = loop;
+		}
+	}
+	else {
+		item::reset_item_animations(item);
+
+		// start animation
+		item.add_component(new motion::Motion(
+			animation.frame,
+			animation.frame_start,
+			animation.frame_end,
+			frames,
+			0,
+			motion::Motion::FORWARD,
+			loop
+		));
+	}
+
+	animation.active = true;
+}
+
+void restore_item_animation(ecs::Entity &item, item::ItemAnimation &animation)
+{
+	auto motion_anim = item.get_component<motion::Motion>([&](motion::Motion &motion) -> bool {
+		return &motion.value == &animation.frame;
+	});
+
+	if (motion_anim) {
+		motion_anim->end = motion_anim->start; // end on first frame
+		motion_anim->restore(0, false);
+	}
+}
+
+void reset_item_animations(ecs::Entity &item)
 {
 	const auto item_anims = item.get_components<item::ItemAnimation>([](const item::ItemAnimation &item_animation)->bool {
 		return item_animation.active;
 	});
 
-	std::for_each(item_anims.begin(), item_anims.end(), [](item::ItemAnimation *item_animation) -> void {
+	std::for_each(item_anims.begin(), item_anims.end(), [&](item::ItemAnimation *item_animation) -> void {
+		auto motion_anim = item.get_component<motion::Motion>([&](motion::Motion &motion) -> bool {
+			return &motion.value == &item_animation->frame;
+		});
+		if (motion_anim) {
+			motion_anim->finish();
+		}
+
 		item_animation->active = false;
 	});
 }
@@ -321,14 +378,20 @@ void spin_item(ecs::Entity &item, uint32_t frames)
 
 void restore_item_spin(ecs::Entity &item, uint32_t frames, float speed)
 {
-	auto item_motion = item.get_component<motion::Motion>([](const motion::Motion &motion) -> bool {
-		return motion.loop && !motion.background;
-	});
+	if (item.has_component<item::ItemDisplay>()) {
+		auto &item_display = *item.get_component<item::ItemDisplay>();
 
-	if (item_motion) {
-		item_motion->restore(frames);
-		if (speed != 1) {
-			item_motion->accelerate(speed);
+		// check if spinning
+		auto motion_spin = item.get_component<motion::Motion>([&](motion::Motion &motion) -> bool {
+			return &motion.value == &item_display.rot.y && motion.loop && !motion.background;
+		});
+
+		if (motion_spin) {
+			// stop spin
+			motion_spin->restore(frames);
+			if (speed != 1) {
+				motion_spin->accelerate(speed);
+			}
 		}
 	}
 }
@@ -362,7 +425,7 @@ void unload_ammo(ecs::Entity &weapon_item)
 	const auto ammos = weapon_item.get_components<item::ItemAmmo>([&](item::ItemAmmo &ammo) -> bool {
 		return ammo.loaded();
 	});
-	
+
 	std::for_each(ammos.begin(), ammos.end(), [](item::ItemAmmo *ammo) -> void {
 		ammo->unload();
 	});

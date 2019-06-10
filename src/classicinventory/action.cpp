@@ -129,7 +129,7 @@ bool use_flare(ecs::Entity &item)
 		return false;
 	}
 
-	if (!lara_info.TestIsHoldingWeapon && hand_flags != 0) {
+	if (hand_flags != 0) {
 		// lara is busy doing something important
 		SoundEffect(2, nullptr, 0);
 		return false;
@@ -140,11 +140,6 @@ bool use_flare(ecs::Entity &item)
 	}
 
 	in_hands_next = enumHOLD.FLARE;
-
-	if (!lara_info.TestIsHoldingWeapon) {
-		in_hands_now = enumHOLD.FLARE;
-		hand_flags = enumFLH.IS_EXTRACTING;
-	}
 
 	return true;
 }
@@ -169,16 +164,14 @@ bool use_binoculars(ecs::Entity &item)
 	auto &in_hands_now = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow;
 	auto &hand_flags = *Trng.pGlobTomb4->pAdr->pFlagsLaraHands;
 
-	if (lara.StateIdCurrent != 2
-		|| hand_flags == enumFLH.IS_EXTRACTING) {
+	if (lara.StateIdCurrent != 2) {
 		// lara is busy doing something important
 		SoundEffect(2, nullptr, 0);
 		return false;
 	}
 
 	if (lara_info.TestIsHoldingWeapon
-		|| in_hands_now == enumHOLD.FLARE
-		|| in_hands_now == enumHOLD.ANY_TORCH) {
+		|| hand_flags == enumFLH.IS_EXTRACTING) {
 		hand_flags = enumFLH.IS_THROWING;
 	}
 
@@ -204,22 +197,24 @@ bool equip_weapon(ecs::Entity &item)
 		return false;
 	}
 
-	if (Trng.pGlobTomb4->TestTakeAwayWeapons) {
-		return false;
-	}
-
 	Get(enumGET.INFO_LARA, 0, 0);
 	auto &lara_info = GET.LaraInfo;
 
+	const auto weapons_disabled = core::bit_set(Trng.pGlobTomb4->StatusNG, SNG_DISABLE_WEAPONS);
 	auto &in_hands_next = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNext;
 	auto &in_hands_now = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow;
 	auto &hand_flags = *Trng.pGlobTomb4->pAdr->pFlagsLaraHands;
 
-	if (!lara_info.TestIsHoldingWeapon
-		&& in_hands_now != enumHOLD.FLARE
-		&& in_hands_now != enumHOLD.ANY_TORCH
-		&& hand_flags != 0) {
-		// lara is busy doing something important
+	if (weapons_disabled
+		|| (!lara_info.TestIsHoldingWeapon
+			&& in_hands_now != enumHOLD.FLARE
+			&& in_hands_now != enumHOLD.ANY_TORCH
+			&& in_hands_now != enumHOLD.OUT_TORCH
+			&& in_hands_now != enumHOLD.FIRED_TORCH
+			&& hand_flags != enumFLH.IS_EXTRACTING
+			&& hand_flags != enumFLH.IS_THROWING
+			&& hand_flags != 0)) {
+		// lara can't equip weapon now
 		SoundEffect(2, nullptr, 0);
 		return false;
 	}
@@ -251,13 +246,18 @@ bool equip_weapon(ecs::Entity &item)
 	}
 
 	if (in_hands_now == hold_flag) {
-		if (lara_info.TestIsHoldingWeapon) {
-			// already holding selected weapon
+		if (lara_info.TestIsHoldingWeapon || hand_flags == enumFLH.IS_EXTRACTING) {
+			// already holding/extracting selected weapon
 			return false;
 		}
 
 		// extract current weapon
-		hand_flags = enumFLH.IS_EXTRACTING;
+		if (hand_flags == enumFLH.IS_THROWING) {
+			in_hands_next = hold_flag;
+		}
+		else {
+			hand_flags = enumFLH.IS_EXTRACTING;
+		}
 
 		return true;
 	}

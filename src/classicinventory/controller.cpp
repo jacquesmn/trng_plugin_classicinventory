@@ -141,7 +141,7 @@ void Controller::do_inventory()
 	// inventory loop
 	const int32_t fps = 30;
 	const int32_t frame_budget = 1000 / fps;
-
+	
 	while (inventory_active()) {
 		const auto frame_start = clock();
 

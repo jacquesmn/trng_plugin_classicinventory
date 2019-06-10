@@ -19,6 +19,7 @@
 #pragma once
 #pragma pack(push, 1)
 
+#include <trng_core.h>
 #include "core.h"
 #include "ecs.h"
 
@@ -77,7 +78,7 @@ private:
 	void draw_statistics(ecs::EntityManager &entity_manager) const;
 	void draw_options(ecs::EntityManager &entity_manager) const;
 
-	void set_lighting(ecs::EntityManager &entity_manager) const;
+	void set_lighting(ecs::EntityManager &entity_manager, float ring_angle_degrees) const;
 	void restore_lighting(ecs::EntityManager &entity_manager) const;
 	void calculate_lighting() const;
 
@@ -104,24 +105,25 @@ struct LightingLocation : public ecs::Component {
 	int32_t x;
 	int32_t y;
 	int32_t z;
+	int32_t radius;
 
-	int32_t backup_room;
-	int32_t backup_x;
-	int32_t backup_y;
-	int32_t backup_z;
+	StrBackupLara backup_lara;
 	bool backup_lara_in_water;
+	bool backup_camera_underwater;
 
 	LightingLocation(
 		int32_t room = 0,
 		int32_t x = 0,
 		int32_t y = 0,
-		int32_t z = 0
+		int32_t z = 0,
+		int32_t radius = 0
 	)
 		:
 		room(room),
 		x(x),
 		y(y),
-		z(z)
+		z(z),
+		radius(radius)
 	{}
 };
 

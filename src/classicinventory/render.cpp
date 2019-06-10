@@ -20,7 +20,6 @@
 
 #include "render.h"
 
-#include <trng_core.h>
 #include "camera.h"
 #include "cheat.h"
 #include "core.h"
@@ -57,6 +56,8 @@ extern TYPE_DrawRooms DrawRooms;
 extern TYPE_phd_GetVectorAngles phd_GetVectorAngles;
 extern TYPE_phd_GenerateW2V phd_GenerateW2V;
 extern TYPE_AlterFOV AlterFOV;
+extern void BackupLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
+extern void RestoreLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 
 namespace classicinventory {
 namespace render {
@@ -78,12 +79,7 @@ void InventoryRenderSystem::update(ecs::EntityManager &entity_manager, ecs::Syst
 	// draw background
 	S_DisplayMonoScreen();
 
-	set_lighting(entity_manager);
-
 	draw_inventory(entity_manager);
-
-	restore_lighting(entity_manager);
-
 	draw_texts(entity_manager);
 	draw_bars(entity_manager);
 	draw_statistics(entity_manager);
@@ -187,7 +183,8 @@ void InventoryRenderSystem::draw_ring_item(
 	phd_RotYXZ(ring_rot_y, ring_rot_x, ring_rot_z);
 
 	// position item on ring
-	const auto ring_angle = core::degrees_to_tr4_angle((ring_item.item_index * ring_display.sector) + 90);
+	const auto ring_angle_degrees = (ring_item.item_index * ring_display.sector) + 90;
+	const auto ring_angle = core::degrees_to_tr4_angle(ring_angle_degrees);
 	const auto item_tilt = core::degrees_to_tr4_angle(item_display->tilt);
 
 	phd_PushMatrix();
@@ -196,11 +193,14 @@ void InventoryRenderSystem::draw_ring_item(
 	phd_RotY(-core::degrees_to_tr4_angle(90));	// face outwards
 	phd_RotX(item_tilt);						// tilt
 
+	set_lighting(entity_manager, ring_display.rotation.y + ring_angle_degrees);
+
 	draw_item(item, inventory_display, entity_manager);
 
+	restore_lighting(entity_manager);
+
 	// pop pop
-	core::jmn_PopMatrix();
-	core::jmn_PopMatrix();
+	core::jmn_PopMatrix(2);
 }
 
 void InventoryRenderSystem::draw_item(
@@ -543,12 +543,13 @@ void InventoryRenderSystem::draw_options(ecs::EntityManager &entity_manager) con
 	}
 }
 
-void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager) const
+void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager, float ring_angle_degrees) const
 {
 	/*
 	* Lighting is based on Lara's current position.
 	* If a lighting location is configured, we'll move Lara there to get the lighting data and
 	* afterwards restore Lara again to her original location.
+	* Lara will also be moved around the point to allow different lighting for different sections of the ring.
 	*/
 
 	const auto entity = entity_manager.find_entity_with_component<LightingLocation>();
@@ -559,30 +560,44 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager) con
 
 	if (light_loc.room < 0
 		|| light_loc.x < 0
-		|| light_loc.z < 0) {
+		|| light_loc.z < 0
+		|| light_loc.radius < 0) {
 		return;
 	}
+
+	// calculate point around location based on ring angle
+	core::Vector2D light_loc_ring;
+
+	core::point_on_circle(
+		core::Vector2D(float(light_loc.x), float(light_loc.z)),
+		float(light_loc.radius),
+		ring_angle_degrees,
+		light_loc_ring
+	);
 
 	// backup Lara's location
 	const auto lara = Trng.pGlobTomb4->pAdr->pLara;
 	bool &lara_in_water = *reinterpret_cast<bool*>(0x80EBB0);
+	bool &camera_underwater = *reinterpret_cast<bool*>(0x7FE73C);
 
-	light_loc.backup_room = lara->Room;
-	light_loc.backup_x = lara->CordX;
-	light_loc.backup_y = lara->CordY;
-	light_loc.backup_z = lara->CordZ;
+	light_loc.backup_lara = StrBackupLara();
 	light_loc.backup_lara_in_water = lara_in_water;
+	light_loc.backup_camera_underwater = camera_underwater;
+	BackupLara(&light_loc.backup_lara, lara);
 
 	// move Lara to lighting location
 	lara->Room = light_loc.room;
-	lara->CordX = light_loc.x;
+	lara->CordX = core::round(light_loc_ring.x);
 	lara->CordY = light_loc.y;
-	lara->CordZ = light_loc.z;
+	lara->CordZ = core::round(light_loc_ring.y);
+	lara->AnimationNow = 103; // standing idle, prevents animation poses from influencing lighting
+	lara->FrameNow = 0;
 
-	// set to false to prevent water effect when Lara touches water
+	// set to false to prevent water effect when Lara touches water 
 	lara_in_water = false;
-
-	// TODO: there's still a water-effect when camera is underwater
+	
+	// set to false to prevent water effect when camera is underwater
+	camera_underwater = false;
 
 	calculate_lighting();
 }
@@ -597,20 +612,19 @@ void InventoryRenderSystem::restore_lighting(ecs::EntityManager &entity_manager)
 
 	if (light_loc.room < 0
 		|| light_loc.x < 0
-		|| light_loc.z < 0) {
+		|| light_loc.z < 0
+		|| light_loc.radius < 0) {
 		return;
 	}
 
 	// restore Lara's location
 	const auto lara = Trng.pGlobTomb4->pAdr->pLara;
 	bool &lara_in_water = *reinterpret_cast<bool*>(0x80EBB0);
+	bool &camera_underwater = *reinterpret_cast<bool*>(0x7FE73C);
 
-	lara->Room = light_loc.backup_room;
-	lara->CordX = light_loc.backup_x;
-	lara->CordY = light_loc.backup_y;
-	lara->CordZ = light_loc.backup_z;
-
+	RestoreLara(&light_loc.backup_lara, lara);
 	lara_in_water = light_loc.backup_lara_in_water;
+	camera_underwater = light_loc.backup_camera_underwater;
 
 	calculate_lighting();
 }

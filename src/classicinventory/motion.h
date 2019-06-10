@@ -65,7 +65,7 @@ public:
 
 	void accelerate(float speed = 1);
 
-	void restore(uint32_t frames = 0);
+	void restore(uint32_t frames = 0, bool shortest_route = true);
 
 	void resume(Motion::Direction direction, uint32_t frames);
 

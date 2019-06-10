@@ -30,6 +30,9 @@ TYPE_ShowSaveScreen ShowSaveScreen = (TYPE_ShowSaveScreen)0x47AE70;
 TYPE_DoStatScreen DoStatScreen = (TYPE_DoStatScreen)0x47A830;
 TYPE_DoOptions DoOptions = (TYPE_DoOptions)0x479300;
 TYPE_S_PauseMenu S_PauseMenu = (TYPE_S_PauseMenu)0x47ADB0;
+TYPE_InitWaterTable InitWaterTable = (TYPE_InitWaterTable)0x475390;
+TYPE_AnimateLara AnimateLara = (TYPE_AnimateLara)0x4306D0;
+TYPE_DrawLara DrawLara = (TYPE_DrawLara)0x41D030;
 
 // discovered by AODfan
 TYPE_phd_atan phd_atan = (TYPE_phd_atan)0x48DE90;

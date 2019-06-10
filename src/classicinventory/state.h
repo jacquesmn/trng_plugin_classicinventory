@@ -74,13 +74,16 @@ public:
 	GamePhase::Enum get_phase() const;
 
 	void set_state(State *state);
+
+	State* transition(State *state) const;
 };
 
 class State {
 public:
 	virtual ~State() {}
 
-	virtual void start(ecs::EntityManager &entity_manager) {}
+	virtual State* start(ecs::EntityManager &entity_manager) { return this; }
+
 	virtual void end(ecs::EntityManager &entity_manager) {}
 
 	virtual State* update(ecs::EntityManager &entity_manager) { return this; }
@@ -97,16 +100,17 @@ public:
 
 class OpeningState : public State {
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
-	State * update(ecs::EntityManager& entity_manager) override;
+	State* update(ecs::EntityManager& entity_manager) override;
 
 	GamePhase::Enum get_phase() override;
 };
 
 class IdleState : public State {
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager &entity_manager) override;
+	void end(ecs::EntityManager &entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 
@@ -125,7 +129,7 @@ public:
 		std::function<State*()> get_next_state
 	);
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 
@@ -150,7 +154,7 @@ public:
 		bool play_sound = true
 	);
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 
@@ -170,7 +174,7 @@ private:
 public:
 	ItemActivateState();
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 	void end(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
@@ -178,14 +182,22 @@ public:
 
 class ItemActiveState : public State {
 private:
+	bool enable_auto_cancel;
 	bool loading_or_saving;
 
+	State* do_action(
+		ecs::Entity &item_active,
+		ecs::Entity &inventory,
+		std::function<State*()> get_default_state,
+		ecs::EntityManager& entity_manager
+	);
+
 public:
-	ItemActiveState();
+	ItemActiveState(bool enable_auto_cancel);
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
-	State * input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
+	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
 };
 
 class ItemCancelState : public State {
@@ -207,7 +219,7 @@ public:
 		bool restore_model = true
 	);
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 	void end(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
@@ -215,23 +227,23 @@ public:
 
 class AmmoContextState : public State {
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 
-	State * input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
+	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
 };
 
 class AmmoLoadState : public State {
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 };
 
 class ComboContextState : public State {
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 
@@ -240,26 +252,26 @@ public:
 
 class ComboTryState : public State {
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 };
 
 class SeparateState : public State {
 public:
-	State * update(ecs::EntityManager& entity_manager) override;
+	State* update(ecs::EntityManager& entity_manager) override;
 };
 
 class ExamineState : public State {
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
 };
 
 class StatisticsState : public State {
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 	void end(ecs::EntityManager& entity_manager) override;
 
 	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
@@ -272,7 +284,7 @@ private:
 public:
 	OptionsState(bool controls = false);
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 	void end(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
@@ -288,7 +300,7 @@ private:
 public:
 	PassportState();
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 
@@ -306,9 +318,9 @@ private:
 	);
 
 public:
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
-	State * input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
+	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
 };
 
 class CheatState : public State {
@@ -334,12 +346,12 @@ public:
 		std::function<State*()> get_next_state
 	);
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 	void end(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 
-	State * input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
+	State* input(input::InputState &input_state, ecs::EntityManager& entity_manager) override;
 };
 
 class ClosingState : public State {
@@ -349,7 +361,7 @@ private:
 public:
 	ClosingState(bool play_sfx = true);
 
-	void start(ecs::EntityManager& entity_manager) override;
+	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
 };

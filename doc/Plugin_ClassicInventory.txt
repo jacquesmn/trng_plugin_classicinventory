@@ -1,4 +1,4 @@
-Classic Inventory 1.0.0.0
+Classic Inventory 1.1.0.0
 -------------------------
 Required TRNG version: 1.3.0.7
 Required NG Center version: 1.5.7
@@ -60,7 +60,7 @@ See the Set Trigger Type window for this plugin in NGLE to see what triggers and
 
 Known Issues and Workarounds
 ----------------------------
-* Items have a water effect applied when the camera is underwater. A custom lighting scheme might be able to drown out the colour tint, but the wave effect is still present.
+* Saving through the inventory saves and then loads the savegame when CUST_KEEP_DEAD_ENEMIES is enabled and at least one enemy has been killed.
 
 * Item meshes can be a bit jittery when in motion.
 

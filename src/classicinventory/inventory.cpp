@@ -25,6 +25,8 @@
 
 #include "camera.h"
 #include "motion.h"
+#include "render.h"
+#include "special.h"
 
 namespace classicinventory {
 namespace inventory {
@@ -184,6 +186,9 @@ void build_ring(
 
 		// change display
 		item::change_item_display(item, item::ItemDisplayType::IDLE);
+
+		// reset animations
+		item::reset_item_animations(item);
 	}
 
 	// close item loop
@@ -600,6 +605,23 @@ bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item
 	auto &item_ring_b = *item_b->get_component<item::ItemRing>();
 
 	return item_ring_a.sort_index < item_ring_b.sort_index;
+}
+
+void add_health_bar(ecs::Entity& item)
+{
+	if (item.has_component<special::HealthData>()) {
+		const auto &health_bar_cust = Trng.pGlobTomb4->pBaseCustomize->VetBar[BAR_HEALTH];
+
+		item.add_component(new render::ScreenBar(
+			health_bar_cust.OrgX >= 0 ? (core::round((health_bar_cust.OrgX / 640.f) * 1000)) : 13,
+			health_bar_cust.OrgY >= 0 ? (core::round((health_bar_cust.OrgY / 480.f) * 1000)) : 17,
+			health_bar_cust.SizeX >= 0 ? (core::round((health_bar_cust.SizeX / 640.f) * 1000)) : 234,
+			health_bar_cust.SizeY >= 0 ? (core::round((health_bar_cust.SizeY / 480.f) * 1000)) : 25,
+			core::round((Trng.pGlobTomb4->pAdr->pLara->Health / 1000.f) * 100.f),
+			health_bar_cust.Color2,
+			health_bar_cust.Color1
+		));
+	}
 }
 
 InventoryState* get_inventory_state(ecs::EntityManager &entity_manager)
