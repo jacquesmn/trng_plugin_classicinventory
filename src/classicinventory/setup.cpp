@@ -5323,7 +5323,7 @@ void customize_text(
 	const auto line_height = customize.pVetArg[++cust_index];
 	const auto enabled = customize.pVetArg[++cust_index];
 
-	if (type_id < 1) {
+	if (type_id < 1 || type_id >= text::TextType::NONE) {
 		return;
 	}
 	const auto type = static_cast<text::TextType::Enum>(type_id);
@@ -5737,12 +5737,6 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 		}
 	}
 
-	for (int32_t type = 1; type < text::TextType::NONE; ++type) {
-		if (find_customize_command(CUST_CINV_TEXT, type, customize)) {
-			customize_text(*customize, entity_manager);
-		}
-	}
-
 	if (find_customize_command(CUST_CINV_COMBO, -1, customize)) {
 		customize_combo(*customize, entity_manager);
 	}
@@ -5846,6 +5840,9 @@ void customize_phase1(const StrGenericCustomize &customize, ecs::EntityManager &
 		break;
 	case CUST_CINV_RING:
 		customize_ring(customize, entity_manager);
+		break;
+	case CUST_CINV_TEXT:
+		customize_text(customize, entity_manager);
 		break;
 	}
 }
