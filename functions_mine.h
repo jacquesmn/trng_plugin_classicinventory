@@ -33,6 +33,8 @@ TYPE_S_PauseMenu S_PauseMenu = (TYPE_S_PauseMenu)0x47ADB0;
 TYPE_InitWaterTable InitWaterTable = (TYPE_InitWaterTable)0x475390;
 TYPE_AnimateLara AnimateLara = (TYPE_AnimateLara)0x4306D0;
 TYPE_DrawLara DrawLara = (TYPE_DrawLara)0x41D030;
+TYPE_PlayLevel PlayLevel = (TYPE_PlayLevel)0x451CF0;
+TYPE_ShowInventory ShowInventory = (TYPE_ShowInventory)0x43B0F0;
 
 // discovered by AODfan
 TYPE_phd_atan phd_atan = (TYPE_phd_atan)0x48DE90;

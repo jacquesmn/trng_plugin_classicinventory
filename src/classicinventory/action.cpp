@@ -341,6 +341,11 @@ bool save_game()
 
 	if (save_number >= 0) {
 		// saved game
+
+		// Clear internal trng variable to fix issue with savegame being loaded after exiting inventory.
+		// Only happens with CUST_KEEP_DEAD_ENEMIES enabled, so perhaps memory zone is bugged?
+		*reinterpret_cast<int32_t*>(0x10657B68) = 0;
+
 		return true;
 	}
 

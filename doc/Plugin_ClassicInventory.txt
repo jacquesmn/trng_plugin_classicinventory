@@ -24,9 +24,10 @@ Main Features
 * Support for custom ammo types
 * Custom combos with support for two final items (e.g. waterskins)
 * Examine items with the ability to rotate
-* Health items with custom health/poison points
-* Stopwatch with hour, minute and second hands
-* Passport with load/save/quit or custom actions
+* Health items with custom health and poison points
+* Compasses with ability to track custom targets
+* Stopwatches with hour, minute and second hands
+* Passports with load/save/quit or custom actions
 * Maps with markers and custom actions
 * Custom lighting
 * Custom cheats
@@ -60,8 +61,6 @@ See the Set Trigger Type window for this plugin in NGLE to see what triggers and
 
 Known Issues and Workarounds
 ----------------------------
-* Saving through the inventory saves and then loads the savegame when CUST_KEEP_DEAD_ENEMIES is enabled and at least one enemy has been killed.
-
 * Item meshes can be a bit jittery when in motion.
 
 * Item animations only support a frame rate of 1. Any higher rate will result in sped up animations.
