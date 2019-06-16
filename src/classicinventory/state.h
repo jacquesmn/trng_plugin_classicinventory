@@ -226,7 +226,12 @@ public:
 };
 
 class AmmoContextState : public State {
+private:
+	item::ItemAction &item_action;
+
 public:
+	AmmoContextState(item::ItemAction &item_action);
+
 	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;
@@ -242,7 +247,12 @@ public:
 };
 
 class ComboContextState : public State {
+private:
+	item::ItemAction &item_action;
+
 public:
+	ComboContextState(item::ItemAction &item_action);
+
 	State* start(ecs::EntityManager& entity_manager) override;
 
 	State* update(ecs::EntityManager& entity_manager) override;

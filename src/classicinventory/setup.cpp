@@ -4608,7 +4608,7 @@ void customize_item_action(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 8) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
@@ -4635,9 +4635,10 @@ void customize_item_action(
 		item_actions_config->confirm_single_action = confirm;
 	}
 
-	for (int32_t i = 2; i < customize.NArguments; i += 6) {
+	for (int32_t i = 2; i < customize.NArguments; i += 7) {
 		const auto type = customize.pVetArg[++cust_index];
 		const auto name_stridex = customize.pVetArg[++cust_index];
+		const auto context_stridex = customize.pVetArg[++cust_index];
 		const auto sort_index = customize.pVetArg[++cust_index];
 		const auto action_flags = customize.pVetArg[++cust_index];
 		const auto enabled_cgroup = customize.pVetArg[++cust_index];
@@ -4665,6 +4666,10 @@ void customize_item_action(
 
 		if (name_stridex >= 0) {
 			item_action->name = script::ScriptString(name_stridex);
+		}
+
+		if (context_stridex >= 0) {
+			item_action->context = script::ScriptString(context_stridex);
 		}
 
 		if (sort_index >= 0) {

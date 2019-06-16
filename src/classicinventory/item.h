@@ -209,10 +209,10 @@ enum Enum {
 
 namespace ItemActionFlag {
 enum Enum {
-	DISABLE = 1,
-	REPLACE = 2,
-	INSTANT = 4,
-	CONFIRM = 8
+	CONFIRM = 1,
+	DISABLE = 2,
+	REPLACE = 4,
+	INSTANT = 8
 };
 }
 
@@ -425,6 +425,7 @@ struct ItemActions : public ecs::Component {
 
 struct ItemAction : public ecs::Component {
 	script::ScriptString name;
+	script::ScriptString context;
 	int32_t sort_index;
 	ItemActionType::Enum type;
 	bool replace_tr4;
@@ -442,6 +443,7 @@ struct ItemAction : public ecs::Component {
 	)
 		:
 		name(name),
+		context(script::ScriptString()),
 		sort_index(0),
 		type(type),
 		replace_tr4(true),

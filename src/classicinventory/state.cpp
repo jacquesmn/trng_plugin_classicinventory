@@ -1144,8 +1144,8 @@ State* ItemActiveState::do_action(
 
 				context_ring = inventory::build_ammo_ring(item_active, inventory, entity_manager);
 
-				context_state = []() -> State* {
-					return new AmmoContextState();
+				context_state = [=]() -> State* {
+					return new AmmoContextState(*active_action);
 				};
 			}
 			else if (active_action->type == item::ItemActionType::COMBINE) {
@@ -1155,8 +1155,8 @@ State* ItemActiveState::do_action(
 
 				context_ring = inventory::build_combo_ring(item_active, inventory, entity_manager);
 
-				context_state = []() -> State* {
-					return new ComboContextState();
+				context_state = [=]() -> State* {
+					return new ComboContextState(*active_action);
 				};
 			}
 			else if (active_action->type == item::ItemActionType::SEPARATE) {
@@ -1501,6 +1501,11 @@ State* ItemCancelState::update(ecs::EntityManager &entity_manager)
 	return this;
 }
 
+AmmoContextState::AmmoContextState(item::ItemAction &item_action)
+	:
+	item_action(item_action)
+{}
+
 State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
@@ -1526,10 +1531,14 @@ State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 
 		// add action text
 		if (!inventory->has_component<render::ScreenText>()) {
+			const auto context_string = item_action.context.get_index() < 0
+				? script::ScriptString(script::StringIndex::CHOOSE_AMMO).get_string()
+				: item_action.context.get_string();
+
 			text::add_text(
 				*inventory,
 				text::TextType::CONTEXT_ACTION,
-				script::ScriptString(script::StringIndex::CHOOSE_AMMO).get_string(),
+				context_string,
 				entity_manager
 			);
 		}
@@ -1580,15 +1589,17 @@ State* AmmoContextState::update(ecs::EntityManager &entity_manager)
 
 State* AmmoContextState::input(input::InputState &input_state, ecs::EntityManager &entity_manager)
 {
+	auto *item_action = &this->item_action;
+
 	if (input_state.command_active(enumCMD.RIGHT)) {
-		return new RingRotateState(RingRotateState::RIGHT, []() -> State* {
-			return new AmmoContextState();
+		return new RingRotateState(RingRotateState::RIGHT, [=]() -> State* {
+			return new AmmoContextState(*item_action);
 		});
 	}
 
 	if (input_state.command_active(enumCMD.LEFT)) {
-		return new RingRotateState(RingRotateState::LEFT, []() -> State* {
-			return new AmmoContextState();
+		return new RingRotateState(RingRotateState::LEFT, [=]() -> State* {
+			return new AmmoContextState(*item_action);
 		});
 	}
 
@@ -1699,8 +1710,8 @@ State* AmmoContextState::input(input::InputState &input_state, ecs::EntityManage
 			auto ring_item_active = get_active_item(entity_manager);
 
 			if (ring_item_active) {
-				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, []() -> State* {
-					return new AmmoContextState();
+				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, [=]() -> State* {
+					return new AmmoContextState(*item_action);
 				});
 			}
 		}
@@ -1939,6 +1950,11 @@ State* AmmoLoadState::update(ecs::EntityManager &entity_manager)
 	return this;
 }
 
+ComboContextState::ComboContextState(item::ItemAction &item_action)
+	:
+	item_action(item_action)
+{}
+
 State* ComboContextState::start(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
@@ -1964,10 +1980,14 @@ State* ComboContextState::start(ecs::EntityManager &entity_manager)
 
 		// add action text
 		if (!inventory->has_component<render::ScreenText>()) {
+			const auto context_string = item_action.context.get_index() < 0
+				? script::ScriptString(script::StringIndex::COMBINE_WITH).get_string()
+				: item_action.context.get_string();
+
 			text::add_text(
 				*inventory,
 				text::TextType::CONTEXT_ACTION,
-				script::ScriptString(script::StringIndex::COMBINE_WITH).get_string(),
+				context_string,
 				entity_manager
 			);
 		}
@@ -2016,15 +2036,17 @@ State* ComboContextState::update(ecs::EntityManager &entity_manager)
 
 State* ComboContextState::input(input::InputState &input_state, ecs::EntityManager &entity_manager)
 {
+	auto *item_action = &this->item_action;
+
 	if (input_state.command_active(enumCMD.RIGHT)) {
-		return new RingRotateState(RingRotateState::RIGHT, []() -> State* {
-			return new ComboContextState();
+		return new RingRotateState(RingRotateState::RIGHT, [=]() -> State* {
+			return new ComboContextState(*item_action);
 		});
 	}
 
 	if (input_state.command_active(enumCMD.LEFT)) {
-		return new RingRotateState(RingRotateState::LEFT, []() -> State* {
-			return new ComboContextState();
+		return new RingRotateState(RingRotateState::LEFT, [=]() -> State* {
+			return new ComboContextState(*item_action);
 		});
 	}
 
@@ -2135,8 +2157,8 @@ State* ComboContextState::input(input::InputState &input_state, ecs::EntityManag
 			auto ring_item_active = get_active_item(entity_manager);
 
 			if (ring_item_active) {
-				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, []() -> State* {
-					return new ComboContextState();
+				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, [=]() -> State* {
+					return new ComboContextState(*item_action);
 				});
 			}
 		}
