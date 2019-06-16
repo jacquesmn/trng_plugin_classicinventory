@@ -1558,11 +1558,15 @@ State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 						&& item.has_component<item::ItemQuantity>()) {
 						auto &item_data = *item.get_component<item::ItemData>();
 						auto &item_qty = *item.get_component<item::ItemQuantity>();
+						
+						const auto item_text = item_action.context_hide_qty
+							? text::build_item_text(item_data.name.get_string())
+							: text::build_item_text(item_data.name.get_string(), &item_qty, true);
 
 						text::add_text(
 							item,
 							text::TextType::ITEM_NAME_IDLE,
-							text::build_item_text(item_data.name.get_string(), &item_qty, true),
+							item_text,
 							entity_manager
 						);
 					}
@@ -2005,11 +2009,16 @@ State* ComboContextState::start(ecs::EntityManager &entity_manager)
 					if (!item.has_component<render::ScreenText>()
 						&& item.has_component<item::ItemData>()) {
 						auto &item_data = *item.get_component<item::ItemData>();
+						auto &item_qty = *item.get_component<item::ItemQuantity>();
+
+						const auto item_text = item_action.context_hide_qty
+							? text::build_item_text(item_data.name.get_string())
+							: text::build_item_text(item_data.name.get_string(), &item_qty);
 
 						text::add_text(
 							item,
 							text::TextType::ITEM_NAME_IDLE,
-							text::build_item_text(item_data.name.get_string()),
+							item_text,
 							entity_manager
 						);
 					}

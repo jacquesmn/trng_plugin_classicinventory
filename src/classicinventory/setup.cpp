@@ -4647,6 +4647,7 @@ void customize_item_action(
 		const auto replace = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::REPLACE);
 		const auto disable = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::DISABLE);
 		const auto instant = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::INSTANT);
+		const auto context_hide_qty = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::CONTEXT_HIDE_QTY);
 
 		if (type == -1) {
 			continue;
@@ -4681,6 +4682,7 @@ void customize_item_action(
 		}
 
 		item_action->instant = instant;
+		item_action->context_hide_qty = context_hide_qty;
 
 		if (disable) {
 			item_action->enabled = [=]() -> bool {

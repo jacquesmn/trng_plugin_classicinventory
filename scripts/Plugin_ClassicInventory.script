@@ -345,6 +345,7 @@ CINV_FACTION_CONFIRM:1 ;For single-action items, requires pressing action again 
 CINV_FACTION_DISABLE:2 ;Disables the action, preventing it from showing and being executed.
 CINV_FACTION_REPLACE:4 ;Replaces the existing logic for this action. If not set and existing logic is found, then both it and the custom logic will run.
 CINV_FACTION_INSTANT:8 ;Exits the inventory and executes the action immediately, without doing the closing animations.>>Only applicable to:>CINV_ACTION_USE>CINV_ACTION_EQUIP>CINV_ACTION_EXIT_TO_TITLE>CINV_ACTION_CUSTOM
+CINV_FACTION_CONTEXT_HIDE_QTY: 16 ;Only show item names on the context screen, without quantities.>>Only applicable to:>CINV_ACTION_CHOOSE_AMMO>CINV_ACTION_COMBINE
 
 CINV_SFX_INVENTORY_OPEN:1 ;Sound played when the inventory is opened.>>Default is MENU_SELECT.
 CINV_SFX_INVENTORY_CLOSE:2 ;Sound played when the inventory is closed.>>Default is MENU_CHOOSE.

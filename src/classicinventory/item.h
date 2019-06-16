@@ -212,7 +212,8 @@ enum Enum {
 	CONFIRM = 1,
 	DISABLE = 2,
 	REPLACE = 4,
-	INSTANT = 8
+	INSTANT = 8,
+	CONTEXT_HIDE_QTY = 16
 };
 }
 
@@ -430,6 +431,7 @@ struct ItemAction : public ecs::Component {
 	ItemActionType::Enum type;
 	bool replace_tr4;
 	bool instant;
+	bool context_hide_qty;
 	std::function<void(void)> action;
 	std::function<bool(void)> enabled;
 
@@ -448,6 +450,7 @@ struct ItemAction : public ecs::Component {
 		type(type),
 		replace_tr4(true),
 		instant(false),
+		context_hide_qty(false),
 		action(action),
 		enabled(enabled),
 		active(false)
