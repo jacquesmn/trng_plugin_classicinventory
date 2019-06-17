@@ -203,9 +203,9 @@ void fade_in_ring(ecs::Entity &ring, uint32_t duration_frames);
 
 void fade_out_ring(ecs::Entity &ring, uint32_t duration_frames);
 
-void open_camera(ecs::Entity &camera, const InventoryDisplay &inventory_display, const InventoryDuration &inventory_duration);
+void open_camera(ecs::Entity &camera, const InventoryDisplay &inventory_display, const uint32_t *duration_frames = nullptr);
 
-void close_camera(ecs::Entity &camera, const InventoryDisplay &inventory_display, const InventoryDuration &inventory_duration);
+void close_camera(ecs::Entity &camera, const InventoryDisplay &inventory_display, const uint32_t *duration_frames = nullptr);
 
 void rotate_ring(ecs::Entity &ring, uint32_t duration_frames, bool clockwise);
 

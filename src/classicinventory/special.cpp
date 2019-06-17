@@ -269,13 +269,15 @@ float get_lara_bearing()
 
 float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter)
 {
-	uint32_t item_x;
-	uint32_t item_z;
+	uint32_t item_x = 0;
+	uint32_t item_z = 0;
 
 	if (Get(enumGET.ITEM, ngle_index | NGLE_INDEX, 0)) {
 		const auto item_movable = GET.pItem;
 		item_x = item_movable->CordX;
 		item_z = item_movable->CordZ;
+
+		// TODO: check if active/visible
 	}
 	else if (Get(enumGET.STATIC, ngle_index | NGLE_INDEX, 0)) {
 		const auto item_static = GET.pStatic;
@@ -284,6 +286,10 @@ float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter)
 	}
 	else {
 		return get_lara_bearing();
+	}
+
+	if (item_x == 0 && item_z == 0) {
+		return 0;
 	}
 
 	Get(enumGET.LARA, 0, 0);

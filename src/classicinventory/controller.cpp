@@ -100,7 +100,7 @@ void Controller::do_inventory()
 {
 	// entry guards
 	// this is to prevent game from re-opening inventory if player keeps keys pressed at puzzle hole
-	auto inventory_state = inventory::get_inventory_state(entity_manager);
+	const auto inventory_state = inventory::get_inventory_state(entity_manager);
 	const auto first_press_inventory = input_state.command_first_press(enumCMD.INVENTORY);
 	const auto first_press_action = input_state.command_first_press(enumCMD.ACTION);
 	const auto first_press_enter = input_state.command_first_press(enumCMD.ENTER);
@@ -115,6 +115,12 @@ void Controller::do_inventory()
 	if (inventory_state) {
 		inventory_state->force_open = false;
 	}
+
+	// debounce controls
+	input_state.command_first_press(enumCMD.LEFT);
+	input_state.command_first_press(enumCMD.RIGHT);
+	input_state.command_first_press(enumCMD.UP);
+	input_state.command_first_press(enumCMD.DOWN);
 
 	// get list of applicable systems in desired order
 	std::vector<ecs::System*> systems;

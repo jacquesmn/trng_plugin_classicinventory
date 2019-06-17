@@ -224,7 +224,7 @@ State* OpeningState::start(ecs::EntityManager &entity_manager)
 
 			const auto camera = entity_manager.find_entity_with_component<camera::CameraView>();
 			if (camera) {
-				open_camera(*camera, inventory_display, inventory_duration);
+				open_camera(*camera, inventory_display, &inventory_duration.inventory_open_frames);
 			}
 
 		}
@@ -4047,7 +4047,7 @@ State* ClosingState::start(ecs::EntityManager &entity_manager)
 
 			const auto camera = entity_manager.find_entity_with_component<camera::CameraView>();
 			if (camera) {
-				close_camera(*camera, inventory_display, inventory_duration);
+				close_camera(*camera, inventory_display, &inventory_duration.inventory_open_frames);
 			}
 		}
 
@@ -4057,6 +4057,10 @@ State* ClosingState::start(ecs::EntityManager &entity_manager)
 		}
 
 		clear_hud(entity_manager);
+	}
+
+	if (motion::get_entities_in_motion(entity_manager).empty()) {
+		return new ClosedState();
 	}
 
 	return this;
