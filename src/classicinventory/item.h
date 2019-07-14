@@ -563,7 +563,7 @@ int32_t tr4_invobj_to_item_id(uint32_t tr4_invobj);
 uint32_t item_id_to_tr4_slot(int32_t item_id);
 uint32_t item_id_to_tr4_invobj(int32_t item_id);
 uint32_t item_id_to_item_index(int32_t item_id);
-uint32_t item_index_to_item_id(int32_t item_index);
+int32_t item_index_to_item_id(uint32_t item_index);
 
 ecs::Entity* get_item_by_item_id(int32_t item_id, ecs::EntityManager &entity_manager);
 

@@ -582,7 +582,7 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 	// pasting togheter the timer+extra arguments:
 	WORD TimerFull = Timer | (Extra << 8);
 
-	const auto item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
+	const auto item_id = item::item_index_to_item_id(Timer);
 
 	if (FlipIndex == 700) {
 		trigger::flipeffect_increase_item_qty(item_id, Extra, ecs::get_entity_manager());
@@ -677,7 +677,7 @@ int cbConditionMine(WORD ConditionIndex, int ItemIndex, WORD Extra, WORD Activat
 
 	bool condition_met = false;
 
-	const auto item_id = ItemIndex - abs(item::MIN_INVENTORY_ITEM_ID);
+	const auto item_id = item::item_index_to_item_id(ItemIndex);
 
 	if (ConditionIndex == 100) {
 		condition_met = Extra != 0;
