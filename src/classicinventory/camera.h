@@ -25,6 +25,8 @@
 namespace classicinventory {
 namespace camera {
 
+const float DEFAULT_FOV_DEGREES = 80;
+
 class InventoryCameraSystem : public ecs::System {
 public:
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;

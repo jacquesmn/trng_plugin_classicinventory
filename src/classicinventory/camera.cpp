@@ -63,10 +63,21 @@ void camera::InventoryCameraSystem::update(ecs::EntityManager &entity_manager, e
 	const auto camera_rot_x = core::degrees_to_tr4_angle(camera_view.rotation.x);
 	const auto camera_rot_y = core::degrees_to_tr4_angle(camera_view.rotation.y);
 	const auto camera_rot_z = core::degrees_to_tr4_angle(camera_view.rotation.z);
-	const auto camera_fov = core::degrees_to_tr4_angle(camera_view.fov);
 
-	if (camera_fov != 0) {
-		AlterFOV(camera_fov);
+	if (camera_view.fov != 0) {
+		// Based on Joey79100's auto FOV formula:
+
+		const auto w = (float)(Trng.pGlobTomb4->ScreenSizeX);
+		const auto h = (float)(Trng.pGlobTomb4->ScreenSizeY);
+		const auto ratio = w / h;
+
+		// default (4/3) FOV is 80
+		// widescreen (16/9) FOV should be something around 93
+		
+		// formula that makes the FOV follow the rules mentioned above
+		const auto fov = (int)(((ratio * 30) + 40) * (camera_view.fov / DEFAULT_FOV_DEGREES));
+
+		AlterFOV(fov * 192);
 	}
 
 	// backup current poison levels
@@ -110,7 +121,7 @@ void camera::InventoryCameraSystem::cleanup(
 )
 {
 	// restore FOV
-	AlterFOV(core::degrees_to_tr4_angle(80));
+	AlterFOV(core::degrees_to_tr4_angle(DEFAULT_FOV_DEGREES));
 }
 
 }

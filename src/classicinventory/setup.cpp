@@ -5771,8 +5771,8 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory_display.camera_tgt_closed = core::Vector3D(0, -70, 0);
 	inventory_display.camera_tgt_opened = core::Vector3D(0, -70, 0);
 	inventory_display.camera_ring_change_pitch = 40;
-	inventory_display.camera_fov_closed = 80;
-	inventory_display.camera_fov_opened = 80;
+	inventory_display.camera_fov_closed = camera::DEFAULT_FOV_DEGREES;
+	inventory_display.camera_fov_opened = camera::DEFAULT_FOV_DEGREES;
 	inventory_display.item_base_size = 16384;
 
 	auto &inventory_duration = inventory.add_component(new inventory::InventoryDuration());
