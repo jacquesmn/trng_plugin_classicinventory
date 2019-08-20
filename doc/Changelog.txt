@@ -1,6 +1,16 @@
 #Changelog
 All notable changes to this project will be documented in this file.
 
+##[1.1.1.0] - 2019-08-20
+- Add support for multiple compass pointers.
+- Add option to change context action text.
+- Add option to hide item quantities on context screen.
+- Adjust FOV automatically based on resolution similar to JoeyQuint's Automatic FOV plugin.
+- Improve health bar drawing.
+- Improve instant opening and closing of inventory.
+- Fix issue where savegame was loaded after saving through inventory.
+- Fix issue where inventory enabled state was updated too late in the level loading process.
+
 ##[1.1.0.0] - 2019-05-24
 - Show health bar also during item activated phase.
 - Set correct hand mesh for Lara when combining/separating lasersight.
@@ -83,6 +93,7 @@ All notable changes to this project will be documented in this file.
 ##[0.9.0.0] - 2018-10-24
 - First private beta release.
 
+[1.1.1.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/3fbadf55306cead61c2d78f3469e0658c76ac16c...514b505d515f61417daecd2c1aad4270dca681e5
 [1.1.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/87bbe968ce12c8fcee5f81c99793ac8ab7a664a2...3fbadf55306cead61c2d78f3469e0658c76ac16c
 [1.0.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f3e88fb1d59f82fd1fabe3109a27b06884d06fd7...87bbe968ce12c8fcee5f81c99793ac8ab7a664a2
 [0.9.1.1]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/c9a81fab37569542f775461fc92292ed60f30e61...f3e88fb1d59f82fd1fabe3109a27b06884d06fd7

@@ -65,7 +65,7 @@ void camera::InventoryCameraSystem::update(ecs::EntityManager &entity_manager, e
 	const auto camera_rot_z = core::degrees_to_tr4_angle(camera_view.rotation.z);
 
 	if (camera_view.fov != 0) {
-		// Based on Joey79100's auto FOV formula:
+		// Based on JoeyQuint's auto FOV formula:
 
 		const auto w = (float)(Trng.pGlobTomb4->ScreenSizeX);
 		const auto h = (float)(Trng.pGlobTomb4->ScreenSizeY);

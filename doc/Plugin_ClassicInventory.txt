@@ -97,7 +97,7 @@ Special Thanks
 --------------
 * AkyV and ChocolateFan for beta testing.
 
-* Joey79100 for his auto FOV formula.
+* JoeyQuint for his auto FOV formula.
 
 * Everyone at TRF who gave suggestions on how the ring inventory should function.
 
