@@ -68,10 +68,6 @@ Known Issues and Workarounds
 * A too large of a value for item scale causes texture rendering issues for items with shine applied.
 
 * Camera view might differ somewhat between fullscreen and windowed modes.
-
-* The pickup notifier is disabled when a fixed camera is active.
-If you pick something up during this time it won't show on-screen even after the fixed camera is done.
-The notifier is also disabled during flyby cams, but items picked up during this time will be shown once the flyby is done.
 	
 * The configured mesh-mask of an item's model doesn't work for the pickup notifier, e.g. the revolver will be shown on screen with the lasersight and torch attached when picked up.
 For now a solution would be to change the item's pickup model in the script to a slot containing only the desired meshes.
@@ -82,12 +78,10 @@ Similar solution as for the mesh-mask issue, i.e. change pickup model to one tha
 	
 * Inventory background image might blink on certain computers. This also happens without the plugin. Soft Full Screen seems to fix it.
 
-* Only the Numpad keys are usable in debug mode to change camera and ring settings.
-
-* Only the Left Ctrl button is usable in debug mode to alternate between positioning and orienting.
+* Only the Numpad keys are usable in debug mode to change camera and ring settings, and only the Left Ctrl button to alternate between positioning and orienting.
 
 * The currently selected ring and item is reset to default (INVENTORY ring, first item) between level jumps and after using up the last item on a ring.
-Make sure there is always at least one item available on the INVENTORY ring.
+Be sure to always have at least one item available on the INVENTORY ring.
 
 Source code
 -----------

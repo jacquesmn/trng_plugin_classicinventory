@@ -2,14 +2,16 @@
 All notable changes to this project will be documented in this file.
 
 ##[1.1.1.0] - 2019-08-20
-- Add support for multiple compass pointers.
-- Add option to change context action text.
-- Add option to hide item quantities on context screen.
+- Add support for multiple compass pointers in CUST_CINV_COMPASS.
+- Add PointerJitter and PointerFrequencyFrames fields to CUST_CINV_COMPASS.
+- Add CINV_TXT_CONTEXT_ACTION text type to change context action text.
+- Add CINV_FACTION_CONTEXT_HIDE_QTY action flag to hide item quantities on context screen.
 - Adjust FOV automatically based on resolution similar to JoeyQuint's Automatic FOV plugin.
 - Improve health bar drawing.
-- Improve instant opening and closing of inventory.
-- Fix issue where savegame was loaded after saving through inventory.
+- Improve instant opening and closing of inventory when setting CINV_DUR_INVENTORY_OPEN to 0.
+- Fix issue where savegame was loaded after saving through inventory with CUST_KEEP_DEAD_ENEMIES enabled.
 - Fix issue where inventory enabled state was updated too late in the level loading process.
+- Fix issue where pickup notifier was not drawn during fixed camera views.
 
 ##[1.1.0.0] - 2019-05-24
 - Show health bar also during item activated phase.

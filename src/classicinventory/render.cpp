@@ -644,15 +644,22 @@ void GameRenderSystem::update(
 {
 	Get(enumGET.INFO_LARA, 0, 0);
 
-	// cleanup if not in a desired phase
-	if (static_cast<int32_t>(GET.LaraInfo.SkipPhaseFlags) != enumSKIP.NONE
-		&& !core::bit_set(GET.LaraInfo.SkipPhaseFlags, enumSKIP.FLY_CAMERA, true)) {
+	// cleanup if any undesired phase is active
+	const auto undesired_phases = enumSKIP.LOADING_LEVEL
+		| enumSKIP.TITLE_LEVEL
+		| enumSKIP.GRAY_SCREEN
+		| enumSKIP.NO_VIEW_OGGETTI
+		| enumSKIP.BINOCULARS
+		| enumSKIP.LASER_SIGHT
+		| enumSKIP.FULL_IMAGE;
+
+	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
 		cleanup(entity_manager, system_manager);
 		return;
 	}
 
-	// only draw during main game phase
-	if (static_cast<int32_t>(GET.LaraInfo.SkipPhaseFlags) != enumSKIP.NONE) {
+	// only draw during main game phase and fixed views
+	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases | enumSKIP.FLY_CAMERA, true)) {
 		return;
 	}
 
