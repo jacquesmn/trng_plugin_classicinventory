@@ -95,7 +95,7 @@ All notable changes to this project will be documented in this file.
 ##[0.9.0.0] - 2018-10-24
 - First private beta release.
 
-[1.1.1.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/3fbadf55306cead61c2d78f3469e0658c76ac16c...514b505d515f61417daecd2c1aad4270dca681e5
+[1.1.1.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/3fbadf55306cead61c2d78f3469e0658c76ac16c...01e07044744d7b5ea2d59af3fd701eedec4af552
 [1.1.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/87bbe968ce12c8fcee5f81c99793ac8ab7a664a2...3fbadf55306cead61c2d78f3469e0658c76ac16c
 [1.0.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f3e88fb1d59f82fd1fabe3109a27b06884d06fd7...87bbe968ce12c8fcee5f81c99793ac8ab7a664a2
 [0.9.1.1]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/c9a81fab37569542f775461fc92292ed60f30e61...f3e88fb1d59f82fd1fabe3109a27b06884d06fd7
