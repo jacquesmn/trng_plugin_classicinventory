@@ -209,10 +209,11 @@ enum Enum {
 
 namespace ItemActionFlag {
 enum Enum {
-	DISABLE = 1,
-	REPLACE = 2,
-	INSTANT = 4,
-	CONFIRM = 8
+	CONFIRM = 1,
+	DISABLE = 2,
+	REPLACE = 4,
+	INSTANT = 8,
+	CONTEXT_HIDE_QTY = 16
 };
 }
 
@@ -425,10 +426,12 @@ struct ItemActions : public ecs::Component {
 
 struct ItemAction : public ecs::Component {
 	script::ScriptString name;
+	script::ScriptString context;
 	int32_t sort_index;
 	ItemActionType::Enum type;
 	bool replace_tr4;
 	bool instant;
+	bool context_hide_qty;
 	std::function<void(void)> action;
 	std::function<bool(void)> enabled;
 
@@ -442,10 +445,12 @@ struct ItemAction : public ecs::Component {
 	)
 		:
 		name(name),
+		context(script::ScriptString()),
 		sort_index(0),
 		type(type),
 		replace_tr4(true),
 		instant(false),
+		context_hide_qty(false),
 		action(action),
 		enabled(enabled),
 		active(false)
@@ -558,7 +563,7 @@ int32_t tr4_invobj_to_item_id(uint32_t tr4_invobj);
 uint32_t item_id_to_tr4_slot(int32_t item_id);
 uint32_t item_id_to_tr4_invobj(int32_t item_id);
 uint32_t item_id_to_item_index(int32_t item_id);
-uint32_t item_index_to_item_id(int32_t item_index);
+int32_t item_index_to_item_id(uint32_t item_index);
 
 ecs::Entity* get_item_by_item_id(int32_t item_id, ecs::EntityManager &entity_manager);
 

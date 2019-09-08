@@ -22,7 +22,6 @@
 
 #include <algorithm>
 
-#include <trng_core.h>
 #include "action.h"
 #include "camera.h"
 #include "cheat.h"
@@ -258,7 +257,9 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 		item_display_active->orient.x = 100;
 	}
 
-	item->add_component(new special::CompassData([]()->float { return special::get_lara_bearing(); }, 1));
+
+	auto &compass_data = item->add_component(new special::CompassData());
+	compass_data.pointers.push_back(special::CompassPointer([]()->float { return special::get_lara_bearing(); }, 1));
 }
 
 void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
@@ -3777,9 +3778,14 @@ void setup_camera(ecs::EntityManager &entity_manager)
 	camera.add_component(new camera::CameraView());
 }
 
-void setup_text(ecs::Entity &inventory)
+void setup_text(ecs::EntityManager &entity_manager)
 {
-	inventory.add_component(new text::TextConfig(
+	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryData>();
+	if (!inventory) {
+		return;
+	}
+
+	inventory->add_component(new text::TextConfig(
 		text::TextType::RING_NAME,
 		500,
 		100,
@@ -3788,7 +3794,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER
 	));
 
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_NAME_IDLE,
 		500,
 		900,
@@ -3797,7 +3803,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER,
 		45
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_DESC_IDLE,
 		500,
 		945,
@@ -3806,7 +3812,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER,
 		40
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_AMMO_IDLE,
 		500,
 		945,
@@ -3816,7 +3822,7 @@ void setup_text(ecs::Entity &inventory)
 		40
 	));
 
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_NAME_ACTIVE,
 		500,
 		100,
@@ -3825,7 +3831,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER,
 		50
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_DESC_ACTIVE,
 		500,
 		150,
@@ -3834,7 +3840,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER,
 		50
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_AMMO_ACTIVE,
 		500,
 		150,
@@ -3844,7 +3850,7 @@ void setup_text(ecs::Entity &inventory)
 		50
 	));
 
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::EXAMINE_1,
 		500,
 		100,
@@ -3853,7 +3859,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER,
 		300
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::EXAMINE_2,
 		500,
 		400,
@@ -3862,7 +3868,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER,
 		300
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::EXAMINE_3,
 		500,
 		700,
@@ -3872,7 +3878,7 @@ void setup_text(ecs::Entity &inventory)
 		300
 	));
 
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::ACTION_MENU,
 		500,
 		600,
@@ -3881,7 +3887,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER,
 		70
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::ACTION_MENU_HIGHLIGHT,
 		500,
 		600,
@@ -3891,7 +3897,7 @@ void setup_text(ecs::Entity &inventory)
 		70
 	));
 
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::CONTEXT_ACTION,
 		500,
 		180,
@@ -3900,7 +3906,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFTS.ALIGN_CENTER,
 		70
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::SPECIAL_ACTION,
 		500,
 		900,
@@ -3910,7 +3916,7 @@ void setup_text(ecs::Entity &inventory)
 		50
 	));
 
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::NAV_UP_LEFT,
 		50,
 		100,
@@ -3918,7 +3924,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFC.LIGHT_GRAY,
 		enumFTS.ALIGN_CENTER
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::NAV_UP_RIGHT,
 		950,
 		100,
@@ -3926,7 +3932,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFC.LIGHT_GRAY,
 		enumFTS.ALIGN_CENTER
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::NAV_DOWN_LEFT,
 		50,
 		900,
@@ -3934,7 +3940,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFC.LIGHT_GRAY,
 		enumFTS.ALIGN_CENTER
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::NAV_DOWN_RIGHT,
 		950,
 		900,
@@ -3942,7 +3948,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFC.LIGHT_GRAY,
 		enumFTS.ALIGN_CENTER
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::NAV_LEFT,
 		50,
 		900,
@@ -3950,7 +3956,7 @@ void setup_text(ecs::Entity &inventory)
 		enumFC.LIGHT_GRAY,
 		enumFTS.ALIGN_CENTER
 	));
-	inventory.add_component(new text::TextConfig(
+	inventory->add_component(new text::TextConfig(
 		text::TextType::NAV_RIGHT,
 		950,
 		900,
@@ -3960,8 +3966,13 @@ void setup_text(ecs::Entity &inventory)
 	));
 }
 
-void setup_lighting(ecs::Entity &inventory)
+void setup_lighting(ecs::EntityManager &entity_manager)
 {
+	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryData>();
+	if (!inventory) {
+		return;
+	}
+
 	// find the brightest room to use as default lighting location
 	StrRoomTr4 *room_brightest = nullptr;
 	int32_t room_brightest_index = -1;
@@ -4005,7 +4016,7 @@ void setup_lighting(ecs::Entity &inventory)
 				}
 
 				// that's the spot
-				inventory.add_component(new render::LightingLocation(
+				inventory->add_component(new render::LightingLocation(
 					room_brightest_index,
 					x,
 					FLOOR.FloorHeight,
@@ -4206,11 +4217,15 @@ void customize_ring(
 	const auto ring_id = customize.pVetArg[++cust_index];
 	const auto name_stridex = customize.pVetArg[++cust_index];
 
+	if (ring_id < ring::MIN_INVENTORY_RING_ID || ring_id > ring::MAX_INVENTORY_RING_ID) {
+		return;
+	}
+
 	auto ring = entity_manager.find_entity_with_component<ring::RingData>([&](const ring::RingData &ring_data) -> bool {
 		return ring_data.ring_id == ring_id;
 	});
 	if (!ring) {
-		ring = &setup_ring(static_cast<ring::RingId::Enum>(ring_id), script::ScriptString(), entity_manager);
+		ring = &setup_ring(ring::RingId::Enum(ring_id), script::ScriptString(), entity_manager);
 	}
 	auto &ring_data = *ring->get_component<ring::RingData>();
 
@@ -4593,7 +4608,7 @@ void customize_item_action(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 8) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
@@ -4620,9 +4635,10 @@ void customize_item_action(
 		item_actions_config->confirm_single_action = confirm;
 	}
 
-	for (int32_t i = 2; i < customize.NArguments; i += 6) {
+	for (int32_t i = 2; i < customize.NArguments; i += 7) {
 		const auto type = customize.pVetArg[++cust_index];
 		const auto name_stridex = customize.pVetArg[++cust_index];
+		const auto context_stridex = customize.pVetArg[++cust_index];
 		const auto sort_index = customize.pVetArg[++cust_index];
 		const auto action_flags = customize.pVetArg[++cust_index];
 		const auto enabled_cgroup = customize.pVetArg[++cust_index];
@@ -4631,6 +4647,7 @@ void customize_item_action(
 		const auto replace = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::REPLACE);
 		const auto disable = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::DISABLE);
 		const auto instant = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::INSTANT);
+		const auto context_hide_qty = action_flags > 0 && core::bit_set(action_flags, item::ItemActionFlag::CONTEXT_HIDE_QTY);
 
 		if (type == -1) {
 			continue;
@@ -4652,6 +4669,10 @@ void customize_item_action(
 			item_action->name = script::ScriptString(name_stridex);
 		}
 
+		if (context_stridex >= 0) {
+			item_action->context = script::ScriptString(context_stridex);
+		}
+
 		if (sort_index >= 0) {
 			item_action->sort_index = sort_index;
 		}
@@ -4661,6 +4682,7 @@ void customize_item_action(
 		}
 
 		item_action->instant = instant;
+		item_action->context_hide_qty = context_hide_qty;
 
 		if (disable) {
 			item_action->enabled = [=]() -> bool {
@@ -4923,19 +4945,13 @@ void customize_compass(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 7) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
 	int32_t cust_index = -1;
 
 	const auto item_id = customize.pVetArg[++cust_index];
-	const auto needle_mesh_index = customize.pVetArg[++cust_index];
-	const auto needle_mesh_axis = customize.pVetArg[++cust_index];
-	const auto needle_attraction = customize.pVetArg[++cust_index];
-	const auto needle_friction = customize.pVetArg[++cust_index];
-	const auto needle_offset = customize.pVetArg[++cust_index];
-	const auto get_target_tg = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -4946,37 +4962,61 @@ void customize_compass(
 
 	auto compass_data = item->get_component<special::CompassData>();
 	if (!compass_data) {
-		compass_data = &item->add_component(new special::CompassData([]() -> float { return special::get_lara_bearing(); }, 1));
+		compass_data = &item->add_component(new special::CompassData());
 	}
 
-	if (needle_mesh_index >= 0) {
-		compass_data->needle_mesh_index = needle_mesh_index;
-	}
+	for (uint32_t i = 1, pointer_index = 0; i < customize.NArguments; i += 8, ++pointer_index) {
+		const auto pointer_mesh_index = customize.pVetArg[++cust_index];
+		const auto pointer_mesh_axis = customize.pVetArg[++cust_index];
+		const auto pointer_attraction = customize.pVetArg[++cust_index];
+		const auto pointer_friction = customize.pVetArg[++cust_index];
+		const auto pointer_offset = customize.pVetArg[++cust_index];
+		const auto pointer_jitter = customize.pVetArg[++cust_index];
+		const auto pointer_frequency_frame = customize.pVetArg[++cust_index];
+		const auto get_target_tg = customize.pVetArg[++cust_index];
 
-	if (needle_mesh_axis >= 0) {
-		compass_data->needle_mesh_axis = static_cast<core::Axis::Enum>(needle_mesh_axis);
-	}
+		if (pointer_index >= compass_data->pointers.size()) {
+			compass_data->pointers.push_back(special::CompassPointer([]() -> float { return special::get_lara_bearing(); }, 1));
+		}
+		auto &pointer = compass_data->pointers.at(pointer_index);
 
-	if (needle_attraction >= 0) {
-		compass_data->needle_attraction = needle_attraction / 100.f;
-	}
+		if (pointer_mesh_index >= 0) {
+			pointer.mesh_index = pointer_mesh_index;
+		}
 
-	if (needle_friction >= 0) {
-		compass_data->needle_friction = min(100, needle_friction) / 100.f;
-	}
+		if (pointer_mesh_axis >= 0) {
+			pointer.mesh_axis = static_cast<core::Axis::Enum>(pointer_mesh_axis);
+		}
 
-	if (needle_offset >= 0) {
-		compass_data->needle_offset = float(min(360, needle_offset));
-	}
+		if (pointer_attraction >= 0) {
+			pointer.attraction = pointer_attraction / 100.f;
+		}
 
-	if (get_target_tg >= 0) {
-		compass_data->get_bearing = [=]() -> float {
-			PerformTriggerGroup(get_target_tg);
+		if (pointer_friction >= 0) {
+			pointer.friction = min(100, pointer_friction) / 100.f;
+		}
 
-			const auto ngle_index = Trng.pGlobTomb4->pBaseVariableTRNG->Globals.CurrentValue;
+		if (pointer_offset >= 0) {
+			pointer.offset = float(min(360, pointer_offset));
+		}
 
-			return special::get_lara_item_bearing(ngle_index);
-		};
+		if (pointer_jitter >= 0) {
+			pointer.jitter = pointer_jitter;
+		}
+
+		if (pointer_frequency_frame > 0) {
+			pointer.frequency_frames = pointer_frequency_frame;
+		}
+
+		if (get_target_tg >= 0) {
+			pointer.get_bearing = [=, &pointer]() -> float {
+				PerformTriggerGroup(get_target_tg);
+
+				const auto ngle_index = Trng.pGlobTomb4->pBaseVariableTRNG->Globals.CurrentValue;
+
+				return special::get_lara_item_bearing(ngle_index, pointer.jitter);
+			};
+		}
 	}
 }
 
@@ -5033,7 +5073,7 @@ void customize_stopwatch(
 		stopwatch_data->second_hand_mesh_axis = static_cast<core::Axis::Enum>(second_hand_mesh_axis);
 	}
 
-	if (frequency_frames >= 0) {
+	if (frequency_frames > 0) {
 		stopwatch_data->frequency_frames = frequency_frames;
 	}
 }
@@ -5145,7 +5185,7 @@ void customize_duration(
 	const auto type_id = customize.pVetArg[++cust_index];
 	const auto duration_frames = customize.pVetArg[++cust_index];
 
-	if (type_id <= 0) {
+	if (type_id < 1 || type_id >= inventory::DurationType::NONE) {
 		return;
 	}
 	const auto type = inventory::DurationType::Enum(type_id);
@@ -5290,7 +5330,7 @@ void customize_text(
 	const auto line_height = customize.pVetArg[++cust_index];
 	const auto enabled = customize.pVetArg[++cust_index];
 
-	if (type_id < 1) {
+	if (type_id < 1 || type_id >= text::TextType::NONE) {
 		return;
 	}
 	const auto type = static_cast<text::TextType::Enum>(type_id);
@@ -5644,16 +5684,6 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 {
 	StrGenericCustomize* customize = nullptr;
 
-	if (find_customize_command(CUST_CINV, -1, customize)) {
-		customize_inventory_data(*customize, entity_manager);
-	}
-
-	for (int32_t ring_id = ring::MIN_INVENTORY_RING_ID; ring_id <= ring::MAX_INVENTORY_RING_ID; ++ring_id) {
-		if (find_customize_command(CUST_CINV_RING, ring_id, customize)) {
-			customize_ring(*customize, entity_manager);
-		}
-	}
-
 	for (int32_t item_id = item::MIN_INVENTORY_ITEM_ID; item_id <= item::MAX_INVENTORY_ITEM_ID; ++item_id) {
 		if (item_id == item::ItemId::NONE) {
 			continue;
@@ -5684,9 +5714,6 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 			customize_item_sfx(*customize, entity_manager);
 		}
 
-		if (find_customize_command(CUST_CINV_AMMO, item_id, customize)) {
-			customize_ammo(*customize, entity_manager);
-		}
 		if (find_customize_command(CUST_CINV_EXAMINE, item_id, customize)) {
 			customize_examine(*customize, entity_manager);
 		}
@@ -5707,39 +5734,24 @@ void customize_inventory(ecs::EntityManager &entity_manager)
 		}
 	}
 
-	for (int32_t type = 1; type < inventory::DurationType::NONE; ++type) {
-		if (find_customize_command(CUST_CINV_DURATION, type, customize)) {
-			customize_duration(*customize, entity_manager);
+	for (int32_t item_id = item::MIN_INVENTORY_ITEM_ID; item_id <= item::MAX_INVENTORY_ITEM_ID; ++item_id) {
+		if (item_id == item::ItemId::NONE) {
+			continue;
 		}
-	}
-	for (int32_t type = 1; type < sound::SfxType::NONE; ++type) {
-		if (find_customize_command(CUST_CINV_SFX, type, customize)) {
-			customize_sfx(*customize, entity_manager);
-		}
-	}
-	for (int32_t type = 1; type < text::TextType::NONE; ++type) {
-		if (find_customize_command(CUST_CINV_TEXT, type, customize)) {
-			customize_text(*customize, entity_manager);
+
+		if (find_customize_command(CUST_CINV_AMMO, item_id, customize)) {
+			customize_ammo(*customize, entity_manager);
 		}
 	}
 
 	if (find_customize_command(CUST_CINV_COMBO, -1, customize)) {
 		customize_combo(*customize, entity_manager);
 	}
-	if (find_customize_command(CUST_CINV_DISPLAY, -1, customize)) {
-		customize_display(*customize, entity_manager);
-	}
-	if (find_customize_command(CUST_CINV_CAMERA, -1, customize)) {
-		customize_camera(*customize, entity_manager);
-	}
 	if (find_customize_command(CUST_CINV_LIGHTING, -1, customize)) {
 		customize_lighting(*customize, entity_manager);
 	}
 	if (find_customize_command(CUST_CINV_CHEATS, -1, customize)) {
 		customize_cheats(*customize, entity_manager);
-	}
-	if (find_customize_command(CUST_CINV_DEBUG, -1, customize)) {
-		customize_debug(*customize, entity_manager);
 	}
 }
 
@@ -5759,8 +5771,8 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory_display.camera_tgt_closed = core::Vector3D(0, -70, 0);
 	inventory_display.camera_tgt_opened = core::Vector3D(0, -70, 0);
 	inventory_display.camera_ring_change_pitch = 40;
-	inventory_display.camera_fov_closed = 80;
-	inventory_display.camera_fov_opened = 80;
+	inventory_display.camera_fov_closed = camera::DEFAULT_FOV_DEGREES;
+	inventory_display.camera_fov_opened = camera::DEFAULT_FOV_DEGREES;
 	inventory_display.item_base_size = 16384;
 
 	auto &inventory_duration = inventory.add_component(new inventory::InventoryDuration());
@@ -5786,21 +5798,65 @@ void setup_inventory(ecs::EntityManager &entity_manager)
 	inventory.add_component(new inventory::InventoryState());
 	inventory.add_component(new inventory::InventoryDebug());
 	inventory.add_component(new special::GameTime());
-
-	setup_text(inventory);
-	setup_lighting(inventory);
 }
 
-void setup(ecs::EntityManager &entity_manager)
+void setup_phase1(ecs::EntityManager& entity_manager)
 {
+	// setup stuff independent of level data
+
 	setup_inventory(entity_manager);
 	setup_camera(entity_manager);
 	setup_rings(entity_manager);
+	setup_text(entity_manager);
+}
+
+void setup_phase2(ecs::EntityManager &entity_manager)
+{
+	// setup stuff depended on level data
+
 	setup_items(entity_manager);
 	setup_ammo(entity_manager);
 	setup_combos(entity_manager);
 	setup_ammo_and_combo_actions(entity_manager);
 	setup_cheats(entity_manager);
+	setup_lighting(entity_manager);
+}
+
+void customize_phase1(const StrGenericCustomize &customize, ecs::EntityManager &entity_manager)
+{
+	// customize stuff independent of level data
+
+	switch (customize.CustValue) {
+	case CUST_CINV:
+		customize_inventory_data(customize, entity_manager);
+		break;
+	case CUST_CINV_DEBUG:
+		customize_debug(customize, entity_manager);
+		break;
+	case CUST_CINV_CAMERA:
+		customize_camera(customize, entity_manager);
+		break;
+	case CUST_CINV_DISPLAY:
+		customize_display(customize, entity_manager);
+		break;
+	case CUST_CINV_DURATION:
+		customize_duration(customize, entity_manager);
+		break;
+	case CUST_CINV_SFX:
+		customize_sfx(customize, entity_manager);
+		break;
+	case CUST_CINV_RING:
+		customize_ring(customize, entity_manager);
+		break;
+	case CUST_CINV_TEXT:
+		customize_text(customize, entity_manager);
+		break;
+	}
+}
+
+void customize_phase2(ecs::EntityManager &entity_manager)
+{
+	// customize stuff depended on level data
 
 	customize_inventory(entity_manager);
 }

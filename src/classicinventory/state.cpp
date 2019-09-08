@@ -224,7 +224,7 @@ State* OpeningState::start(ecs::EntityManager &entity_manager)
 
 			const auto camera = entity_manager.find_entity_with_component<camera::CameraView>();
 			if (camera) {
-				open_camera(*camera, inventory_display, inventory_duration);
+				open_camera(*camera, inventory_display, &inventory_duration.inventory_open_frames);
 			}
 
 		}
@@ -567,6 +567,7 @@ State* RingRotateState::update(ecs::EntityManager &entity_manager)
 					if (ring_state.item) {
 						ring_state.item->item.remove_components<render::ScreenText>();
 						ring_state.item->item.remove_components<render::ScreenBar>();
+						ring_state.item->item.remove_components<render::HealthBar>();
 					}
 
 					ring_state.change_item();
@@ -1143,8 +1144,8 @@ State* ItemActiveState::do_action(
 
 				context_ring = inventory::build_ammo_ring(item_active, inventory, entity_manager);
 
-				context_state = []() -> State* {
-					return new AmmoContextState();
+				context_state = [=]() -> State* {
+					return new AmmoContextState(*active_action);
 				};
 			}
 			else if (active_action->type == item::ItemActionType::COMBINE) {
@@ -1154,8 +1155,8 @@ State* ItemActiveState::do_action(
 
 				context_ring = inventory::build_combo_ring(item_active, inventory, entity_manager);
 
-				context_state = []() -> State* {
-					return new ComboContextState();
+				context_state = [=]() -> State* {
+					return new ComboContextState(*active_action);
 				};
 			}
 			else if (active_action->type == item::ItemActionType::SEPARATE) {
@@ -1500,6 +1501,11 @@ State* ItemCancelState::update(ecs::EntityManager &entity_manager)
 	return this;
 }
 
+AmmoContextState::AmmoContextState(item::ItemAction &item_action)
+	:
+	item_action(item_action)
+{}
+
 State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
@@ -1525,10 +1531,14 @@ State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 
 		// add action text
 		if (!inventory->has_component<render::ScreenText>()) {
+			const auto context_string = item_action.context.get_index() < 0
+				? script::ScriptString(script::StringIndex::CHOOSE_AMMO).get_string()
+				: item_action.context.get_string();
+
 			text::add_text(
 				*inventory,
 				text::TextType::CONTEXT_ACTION,
-				script::ScriptString(script::StringIndex::CHOOSE_AMMO).get_string(),
+				context_string,
 				entity_manager
 			);
 		}
@@ -1548,11 +1558,15 @@ State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 						&& item.has_component<item::ItemQuantity>()) {
 						auto &item_data = *item.get_component<item::ItemData>();
 						auto &item_qty = *item.get_component<item::ItemQuantity>();
+						
+						const auto item_text = item_action.context_hide_qty
+							? text::build_item_text(item_data.name.get_string())
+							: text::build_item_text(item_data.name.get_string(), &item_qty, true);
 
 						text::add_text(
 							item,
 							text::TextType::ITEM_NAME_IDLE,
-							text::build_item_text(item_data.name.get_string(), &item_qty, true),
+							item_text,
 							entity_manager
 						);
 					}
@@ -1579,15 +1593,17 @@ State* AmmoContextState::update(ecs::EntityManager &entity_manager)
 
 State* AmmoContextState::input(input::InputState &input_state, ecs::EntityManager &entity_manager)
 {
+	auto *item_action = &this->item_action;
+
 	if (input_state.command_active(enumCMD.RIGHT)) {
-		return new RingRotateState(RingRotateState::RIGHT, []() -> State* {
-			return new AmmoContextState();
+		return new RingRotateState(RingRotateState::RIGHT, [=]() -> State* {
+			return new AmmoContextState(*item_action);
 		});
 	}
 
 	if (input_state.command_active(enumCMD.LEFT)) {
-		return new RingRotateState(RingRotateState::LEFT, []() -> State* {
-			return new AmmoContextState();
+		return new RingRotateState(RingRotateState::LEFT, [=]() -> State* {
+			return new AmmoContextState(*item_action);
 		});
 	}
 
@@ -1698,8 +1714,8 @@ State* AmmoContextState::input(input::InputState &input_state, ecs::EntityManage
 			auto ring_item_active = get_active_item(entity_manager);
 
 			if (ring_item_active) {
-				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, []() -> State* {
-					return new AmmoContextState();
+				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, [=]() -> State* {
+					return new AmmoContextState(*item_action);
 				});
 			}
 		}
@@ -1938,6 +1954,11 @@ State* AmmoLoadState::update(ecs::EntityManager &entity_manager)
 	return this;
 }
 
+ComboContextState::ComboContextState(item::ItemAction &item_action)
+	:
+	item_action(item_action)
+{}
+
 State* ComboContextState::start(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryState>();
@@ -1963,10 +1984,14 @@ State* ComboContextState::start(ecs::EntityManager &entity_manager)
 
 		// add action text
 		if (!inventory->has_component<render::ScreenText>()) {
+			const auto context_string = item_action.context.get_index() < 0
+				? script::ScriptString(script::StringIndex::COMBINE_WITH).get_string()
+				: item_action.context.get_string();
+
 			text::add_text(
 				*inventory,
 				text::TextType::CONTEXT_ACTION,
-				script::ScriptString(script::StringIndex::COMBINE_WITH).get_string(),
+				context_string,
 				entity_manager
 			);
 		}
@@ -1984,11 +2009,16 @@ State* ComboContextState::start(ecs::EntityManager &entity_manager)
 					if (!item.has_component<render::ScreenText>()
 						&& item.has_component<item::ItemData>()) {
 						auto &item_data = *item.get_component<item::ItemData>();
+						auto &item_qty = *item.get_component<item::ItemQuantity>();
+
+						const auto item_text = item_action.context_hide_qty
+							? text::build_item_text(item_data.name.get_string())
+							: text::build_item_text(item_data.name.get_string(), &item_qty);
 
 						text::add_text(
 							item,
 							text::TextType::ITEM_NAME_IDLE,
-							text::build_item_text(item_data.name.get_string()),
+							item_text,
 							entity_manager
 						);
 					}
@@ -2015,15 +2045,17 @@ State* ComboContextState::update(ecs::EntityManager &entity_manager)
 
 State* ComboContextState::input(input::InputState &input_state, ecs::EntityManager &entity_manager)
 {
+	auto *item_action = &this->item_action;
+
 	if (input_state.command_active(enumCMD.RIGHT)) {
-		return new RingRotateState(RingRotateState::RIGHT, []() -> State* {
-			return new ComboContextState();
+		return new RingRotateState(RingRotateState::RIGHT, [=]() -> State* {
+			return new ComboContextState(*item_action);
 		});
 	}
 
 	if (input_state.command_active(enumCMD.LEFT)) {
-		return new RingRotateState(RingRotateState::LEFT, []() -> State* {
-			return new ComboContextState();
+		return new RingRotateState(RingRotateState::LEFT, [=]() -> State* {
+			return new ComboContextState(*item_action);
 		});
 	}
 
@@ -2134,8 +2166,8 @@ State* ComboContextState::input(input::InputState &input_state, ecs::EntityManag
 			auto ring_item_active = get_active_item(entity_manager);
 
 			if (ring_item_active) {
-				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, []() -> State* {
-					return new ComboContextState();
+				return new DebugState(ring_item_active->item, item::ItemDisplayType::CONTEXT, [=]() -> State* {
+					return new ComboContextState(*item_action);
 				});
 			}
 		}
@@ -4015,7 +4047,7 @@ State* ClosingState::start(ecs::EntityManager &entity_manager)
 
 			const auto camera = entity_manager.find_entity_with_component<camera::CameraView>();
 			if (camera) {
-				close_camera(*camera, inventory_display, inventory_duration);
+				close_camera(*camera, inventory_display, &inventory_duration.inventory_open_frames);
 			}
 		}
 
@@ -4025,6 +4057,10 @@ State* ClosingState::start(ecs::EntityManager &entity_manager)
 		}
 
 		clear_hud(entity_manager);
+	}
+
+	if (motion::get_entities_in_motion(entity_manager).empty()) {
+		return new ClosedState();
 	}
 
 	return this;
@@ -4085,6 +4121,7 @@ void clear_hud(ecs::EntityManager &entity_manager)
 {
 	entity_manager.remove_components<render::ScreenText>();
 	entity_manager.remove_components<render::ScreenBar>();
+	entity_manager.remove_components<render::HealthBar>();
 }
 
 void add_sfx(

@@ -64,7 +64,7 @@ extern char BufferLog[4096]; // temporary global buffer to host error and warnin
 // If you chose an address used from other plugins you'll get an error and
 // the game will be aborted
 // note: if you don't mean use code patches you can let 0x0 in following line
-DWORD MyTomb4PatcherAddress = 0x5F5978; // <- TYPE_HERE: the new address you chose
+DWORD MyTomb4PatcherAddress = 0x0; // 0x5F5978; // <- TYPE_HERE: the new address you chose
 
 
 // this text will contain your plugin name (omitting .dll extension).
@@ -215,9 +215,215 @@ void cbInitGame(void)
 {
 	// here you can initialize your global data for whole adventure
 	// this procedure will be called only once, before loading title level
+}
+
+// free memory used to store all data about your customize commands loaded in previous level
+void FreeMemoryCustomize(void)
+{
+	int i;
+
+	for (i = 0; i < MyData.BaseCustomizeMine.TotCustomize; i++) {
+		FreeMemory(MyData.BaseCustomizeMine.pVetCustomize[i].pVetArg);
+	}
+
+	if (MyData.BaseCustomizeMine.TotCustomize > 0) {
+		FreeMemory(MyData.BaseCustomizeMine.pVetCustomize);
+		MyData.BaseCustomizeMine.TotCustomize = 0;
+	}
+
+
+	MyData.BaseCustomizeMine.pVetCustomize = NULL;
+}
+
+// free memory used to store all data about your parameters commands loaded in previous level
+void FreeMemoryParameters(void)
+{
+	int i;
+
+	for (i = 0; i < MyData.BaseParametersMine.TotParameters; i++) {
+		FreeMemory(MyData.BaseParametersMine.pVetParameters[i].pVetArg);
+	}
+
+	if (MyData.BaseParametersMine.TotParameters > 0) {
+		FreeMemory(MyData.BaseParametersMine.pVetParameters);
+		MyData.BaseParametersMine.TotParameters = 0;
+	}
+
+	MyData.BaseParametersMine.pVetParameters = NULL;
+}
+
+// this procedure will be called at end of any level
+// you can type here code to free resources allocated for level (that quits now)
+void FreeLevelResources(void)
+{
+
+	// free memory used to store all data about your customize commands loaded in previous level
+	FreeMemoryCustomize();
+	// free memory used to store all data about your parameters commands loaded in previous level
+	FreeMemoryParameters();
+	MyData.BaseAssignSlotMine.TotAssign = 0;
+
+}
+
+// it will be called before beginning the loading for a new level.
+// you can type here code to initialise all variables used for level (to clear old values changed by previous level)
+// and to free resources allocated in old level since now we'are going to another new level.
+void cbInitLoadNewLevel(void)
+{
+	int i;
+
+	StrProgressiveAction *pAction;
+
+	// clear all LOCAL variables
+	ClearMemory(&MyData.Save.Local, sizeof(StrSavegameLocalData));
+
+	// clear progressive actions
+	pAction = &MyData.VetProgrActions[0];
+
+	for (i = 0; i < MyData.TotProgrActions; i++) {
+		if (pAction->ActionType != AXN_FREE) {
+			// here you could analise to free resoruce allocated from this specific action
+
+			pAction->ActionType = AXN_FREE;
+		}
+	}
+
+	MyData.TotProgrActions = 0;
+	MyData.LastProgrActionIndex = 0;
+
+	// clear GLOBAL inventory state
+	// GLOBAL state will still be carried over between levels
+	// this is just to prevent GLOBAL state from being carried over to the title screen and subsequent new-game
+	ClearMemory(&MyData.Save.Global.inventory_data, sizeof(MyData.Save.Global.inventory_data));
+
+	// initialize inventory state
+	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
+	MyData.Save.Local.inventory_data.item_id_selected = item::ItemId::NONE;
+	MyData.Save.Local.inventory_data.item_id_used = item::ItemId::NONE;
+
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = 1;
+	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = 1;
+
+	// first phase of inventory initialization, before level data has been loaded
+	auto &entity_manager = ecs::new_entity_manager();
+
+	setup::setup_phase1(entity_manager);
+
+	// here you can initialise other variables of MyData different than Local and progressive actions
+	// free resources allocate in previous level
+	FreeLevelResources();
+
+}
+
+// this procedure vill be called for each Customize=CUST_... command read from script
+// having one of yours CUST_ constant
+// CustomizeValue will be the value of your CUST_ constant
+// NumberOfItems will be the number of following Item (signed 16 bit values) following
+// the CUST_ constant in the customize= script command
+// pItemArray is the array with all NumberOfItems arguments of customize command
+void cbCustomizeMine(WORD CustomizeValue, int NumberOfItems, short *pItemArray)
+{
+	// here you can replace this default management of anonymous customize commands
+	// with your procedure where you can recognize each different CUST_ value and 
+	// save its arguments in meaningful names fields, or elaboriting them immediatly
+	// when it is possible (warning: in this moment nothing of level it has been yet loaded, excepting the script section)
+
+	// ----- default management (optional)----
+	// all customize values will be saved in MyData structure
+	DWORD SizeMem;
+	StrGenericCustomize *pMyCust;
+	int TotCust;
+
+	// ask memory to have another (new) record of StrGenericCustomize structure
+	TotCust = MyData.BaseCustomizeMine.TotCustomize;
+	TotCust++;
+	SizeMem = TotCust * sizeof(StrGenericCustomize);
+	MyData.BaseCustomizeMine.pVetCustomize =
+		(StrGenericCustomize *)ResizeMemory(MyData.BaseCustomizeMine.pVetCustomize, SizeMem);
+
+	pMyCust = &MyData.BaseCustomizeMine.pVetCustomize[TotCust - 1];
+
+	// now require memory for all arguments (NumberOfItems) store in pItemArray
+
+	pMyCust->pVetArg = (short *)GetMemory(2 * NumberOfItems);
+	// copy data
+	pMyCust->NArguments = NumberOfItems;
+	memcpy(pMyCust->pVetArg, pItemArray, 2 * NumberOfItems);
+	pMyCust->CustValue = CustomizeValue;
+
+	MyData.BaseCustomizeMine.TotCustomize = TotCust;
+	// ---- end of default managemnt for generic customize -------------	
+
+	// first phase of inventory customization, before level data has been loaded
+	setup::customize_phase1(*pMyCust, ecs::get_entity_manager());
+}
+
+// this procedure vill be called for each Parameters=PARAM_... command read from script
+// having one of yours PARAM_ constants
+// ParameterValue will be the value of your PARAM_ constant
+// NumberOfItems will be the number of following Item (signed 16 bit values) following
+// the PARAM_ constant in the customize= script command
+// pItemArray is the array with all NumberOfItems arguments of Parameter command
+void cbParametersMine(WORD ParameterValue, int NumberOfItems, short *pItemArray)
+{
+	// here you can replace this default management of anonymous parameters commands
+	// with your procedure where you can recognize each different Param_ value and 
+	// save its arguments in meaningful names fields, or elaboriting them immediatly
+	// when it is possible (warning: in this moment nothing of level it has been yet loaded, excepting the script section)
+
+	// ----- default management (optional)----
+	// all parameters values will be saved in MyData structure
+	DWORD SizeMem;
+	StrGenericParameters *pMyParam;
+	int TotParam;
+
+	// ask memory to have another (new) record of StrGenericparameters structure
+	TotParam = MyData.BaseParametersMine.TotParameters;
+	TotParam++;
+	SizeMem = TotParam * sizeof(StrGenericParameters);
+	MyData.BaseParametersMine.pVetParameters =
+		(StrGenericParameters *)ResizeMemory(MyData.BaseParametersMine.pVetParameters, SizeMem);
+
+	pMyParam = &MyData.BaseParametersMine.pVetParameters[TotParam - 1];
+
+	// now require memory for all arguments (NumberOfItems) store in pItemArray
+
+	pMyParam->pVetArg = (short *)GetMemory(2 * NumberOfItems);
+	// copy data
+	pMyParam->NArguments = NumberOfItems;
+	memcpy(pMyParam->pVetArg, pItemArray, 2 * NumberOfItems);
+	pMyParam->ParamValue = ParameterValue; // was missing in original plugin source
+
+	MyData.BaseParametersMine.TotParameters = TotParam;
+	// ---- end of default managemnt for generic parameters -------------
 
 
 }
+
+// callback called everytime in current level section of the script it has been found an AssignSlot command
+// with one of your OBJ_ constants
+void cbAssignSlotMine(WORD Slot, WORD ObjType)
+{
+	int i;
+
+	i = MyData.BaseAssignSlotMine.TotAssign;
+
+	if (i >= MAX_ASSIGN_SLOT_MINE) {
+		SendToLog("ERROR: too many AssignSlot= commands for current plugin");
+		return;
+	}
+
+	MyData.BaseAssignSlotMine.VetAssignSlot[i].MioSlot = Slot;
+	MyData.BaseAssignSlotMine.VetAssignSlot[i].TipoSlot = ObjType;
+	MyData.BaseAssignSlotMine.TotAssign++;
+
+}
+
+// inside this function you'll type call to functions to intialise your new objects or customize that olds.
+// this callback will be called at start of loading new level and a bit after having started to load level data
+void cbInitObjects(void)
+{}
 
 void cbInitLevel(void)
 {
@@ -225,11 +431,12 @@ void cbInitLevel(void)
 	// it will be called only once for level, when all items has been already initialized
 	// and just a moment before entering in main game cycle.
 
-	// initialize inventory
-	auto &entity_manager = ecs::new_entity_manager();
+	// second phase of inventory initialization and customization, after level data has been loaded
+	auto &entity_manager = ecs::get_entity_manager();
 	auto &system_manager = ecs::new_system_manager();
 
-	setup::setup(entity_manager);
+	setup::setup_phase2(entity_manager);
+	setup::customize_phase2(entity_manager);
 
 	auto &controller = controller::new_controller(entity_manager, system_manager);
 	controller.init();
@@ -361,99 +568,6 @@ void cbLoadMyData(BYTE *pAdrZone, DWORD SizeData)
 		Indice = ParseField.NextIndex;
 	}
 }
-// free memory used to store all data about your customize commands loaded in previous level
-void FreeMemoryCustomize(void)
-{
-	int i;
-
-	for (i = 0; i < MyData.BaseCustomizeMine.TotCustomize; i++) {
-		FreeMemory(MyData.BaseCustomizeMine.pVetCustomize[i].pVetArg);
-	}
-
-	if (MyData.BaseCustomizeMine.TotCustomize > 0) {
-		FreeMemory(MyData.BaseCustomizeMine.pVetCustomize);
-		MyData.BaseCustomizeMine.TotCustomize = 0;
-	}
-
-
-	MyData.BaseCustomizeMine.pVetCustomize = NULL;
-}
-
-// free memory used to store all data about your parameters commands loaded in previous level
-void FreeMemoryParameters(void)
-{
-	int i;
-
-	for (i = 0; i < MyData.BaseParametersMine.TotParameters; i++) {
-		FreeMemory(MyData.BaseParametersMine.pVetParameters[i].pVetArg);
-	}
-
-	if (MyData.BaseParametersMine.TotParameters > 0) {
-		FreeMemory(MyData.BaseParametersMine.pVetParameters);
-		MyData.BaseParametersMine.TotParameters = 0;
-	}
-
-	MyData.BaseParametersMine.pVetParameters = NULL;
-}
-
-// this procedure will be called at end of any level
-// you can type here code to free resources allocated for level (that quits now)
-void FreeLevelResources(void)
-{
-
-	// free memory used to store all data about your customize commands loaded in previous level
-	FreeMemoryCustomize();
-	// free memory used to store all data about your parameters commands loaded in previous level
-	FreeMemoryParameters();
-	MyData.BaseAssignSlotMine.TotAssign = 0;
-
-}
-// it will be called before beginning the loading for a new level.
-// you can type here code to initialise all variables used for level (to clear old values changed by previous level)
-// and to free resources allocated in old level since now we'are going to another new level.
-
-void cbInitLoadNewLevel(void)
-{
-	int i;
-
-	StrProgressiveAction *pAction;
-
-	// clear all LOCAL variables
-	ClearMemory(&MyData.Save.Local, sizeof(StrSavegameLocalData));
-
-	// clear progressive actions
-	pAction = &MyData.VetProgrActions[0];
-
-	for (i = 0; i < MyData.TotProgrActions; i++) {
-		if (pAction->ActionType != AXN_FREE) {
-			// here you could analise to free resoruce allocated from this specific action
-
-			pAction->ActionType = AXN_FREE;
-		}
-	}
-
-	MyData.TotProgrActions = 0;
-	MyData.LastProgrActionIndex = 0;
-
-	// clear GLOBAL inventory state
-	// GLOBAL state will still be carried over between levels
-	// this is just to prevent GLOBAL state from being carried over to the title screen and subsequent new-game
-	ClearMemory(&MyData.Save.Global.inventory_data, sizeof(MyData.Save.Global.inventory_data));
-
-	// init inventory state
-	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
-	MyData.Save.Local.inventory_data.item_id_selected = item::ItemId::NONE;
-	MyData.Save.Local.inventory_data.item_id_used = item::ItemId::NONE;
-
-	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = 1;
-	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = 1;
-	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_SAVE_INV)] = 1;
-
-	// here you can initialise other variables of MyData different than Local and progressive actions
-	// free resources allocate in previous level
-	FreeLevelResources();
-
-}
 
 
 
@@ -468,7 +582,7 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 	// pasting togheter the timer+extra arguments:
 	WORD TimerFull = Timer | (Extra << 8);
 
-	const auto item_id = int32_t(Timer) - abs(item::MIN_INVENTORY_ITEM_ID);
+	const auto item_id = item::item_index_to_item_id(Timer);
 
 	if (FlipIndex == 700) {
 		trigger::flipeffect_increase_item_qty(item_id, Extra, ecs::get_entity_manager());
@@ -563,7 +677,7 @@ int cbConditionMine(WORD ConditionIndex, int ItemIndex, WORD Extra, WORD Activat
 
 	bool condition_met = false;
 
-	const auto item_id = ItemIndex - abs(item::MIN_INVENTORY_ITEM_ID);
+	const auto item_id = item::item_index_to_item_id(ItemIndex);
 
 	if (ConditionIndex == 100) {
 		condition_met = Extra != 0;
@@ -595,109 +709,9 @@ int cbConditionMine(WORD ConditionIndex, int ItemIndex, WORD Extra, WORD Activat
 
 }
 
-// this procedure vill be called for each Customize=CUST_... command read from script
-// having one of yours CUST_ constant
-// CustomizeValue will be the value of your CUST_ constant
-// NumberOfItems will be the number of following Item (signed 16 bit values) following
-// the CUST_ constant in the customize= script command
-// pItemArray is the array with all NumberOfItems arguments of customize command
-void cbCustomizeMine(WORD CustomizeValue, int NumberOfItems, short *pItemArray)
-{
-	// here you can replace this default management of anonymous customize commands
-	// with your procedure where you can recognize each different CUST_ value and 
-	// save its arguments in meaningful names fields, or elaboriting them immediatly
-	// when it is possible (warning: in this moment nothing of level it has been yet loaded, excepting the script section)
-
-	// ----- default management (optional)----
-	// all customize values will be saved in MyData structure
-	DWORD SizeMem;
-	StrGenericCustomize *pMyCust;
-	int TotCust;
-
-	// ask memory to have another (new) record of StrGenericCustomize structure
-	TotCust = MyData.BaseCustomizeMine.TotCustomize;
-	TotCust++;
-	SizeMem = TotCust * sizeof(StrGenericCustomize);
-	MyData.BaseCustomizeMine.pVetCustomize =
-		(StrGenericCustomize *)ResizeMemory(MyData.BaseCustomizeMine.pVetCustomize, SizeMem);
-
-	pMyCust = &MyData.BaseCustomizeMine.pVetCustomize[TotCust - 1];
-
-	// now require memory for all arguments (NumberOfItems) store in pItemArray
-
-	pMyCust->pVetArg = (short *)GetMemory(2 * NumberOfItems);
-	// copy data
-	pMyCust->NArguments = NumberOfItems;
-	memcpy(pMyCust->pVetArg, pItemArray, 2 * NumberOfItems);
-	pMyCust->CustValue = CustomizeValue;
-
-	MyData.BaseCustomizeMine.TotCustomize = TotCust;
-	// ---- end of default managemnt for generic customize -------------	
-}
-// callback called everytime in current level section of the script it has been found an AssignSlot command
-// with one of your OBJ_ constants
-void cbAssignSlotMine(WORD Slot, WORD ObjType)
-{
-	int i;
-
-	i = MyData.BaseAssignSlotMine.TotAssign;
-
-	if (i >= MAX_ASSIGN_SLOT_MINE) {
-		SendToLog("ERROR: too many AssignSlot= commands for current plugin");
-		return;
-	}
-
-	MyData.BaseAssignSlotMine.VetAssignSlot[i].MioSlot = Slot;
-	MyData.BaseAssignSlotMine.VetAssignSlot[i].TipoSlot = ObjType;
-	MyData.BaseAssignSlotMine.TotAssign++;
-
-}
-// this procedure vill be called for each Parameters=PARAM_... command read from script
-// having one of yours PARAM_ constants
-// ParameterValue will be the value of your PARAM_ constant
-// NumberOfItems will be the number of following Item (signed 16 bit values) following
-// the PARAM_ constant in the customize= script command
-// pItemArray is the array with all NumberOfItems arguments of Parameter command
-void cbParametersMine(WORD ParameterValue, int NumberOfItems, short *pItemArray)
-{
-	// here you can replace this default management of anonymous parameters commands
-	// with your procedure where you can recognize each different Param_ value and 
-	// save its arguments in meaningful names fields, or elaboriting them immediatly
-	// when it is possible (warning: in this moment nothing of level it has been yet loaded, excepting the script section)
-
-	// ----- default management (optional)----
-	// all parameters values will be saved in MyData structure
-	DWORD SizeMem;
-	StrGenericParameters *pMyParam;
-	int TotParam;
-
-	// ask memory to have another (new) record of StrGenericparameters structure
-	TotParam = MyData.BaseParametersMine.TotParameters;
-	TotParam++;
-	SizeMem = TotParam * sizeof(StrGenericParameters);
-	MyData.BaseParametersMine.pVetParameters =
-		(StrGenericParameters *)ResizeMemory(MyData.BaseParametersMine.pVetParameters, SizeMem);
-
-	pMyParam = &MyData.BaseParametersMine.pVetParameters[TotParam - 1];
-
-	// now require memory for all arguments (NumberOfItems) store in pItemArray
-
-	pMyParam->pVetArg = (short *)GetMemory(2 * NumberOfItems);
-	// copy data
-	pMyParam->NArguments = NumberOfItems;
-	memcpy(pMyParam->pVetArg, pItemArray, 2 * NumberOfItems);
-	pMyParam->ParamValue = ParameterValue; // was missing in original plugin source
-
-	MyData.BaseParametersMine.TotParameters = TotParam;
-	// ---- end of default managemnt for generic parameters -------------
-
-
-}
-
 // this procedure will be called every game cycle (at begin of cycle)
 void cbCycleBegin(void)
-{
-}
+{}
 
 // this procedure will be called everygame cycle, at end.
 // you have to return a RET_CYCLE_ value
@@ -729,22 +743,9 @@ void cbProgrActionMine(void)
 }
 
 // callback called each time S_OutputPolyList is performed
-// BUG: Not called during fixed camera view
+// BUG: Not called during fixed camera view, remedied through cbNumericTrngPatch below thanks to ChocolateFan
 void cbProgrActionDrawMine(void)
-{
-	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
-		controller::get_controller(
-			ecs::get_entity_manager(),
-			ecs::get_system_manager()
-		).do_main_draw();
-	}
-}
-
-// inside this function you'll type call to functions to intialise your new objects or customize that olds.
-// this callback will be called at start of loading new level and a bit after having started to load level data
-void cbInitObjects(void)
-{
-}
+{}
 
 // handles displaying and management of inventory
 int cbInventoryMain(WORD CBT_Flags, bool TestLoadedGame, int SelectedItem)
@@ -797,6 +798,22 @@ bool cbInputManager(
 	return SRET_OK;
 }
 
+void* cbNumericTrngPatch(WORD PatchIndex, WORD CBT_Flags, bool TestFromJump, StrRegisters *pRegisters)
+{
+	switch (PatchIndex) {
+	case 0x136: // use this instead of cbProgrActionDrawMine
+		if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+			controller::get_controller(
+				ecs::get_entity_manager(),
+				ecs::get_system_manager()
+			).do_main_draw();
+		}
+		break;
+	}
+
+	return nullptr;
+}
+
 
 
 // FOR_YOU:
@@ -812,24 +829,28 @@ bool RequireMyCallBacks(void)
 		// default callbacks required always 
 	GET_CALLBACK(CB_INIT_PROGRAM, 0, 0, cbInitProgram);
 	GET_CALLBACK(CB_INIT_GAME, 0, 0, cbInitGame);
-	GET_CALLBACK(CB_INIT_LEVEL, 0, 0, cbInitLevel);
-	GET_CALLBACK(CB_SAVING_GAME, 0, 0, cbSaveMyData);
-	GET_CALLBACK(CB_LOADING_GAME, 0, 0, cbLoadMyData);
 	GET_CALLBACK(CB_INIT_LOAD_NEW_LEVEL, 0, 0, cbInitLoadNewLevel);
-	GET_CALLBACK(CB_FLIPEFFECT_MINE, 0, 0, cbFlipEffectMine);
-	GET_CALLBACK(CB_ACTION_MINE, 0, 0, cbActionMine);
-	GET_CALLBACK(CB_CONDITION_MINE, 0, 0, cbConditionMine);
 	GET_CALLBACK(CB_CUSTOMIZE_MINE, 0, 0, cbCustomizeMine);
 	GET_CALLBACK(CB_PARAMETER_MINE, 0, 0, cbParametersMine);
 	GET_CALLBACK(CB_ASSIGN_SLOT_MINE, 0, 0, cbAssignSlotMine);
+	GET_CALLBACK(CB_INIT_OBJECTS, 0, 0, cbInitObjects);
+	GET_CALLBACK(CB_INIT_LEVEL, 0, 0, cbInitLevel);
+
+	GET_CALLBACK(CB_SAVING_GAME, 0, 0, cbSaveMyData);
+	GET_CALLBACK(CB_LOADING_GAME, 0, 0, cbLoadMyData);
 	GET_CALLBACK(CB_CYCLE_BEGIN, 0, 0, cbCycleBegin);
 	GET_CALLBACK(CB_CYCLE_END, 0, 0, cbCycleEnd);
+	GET_CALLBACK(CB_FLIPEFFECT_MINE, 0, 0, cbFlipEffectMine);
+	GET_CALLBACK(CB_ACTION_MINE, 0, 0, cbActionMine);
+	GET_CALLBACK(CB_CONDITION_MINE, 0, 0, cbConditionMine);
 	GET_CALLBACK(CB_PROGR_ACTION_MINE, 0, 0, cbProgrActionMine);
 	GET_CALLBACK(CB_PROGR_ACTION_DRAW_MINE, 0, 0, cbProgrActionDrawMine);
-	GET_CALLBACK(CB_INIT_OBJECTS, 0, 0, cbInitObjects);
+
 	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_FIRST, 0, cbInventoryMain);
 	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_AFTER, 0, cbInventoryAfter);
 	GET_CALLBACK(CB_INPUT_MANAGER, CBT_FIRST, 0, cbInputManager);
+
+	GET_CALLBACK(CB_NUMERIC_TRNG_PATCH, CBT_FIRST, 0x136, cbNumericTrngPatch);
 
 
 	return true;

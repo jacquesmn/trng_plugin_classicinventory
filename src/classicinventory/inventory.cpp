@@ -326,7 +326,7 @@ InventoryRing* build_combo_ring(
 void open_camera(
 	ecs::Entity &camera,
 	const InventoryDisplay &inventory_display,
-	const InventoryDuration &inventory_duration
+	const uint32_t *duration_frames
 )
 {
 	auto camera_view = camera.get_component<camera::CameraView>();
@@ -334,54 +334,65 @@ void open_camera(
 		return;
 	}
 
-	camera.add_component(new motion::Motion(
-		camera_view->position.x,
-		inventory_display.camera_pos_closed.x,
-		inventory_display.camera_pos_opened.x,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->position.y,
-		inventory_display.camera_pos_closed.y,
-		inventory_display.camera_pos_opened.y,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->position.z,
-		inventory_display.camera_pos_closed.z,
-		inventory_display.camera_pos_opened.z,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->target.x,
-		inventory_display.camera_tgt_closed.x,
-		inventory_display.camera_tgt_opened.x,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->target.y,
-		inventory_display.camera_tgt_closed.y,
-		inventory_display.camera_tgt_opened.y,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->target.z,
-		inventory_display.camera_tgt_closed.z,
-		inventory_display.camera_tgt_opened.z,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->fov,
-		inventory_display.camera_fov_closed,
-		inventory_display.camera_fov_opened,
-		inventory_duration.inventory_open_frames)
-	);
+	if (duration_frames && *duration_frames) {
+		camera.add_component(new motion::Motion(
+			camera_view->position.x,
+			inventory_display.camera_pos_closed.x,
+			inventory_display.camera_pos_opened.x,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->position.y,
+			inventory_display.camera_pos_closed.y,
+			inventory_display.camera_pos_opened.y,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->position.z,
+			inventory_display.camera_pos_closed.z,
+			inventory_display.camera_pos_opened.z,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->target.x,
+			inventory_display.camera_tgt_closed.x,
+			inventory_display.camera_tgt_opened.x,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->target.y,
+			inventory_display.camera_tgt_closed.y,
+			inventory_display.camera_tgt_opened.y,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->target.z,
+			inventory_display.camera_tgt_closed.z,
+			inventory_display.camera_tgt_opened.z,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->fov,
+			inventory_display.camera_fov_closed,
+			inventory_display.camera_fov_opened,
+			*duration_frames)
+		);
+	}
+	else {
+		camera_view->position.x = inventory_display.camera_pos_opened.x;
+		camera_view->position.y = inventory_display.camera_pos_opened.y;
+		camera_view->position.z = inventory_display.camera_pos_opened.z;
+		camera_view->target.x = inventory_display.camera_tgt_opened.x;
+		camera_view->target.y = inventory_display.camera_tgt_opened.y;
+		camera_view->target.z = inventory_display.camera_tgt_opened.z;
+		camera_view->fov = inventory_display.camera_fov_opened;
+	}
 }
 
 void close_camera(
 	ecs::Entity &camera,
 	const InventoryDisplay &inventory_display,
-	const InventoryDuration &inventory_duration
+	const uint32_t *duration_frames
 )
 {
 	auto camera_view = camera.get_component<camera::CameraView>();
@@ -389,48 +400,59 @@ void close_camera(
 		return;
 	}
 
-	camera.add_component(new motion::Motion(
-		camera_view->position.x,
-		inventory_display.camera_pos_opened.x,
-		inventory_display.camera_pos_closed.x,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->position.y,
-		inventory_display.camera_pos_opened.y,
-		inventory_display.camera_pos_closed.y,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->position.z,
-		inventory_display.camera_pos_opened.z,
-		inventory_display.camera_pos_closed.z,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->target.x,
-		inventory_display.camera_tgt_opened.x,
-		inventory_display.camera_tgt_closed.x,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->target.y,
-		inventory_display.camera_tgt_opened.y,
-		inventory_display.camera_tgt_closed.y,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->target.z,
-		inventory_display.camera_tgt_opened.z,
-		inventory_display.camera_tgt_closed.z,
-		inventory_duration.inventory_open_frames)
-	);
-	camera.add_component(new motion::Motion(
-		camera_view->fov,
-		inventory_display.camera_fov_opened,
-		inventory_display.camera_fov_closed,
-		inventory_duration.inventory_open_frames)
-	);
+	if (duration_frames && *duration_frames) {
+		camera.add_component(new motion::Motion(
+			camera_view->position.x,
+			inventory_display.camera_pos_opened.x,
+			inventory_display.camera_pos_closed.x,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->position.y,
+			inventory_display.camera_pos_opened.y,
+			inventory_display.camera_pos_closed.y,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->position.z,
+			inventory_display.camera_pos_opened.z,
+			inventory_display.camera_pos_closed.z,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->target.x,
+			inventory_display.camera_tgt_opened.x,
+			inventory_display.camera_tgt_closed.x,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->target.y,
+			inventory_display.camera_tgt_opened.y,
+			inventory_display.camera_tgt_closed.y,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->target.z,
+			inventory_display.camera_tgt_opened.z,
+			inventory_display.camera_tgt_closed.z,
+			*duration_frames)
+		);
+		camera.add_component(new motion::Motion(
+			camera_view->fov,
+			inventory_display.camera_fov_opened,
+			inventory_display.camera_fov_closed,
+			*duration_frames)
+		);
+	}
+	else {
+		camera_view->position.x = inventory_display.camera_pos_closed.x;
+		camera_view->position.y = inventory_display.camera_pos_closed.y;
+		camera_view->position.z = inventory_display.camera_pos_closed.z;
+		camera_view->target.x = inventory_display.camera_tgt_closed.x;
+		camera_view->target.y = inventory_display.camera_tgt_closed.y;
+		camera_view->target.z = inventory_display.camera_tgt_closed.z;
+		camera_view->fov = inventory_display.camera_fov_closed;
+	}
 }
 
 void open_ring(
@@ -489,7 +511,7 @@ void close_ring(
 		return;
 	}
 
-	if (duration_frames) {
+	if (duration_frames && *duration_frames) {
 		ring.add_component(new motion::Motion(
 			ring_display->radius,
 			inventory_display.ring_radius_opened,
@@ -610,17 +632,7 @@ bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item
 void add_health_bar(ecs::Entity& item)
 {
 	if (item.has_component<special::HealthData>()) {
-		const auto &health_bar_cust = Trng.pGlobTomb4->pBaseCustomize->VetBar[BAR_HEALTH];
-
-		item.add_component(new render::ScreenBar(
-			health_bar_cust.OrgX >= 0 ? (core::round((health_bar_cust.OrgX / 640.f) * 1000)) : 13,
-			health_bar_cust.OrgY >= 0 ? (core::round((health_bar_cust.OrgY / 480.f) * 1000)) : 17,
-			health_bar_cust.SizeX >= 0 ? (core::round((health_bar_cust.SizeX / 640.f) * 1000)) : 234,
-			health_bar_cust.SizeY >= 0 ? (core::round((health_bar_cust.SizeY / 480.f) * 1000)) : 25,
-			core::round((Trng.pGlobTomb4->pAdr->pLara->Health / 1000.f) * 100.f),
-			health_bar_cust.Color2,
-			health_bar_cust.Color1
-		));
+		item.add_component(new render::HealthBar(Trng.pGlobTomb4->pAdr->pLara->Health * 100 / 1000));
 	}
 }
 

@@ -56,6 +56,7 @@ extern TYPE_DrawRooms DrawRooms;
 extern TYPE_phd_GetVectorAngles phd_GetVectorAngles;
 extern TYPE_phd_GenerateW2V phd_GenerateW2V;
 extern TYPE_AlterFOV AlterFOV;
+extern TYPE_DrawHealthBar DrawHealthBar;
 extern void BackupLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 extern void RestoreLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 
@@ -312,20 +313,27 @@ void InventoryRenderSystem::draw_item(
 		if (item.has_component<special::CompassData>()) {
 			auto &compass_data = *item.get_component<special::CompassData>();
 
-			if (compass_data.needle_mesh_index == mesh_index) {
-				// rotate compass needle
-				mesh_rot_special = core::degrees_to_tr4_angle(compass_data.needle_angle);
-				mesh_rot_special_axis = compass_data.needle_mesh_axis;
+			auto &pointers = compass_data.pointers;
+			for (auto pointer_it = pointers.begin(); pointer_it != pointers.end(); ++pointer_it) {
+				auto &pointer = *pointer_it;
 
-				// make needle transparent if cheats are enabled
-				if (cheat::cheats_enabled()) {
-					const auto cheat_entity = entity_manager.find_entity_with_component <cheat::CheatConfig>([](const cheat::CheatConfig &config) -> bool {
-						return config.enabled()
-							&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
-					});
-					if (cheat_entity) {
-						*poly_alpha = min(128, *poly_alpha >> 24) << 24;
+				if (pointer.mesh_index == mesh_index) {
+					// rotate compass needle
+					mesh_rot_special = core::degrees_to_tr4_angle(pointer.angle);
+					mesh_rot_special_axis = pointer.mesh_axis;
+
+					// make needle transparent if cheats are enabled
+					if (cheat::cheats_enabled()) {
+						const auto cheat_entity = entity_manager.find_entity_with_component <cheat::CheatConfig>([](const cheat::CheatConfig &config) -> bool {
+							return config.enabled()
+								&& config.hint_type == cheat::CheatHintType::COMPASS_TRANSPARENT;
+						});
+						if (cheat_entity) {
+							*poly_alpha = min(128, *poly_alpha >> 24) << 24;
+						}
 					}
+
+					break;
 				}
 			}
 		}
@@ -441,24 +449,16 @@ void InventoryRenderSystem::draw_text(
 
 void InventoryRenderSystem::draw_bars(ecs::EntityManager &entity_manager) const
 {
-	auto entities = entity_manager.find_entities_with_component<ScreenBar>();
+	auto entities = entity_manager.find_entities_with_component<HealthBar>();
 
 	for (auto entity_it = entities.begin(); entity_it != entities.end(); ++entity_it) {
 		auto &entity = **entity_it;
 
-		auto bars = entity.get_components<ScreenBar>();
+		auto bars = entity.get_components<HealthBar>();
 		for (auto bar_it = bars.begin(); bar_it != bars.end(); ++bar_it) {
-			auto &screen_bar = **bar_it;
+			auto &bar = **bar_it;
 
-			draw_bar(
-				screen_bar.x,
-				screen_bar.y,
-				screen_bar.width,
-				screen_bar.height,
-				screen_bar.percent,
-				screen_bar.colour1,
-				screen_bar.colour2
-			);
+			DrawHealthBar(bar.percent);
 		}
 	}
 }
@@ -476,11 +476,11 @@ void InventoryRenderSystem::draw_bar(
 	// position and size needs to be based on resolution of 640x480
 	// game will adjust proportionally to fit current resolution
 
-	screen_x = core::round((screen_x / 1000.f) * 640.f);
-	screen_y = core::round((screen_y / 1000.f) * Trng.pGlobTomb4->ScreenSizeY); // not computed from 480, bug?
+	screen_x = screen_x * 640 / 1000;
+	screen_y = screen_y * Trng.pGlobTomb4->ScreenSizeY / 1000; // not computed from 480, bug?
 
-	width = core::round((width / 1000.f) * 640.f);
-	height = core::round((height / 1000.f) * 480.f);
+	width = width * 640 / 10000;
+	height = height * 480 / 1000;
 
 	DoBar(screen_x, screen_y, width, height, percent, colour1, colour2);
 }
@@ -595,7 +595,7 @@ void InventoryRenderSystem::set_lighting(ecs::EntityManager &entity_manager, flo
 
 	// set to false to prevent water effect when Lara touches water 
 	lara_in_water = false;
-	
+
 	// set to false to prevent water effect when camera is underwater
 	camera_underwater = false;
 
@@ -644,15 +644,22 @@ void GameRenderSystem::update(
 {
 	Get(enumGET.INFO_LARA, 0, 0);
 
-	// cleanup if not in a desired phase
-	if (static_cast<int32_t>(GET.LaraInfo.SkipPhaseFlags) != enumSKIP.NONE
-		&& !core::bit_set(GET.LaraInfo.SkipPhaseFlags, enumSKIP.FLY_CAMERA, true)) {
+	// cleanup if any undesired phase is active
+	const auto undesired_phases = enumSKIP.LOADING_LEVEL
+		| enumSKIP.TITLE_LEVEL
+		| enumSKIP.GRAY_SCREEN
+		| enumSKIP.NO_VIEW_OGGETTI
+		| enumSKIP.BINOCULARS
+		| enumSKIP.LASER_SIGHT
+		| enumSKIP.FULL_IMAGE;
+
+	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
 		cleanup(entity_manager, system_manager);
 		return;
 	}
 
-	// only draw during main game phase
-	if (static_cast<int32_t>(GET.LaraInfo.SkipPhaseFlags) != enumSKIP.NONE) {
+	// only draw during main game phase and fixed views
+	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases | enumSKIP.FLY_CAMERA, true)) {
 		return;
 	}
 

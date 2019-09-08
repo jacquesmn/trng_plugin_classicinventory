@@ -27,7 +27,7 @@
 #include "item.h"
 #include "render.h"
 
-extern TYPE_SoundEffect SoundEffect;
+extern TYPE_SayNo SayNo;
 extern StrMyData MyData;
 
 namespace classicinventory {
@@ -114,7 +114,7 @@ void flipeffect_open_inventory_at_item(
 		|| !item_ring) {
 		// item not found
 		if (missing_response == ItemMissingResponse::NO) {
-			SoundEffect(2, nullptr, 0);
+			SayNo();
 		}
 		return;
 	}

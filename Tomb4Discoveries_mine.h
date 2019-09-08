@@ -44,6 +44,8 @@ typedef void(__cdecl *TYPE_S_PauseMenu) ();
 typedef void(__cdecl *TYPE_InitWaterTable) ();
 typedef void(__cdecl *TYPE_AnimateLara) (StrItemTr4 *pLara);
 typedef void(__cdecl *TYPE_DrawLara) (StrItemTr4 *pLara, int unknown);
+typedef void(__cdecl *TYPE_PlayLevel) (int level_index, int audio_index);
+typedef void(__cdecl *TYPE_ShowInventory) ();
 
 // discovered by AODfan
 typedef int(__cdecl* TYPE_phd_atan) (int x, int y);
@@ -69,3 +71,5 @@ typedef short(__cdecl* TYPE_GunMiss) (int x, int y, int z, short speed, short yr
 
 // discovered by ChocolateFan
 typedef void(__cdecl *TYPE_SeedRandomControl) (int seed);
+typedef void(__cdecl *TYPE_DrawHealthBar) (int Percentuale);
+typedef void(__cdecl *TYPE_SayNo) ();

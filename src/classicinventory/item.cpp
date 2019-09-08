@@ -106,7 +106,7 @@ int32_t tr4_invobj_to_item_id(uint32_t tr4_invobj)
 		return ItemId::NONE;
 	}
 
-	return tr4_invobj - abs(MIN_INVENTORY_ITEM_ID);
+	return item_index_to_item_id(tr4_invobj);
 }
 
 uint32_t item_id_to_tr4_slot(int32_t item_id)
@@ -125,21 +125,17 @@ uint32_t item_id_to_tr4_invobj(int32_t item_id)
 		return UINT32_MAX;
 	}
 
-	return item_id + abs(MIN_INVENTORY_ITEM_ID);
+	return item_id_to_item_index(item_id);
 }
 
 uint32_t item_id_to_item_index(int32_t item_id)
 {
-	const uint32_t item_id_count = MAX_INVENTORY_ITEM_ID - MIN_INVENTORY_ITEM_ID;
-
-	return (item_id - MAX_INVENTORY_ITEM_ID) + item_id_count;
+	return item_id + abs(MIN_INVENTORY_ITEM_ID);
 }
 
-uint32_t item_index_to_item_id(int32_t item_index)
+int32_t item_index_to_item_id(uint32_t item_index)
 {
-	const uint32_t item_id_count = MAX_INVENTORY_ITEM_ID - MIN_INVENTORY_ITEM_ID;
-
-	return (item_index + MAX_INVENTORY_ITEM_ID) - item_id_count;
+	return item_index - abs(MIN_INVENTORY_ITEM_ID);
 }
 
 ecs::Entity* get_item_by_item_id(int32_t item_id, ecs::EntityManager &entity_manager)

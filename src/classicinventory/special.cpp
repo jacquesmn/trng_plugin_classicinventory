@@ -65,22 +65,32 @@ void TimeSystem::update(
 	game_frames++;
 }
 
+CompassSystem::CompassSystem()
+	:
+	first_update(true)
+{}
+
 void CompassSystem::init(
 	ecs::EntityManager &entity_manager,
 	ecs::SystemManager &system_manager
 )
 {
+	first_update = true;
+
 	auto compasses = entity_manager.find_entities_with_component<CompassData>();
 	for (auto compass_it = compasses.begin(); compass_it != compasses.end(); ++compass_it) {
 		auto &compass = **compass_it;
 		auto &compass_data = *compass.get_component<CompassData>();
 
-		compass_data.bearing = compass_data.get_bearing() - compass_data.needle_offset;
+		auto &pointers = compass_data.pointers;
+		for (auto pointer_it = pointers.begin(); pointer_it != pointers.end(); ++pointer_it) {
+			auto &pointer = *pointer_it;
 
-		// swing needle
-		compass_data.needle_acceleration = 0.f;
-		compass_data.needle_velocity = 0.f;
-		compass_data.needle_oscill_angle = core::random(45.f, 179.f) * core::random_sign();
+			// swing pointer
+			pointer.acceleration = 0.f;
+			pointer.velocity = 0.f;
+			pointer.oscill_angle = core::random(45.f, 179.f) * core::random_sign();
+		}
 	}
 }
 
@@ -89,24 +99,41 @@ void CompassSystem::update(
 	ecs::SystemManager &system_manager
 )
 {
+	const auto time = entity_manager.find_entity_with_component<GameTime>();
+	if (!time) {
+		return;
+	}
+	auto &game_time = *time->get_component<GameTime>();
+
 	auto compasses = entity_manager.find_entities_with_component<CompassData>();
 	for (auto compass_it = compasses.begin(); compass_it != compasses.end(); ++compass_it) {
 		auto &compass = **compass_it;
 		auto &compass_data = *compass.get_component<CompassData>();
 
-		// settle needle
-		if (compass_data.needle_friction == 1) {
-			compass_data.needle_oscill_angle = 0;
-		}
-		else {
-			compass_data.needle_acceleration = -compass_data.needle_attraction * sin(core::degrees_to_radians(compass_data.needle_oscill_angle));
-			compass_data.needle_velocity += compass_data.needle_acceleration;
-			compass_data.needle_oscill_angle += compass_data.needle_velocity;
-			compass_data.needle_velocity *= (1 - compass_data.needle_friction);
-		}
+		auto &pointers = compass_data.pointers;
+		for (auto pointer_it = pointers.begin(); pointer_it != pointers.end(); ++pointer_it) {
+			auto &pointer = *pointer_it;
 
-		compass_data.needle_angle = compass_data.bearing + compass_data.needle_oscill_angle;
+			if (first_update || game_time.frames % pointer.frequency_frames == 0) {
+				pointer.bearing = pointer.get_bearing() - pointer.offset;
+			}
+
+			// settle pointer
+			if (pointer.friction == 1) {
+				pointer.oscill_angle = 0;
+			}
+			else {
+				pointer.acceleration = -pointer.attraction * sin(core::degrees_to_radians(pointer.oscill_angle));
+				pointer.velocity += pointer.acceleration;
+				pointer.oscill_angle += pointer.velocity;
+				pointer.velocity *= (1 - pointer.friction);
+			}
+
+			pointer.angle = pointer.bearing + pointer.oscill_angle;
+		}
 	}
+
+	first_update = false;
 }
 
 StopwatchSystem::StopwatchSystem()
@@ -165,10 +192,17 @@ void PickupSystem::update(
 		}
 		clear_tr4_pickup_buffer = true;
 
-		// skip if not in desired phase
-		// ^ we still want to clear the tr4 buffer though
-		if (static_cast<int32_t>(GET.LaraInfo.SkipPhaseFlags) != enumSKIP.NONE
-			&& !core::bit_set(GET.LaraInfo.SkipPhaseFlags, enumSKIP.FLY_CAMERA, true)) {
+		// skip if any undesired phase is active
+		// ^ we still want to always clear the tr4 buffer though
+		const auto undesired_phases = enumSKIP.LOADING_LEVEL
+			| enumSKIP.TITLE_LEVEL
+			| enumSKIP.GRAY_SCREEN
+			| enumSKIP.NO_VIEW_OGGETTI
+			| enumSKIP.BINOCULARS
+			| enumSKIP.LASER_SIGHT
+			| enumSKIP.FULL_IMAGE;
+
+		if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
 			break;
 		}
 
@@ -204,10 +238,19 @@ void ShortcutSystem::update(
 	ecs::SystemManager &system_manager
 )
 {
-	// skip if not in desired phase
+	// skip if any undesired phase is active
+	const auto undesired_phases = enumSKIP.LOADING_LEVEL
+		| enumSKIP.FADE
+		| enumSKIP.TITLE_LEVEL
+		| enumSKIP.GRAY_SCREEN
+		| enumSKIP.NO_VIEW_OGGETTI
+		| enumSKIP.BINOCULARS
+		| enumSKIP.LASER_SIGHT
+		| enumSKIP.FULL_IMAGE
+		| enumSKIP.FLY_CAMERA;
+
 	Get(enumGET.INFO_LARA, 0, 0);
-	if (static_cast<int32_t>(GET.LaraInfo.SkipPhaseFlags) != enumSKIP.NONE
-		&& !core::bit_set(GET.LaraInfo.SkipPhaseFlags, enumSKIP.FIXED_CAMERA, true)) {
+	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
 		return;
 	}
 
@@ -240,15 +283,17 @@ float get_lara_bearing()
 	return core::tr4_angle_to_degrees(-Trng.pGlobTomb4->pAdr->pLara->OrientationH);
 }
 
-float get_lara_item_bearing(int32_t ngle_index)
+float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter)
 {
-	uint32_t item_x;
-	uint32_t item_z;
+	uint32_t item_x = 0;
+	uint32_t item_z = 0;
 
 	if (Get(enumGET.ITEM, ngle_index | NGLE_INDEX, 0)) {
 		const auto item_movable = GET.pItem;
 		item_x = item_movable->CordX;
 		item_z = item_movable->CordZ;
+
+		// TODO: check if active/visible
 	}
 	else if (Get(enumGET.STATIC, ngle_index | NGLE_INDEX, 0)) {
 		const auto item_static = GET.pStatic;
@@ -259,13 +304,26 @@ float get_lara_item_bearing(int32_t ngle_index)
 		return get_lara_bearing();
 	}
 
+	if (item_x == 0 && item_z == 0) {
+		return 0;
+	}
+
 	Get(enumGET.LARA, 0, 0);
 	auto &lara = *GET.pLara;
 
-	auto direction = core::tr4_angle_to_degrees(GetDirection(lara.CordX, lara.CordZ, item_x, item_z));
-	direction += core::tr4_angle_to_degrees(-lara.OrientationH);
+	uint32_t lara_x = lara.CordX;
+	uint32_t lara_z = lara.CordZ;
 
-	return direction;
+	if (jitter > 0) {
+		const auto lara_x_jittered = int(lara_x) + int(core::random(-float(jitter), float(jitter)));
+		const auto lara_z_jittered = int(lara_z) + int(core::random(-float(jitter), float(jitter)));
+
+		lara_x = lara_x_jittered < 0 ? lara_x : uint32_t(lara_x_jittered);
+		lara_z = lara_z_jittered < 0 ? lara_z : uint32_t(lara_z_jittered);
+	}
+
+	return core::tr4_angle_to_degrees(GetDirection(lara_x, lara_z, item_x, item_z))
+		+ core::tr4_angle_to_degrees(-lara.OrientationH);
 }
 
 }

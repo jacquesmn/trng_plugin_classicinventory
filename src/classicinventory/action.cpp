@@ -26,6 +26,7 @@
 
 extern TYPE_ShowSaveScreen ShowSaveScreen;
 extern TYPE_SoundEffect SoundEffect;
+extern TYPE_SayNo SayNo;
 extern TYPE_SetFade SetFade;
 extern StrMyData MyData;
 
@@ -64,7 +65,7 @@ bool use_health(ecs::Entity &item, bool silent)
 		|| (!item_quantity.decrease() && item_quantity.get() != item::ITEM_QTY_UNLIMITED)) {
 		if (!silent) {
 			// lara says no
-			SoundEffect(2, nullptr, 0);
+			SayNo();
 		}
 		return false;
 	}
@@ -90,7 +91,7 @@ bool use_health(ecs::Entity &item, bool silent)
 		|| poison2 > poison2_before) {
 		// hurt sfx
 		if (health_data.hurt_sound_id >= 0) {
-			SoundEffect(health_data.hurt_sound_id, nullptr, 0);
+			SoundEffect(health_data.hurt_sound_id, nullptr, 2);
 		}
 	}
 	else if (lara_health > lara_health_before
@@ -98,7 +99,7 @@ bool use_health(ecs::Entity &item, bool silent)
 		|| poison2 < poison2_before) {
 		// heal sfx
 		if (health_data.heal_sound_id >= 0) {
-			SoundEffect(health_data.heal_sound_id, nullptr, 0);
+			SoundEffect(health_data.heal_sound_id, nullptr, 2);
 		}
 	}
 
@@ -131,7 +132,7 @@ bool use_flare(ecs::Entity &item)
 
 	if (hand_flags != 0) {
 		// lara is busy doing something important
-		SoundEffect(2, nullptr, 0);
+		SayNo();
 		return false;
 	}
 
@@ -166,7 +167,7 @@ bool use_binoculars(ecs::Entity &item)
 
 	if (lara.StateIdCurrent != 2) {
 		// lara is busy doing something important
-		SoundEffect(2, nullptr, 0);
+		SayNo();
 		return false;
 	}
 
@@ -215,7 +216,7 @@ bool equip_weapon(ecs::Entity &item)
 			&& hand_flags != enumFLH.IS_THROWING
 			&& hand_flags != 0)) {
 		// lara can't equip weapon now
-		SoundEffect(2, nullptr, 0);
+		SayNo();
 		return false;
 	}
 
@@ -340,6 +341,11 @@ bool save_game()
 
 	if (save_number >= 0) {
 		// saved game
+
+		// Clear internal trng variable to fix issue with savegame being loaded after exiting inventory.
+		// Only happens with CUST_KEEP_DEAD_ENEMIES enabled, so perhaps memory zone is corrupted?
+		*reinterpret_cast<int32_t*>(0x10657B68) = 0;
+
 		return true;
 	}
 
