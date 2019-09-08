@@ -434,7 +434,7 @@ void cbInitLevel(void)
 	// second phase of inventory initialization and customization, after level data has been loaded
 	auto &entity_manager = ecs::get_entity_manager();
 	auto &system_manager = ecs::new_system_manager();
-	
+
 	setup::setup_phase2(entity_manager);
 	setup::customize_phase2(entity_manager);
 
@@ -711,8 +711,7 @@ int cbConditionMine(WORD ConditionIndex, int ItemIndex, WORD Extra, WORD Activat
 
 // this procedure will be called every game cycle (at begin of cycle)
 void cbCycleBegin(void)
-{
-}
+{}
 
 // this procedure will be called everygame cycle, at end.
 // you have to return a RET_CYCLE_ value
@@ -744,16 +743,9 @@ void cbProgrActionMine(void)
 }
 
 // callback called each time S_OutputPolyList is performed
-// BUG: Not called during fixed camera view
+// BUG: Not called during fixed camera view, remedied through cbNumericTrngPatch below thanks to ChocolateFan
 void cbProgrActionDrawMine(void)
-{
-	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
-		controller::get_controller(
-			ecs::get_entity_manager(),
-			ecs::get_system_manager()
-		).do_main_draw();
-	}
-}
+{}
 
 // handles displaying and management of inventory
 int cbInventoryMain(WORD CBT_Flags, bool TestLoadedGame, int SelectedItem)
@@ -806,6 +798,22 @@ bool cbInputManager(
 	return SRET_OK;
 }
 
+void* cbNumericTrngPatch(WORD PatchIndex, WORD CBT_Flags, bool TestFromJump, StrRegisters *pRegisters)
+{
+	switch (PatchIndex) {
+	case 0x136: // use this instead of cbProgrActionDrawMine
+		if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+			controller::get_controller(
+				ecs::get_entity_manager(),
+				ecs::get_system_manager()
+			).do_main_draw();
+		}
+		break;
+	}
+
+	return nullptr;
+}
+
 
 
 // FOR_YOU:
@@ -837,10 +845,12 @@ bool RequireMyCallBacks(void)
 	GET_CALLBACK(CB_CONDITION_MINE, 0, 0, cbConditionMine);
 	GET_CALLBACK(CB_PROGR_ACTION_MINE, 0, 0, cbProgrActionMine);
 	GET_CALLBACK(CB_PROGR_ACTION_DRAW_MINE, 0, 0, cbProgrActionDrawMine);
-	
+
 	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_FIRST, 0, cbInventoryMain);
 	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_AFTER, 0, cbInventoryAfter);
 	GET_CALLBACK(CB_INPUT_MANAGER, CBT_FIRST, 0, cbInputManager);
+
+	GET_CALLBACK(CB_NUMERIC_TRNG_PATCH, CBT_FIRST, 0x136, cbNumericTrngPatch);
 
 
 	return true;

@@ -192,10 +192,17 @@ void PickupSystem::update(
 		}
 		clear_tr4_pickup_buffer = true;
 
-		// skip if not in desired phase
-		// ^ we still want to clear the tr4 buffer though
-		if (static_cast<int32_t>(GET.LaraInfo.SkipPhaseFlags) != enumSKIP.NONE
-			&& !core::bit_set(GET.LaraInfo.SkipPhaseFlags, enumSKIP.FLY_CAMERA, true)) {
+		// skip if any undesired phase is active
+		// ^ we still want to always clear the tr4 buffer though
+		const auto undesired_phases = enumSKIP.LOADING_LEVEL
+			| enumSKIP.TITLE_LEVEL
+			| enumSKIP.GRAY_SCREEN
+			| enumSKIP.NO_VIEW_OGGETTI
+			| enumSKIP.BINOCULARS
+			| enumSKIP.LASER_SIGHT
+			| enumSKIP.FULL_IMAGE;
+
+		if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
 			break;
 		}
 
@@ -231,10 +238,19 @@ void ShortcutSystem::update(
 	ecs::SystemManager &system_manager
 )
 {
-	// skip if not in desired phase
+	// skip if any undesired phase is active
+	const auto undesired_phases = enumSKIP.LOADING_LEVEL
+		| enumSKIP.FADE
+		| enumSKIP.TITLE_LEVEL
+		| enumSKIP.GRAY_SCREEN
+		| enumSKIP.NO_VIEW_OGGETTI
+		| enumSKIP.BINOCULARS
+		| enumSKIP.LASER_SIGHT
+		| enumSKIP.FULL_IMAGE
+		| enumSKIP.FLY_CAMERA;
+
 	Get(enumGET.INFO_LARA, 0, 0);
-	if (static_cast<int32_t>(GET.LaraInfo.SkipPhaseFlags) != enumSKIP.NONE
-		&& !core::bit_set(GET.LaraInfo.SkipPhaseFlags, enumSKIP.FIXED_CAMERA, true)) {
+	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
 		return;
 	}
 
