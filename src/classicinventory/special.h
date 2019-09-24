@@ -132,6 +132,7 @@ struct CompassPointer : public ecs::Component {
 	float offset;
 	int32_t jitter;
 	int32_t frequency_frames;
+	bool realistic_north;
 
 	float acceleration;
 	float velocity;
@@ -147,7 +148,8 @@ struct CompassPointer : public ecs::Component {
 		float friction = 0.03f,
 		float offset = 180.f,
 		int jitter = 0,
-		int32_t frequency_frames = 1
+		int32_t frequency_frames = 1,
+		bool realistic_north = false
 	)
 		:
 		get_bearing(get_bearing),
@@ -158,6 +160,7 @@ struct CompassPointer : public ecs::Component {
 		offset(offset),
 		jitter(jitter),
 		frequency_frames(frequency_frames),
+		realistic_north(realistic_north),
 		acceleration(0),
 		velocity(0),
 		oscill_angle(0),
@@ -259,8 +262,8 @@ struct MapData : public ecs::Component {
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-float get_lara_bearing();
-float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter = 0);
+float get_lara_bearing(bool realistic_north);
+float get_lara_item_bearing(int32_t ngle_index, bool realistic_north, uint32_t jitter = 0);
 
 }
 }

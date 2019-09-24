@@ -259,7 +259,7 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 
 
 	auto &compass_data = item->add_component(new special::CompassData());
-	compass_data.pointers.push_back(special::CompassPointer([]()->float { return special::get_lara_bearing(); }, 1));
+	compass_data.pointers.push_back(special::CompassPointer([]()->float { return special::get_lara_bearing(false); }, 1));
 }
 
 void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
@@ -4945,7 +4945,7 @@ void customize_compass(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 9) {
+	if (customize.NArguments < 10) {
 		return;
 	}
 
@@ -4965,7 +4965,7 @@ void customize_compass(
 		compass_data = &item->add_component(new special::CompassData());
 	}
 
-	for (uint32_t i = 1, pointer_index = 0; i < customize.NArguments; i += 8, ++pointer_index) {
+	for (uint32_t i = 1, pointer_index = 0; i < customize.NArguments; i += 9, ++pointer_index) {
 		const auto pointer_mesh_index = customize.pVetArg[++cust_index];
 		const auto pointer_mesh_axis = customize.pVetArg[++cust_index];
 		const auto pointer_attraction = customize.pVetArg[++cust_index];
@@ -4973,10 +4973,13 @@ void customize_compass(
 		const auto pointer_offset = customize.pVetArg[++cust_index];
 		const auto pointer_jitter = customize.pVetArg[++cust_index];
 		const auto pointer_frequency_frame = customize.pVetArg[++cust_index];
+		const auto pointer_realistic_north = customize.pVetArg[++cust_index] == CINV_TRUE;
 		const auto get_target_tg = customize.pVetArg[++cust_index];
 
+		const auto get_bearing_north = [=]() -> float { return special::get_lara_bearing(pointer_realistic_north); };
+
 		if (pointer_index >= compass_data->pointers.size()) {
-			compass_data->pointers.push_back(special::CompassPointer([]() -> float { return special::get_lara_bearing(); }, 1));
+			compass_data->pointers.push_back(special::CompassPointer(get_bearing_north, 1));
 		}
 		auto &pointer = compass_data->pointers.at(pointer_index);
 
@@ -5008,13 +5011,15 @@ void customize_compass(
 			pointer.frequency_frames = pointer_frequency_frame;
 		}
 
+		pointer.get_bearing = get_bearing_north;
+
 		if (get_target_tg >= 0) {
 			pointer.get_bearing = [=, &pointer]() -> float {
 				PerformTriggerGroup(get_target_tg);
 
 				const auto ngle_index = Trng.pGlobTomb4->pBaseVariableTRNG->Globals.CurrentValue;
 
-				return special::get_lara_item_bearing(ngle_index, pointer.jitter);
+				return special::get_lara_item_bearing(ngle_index, pointer_realistic_north, pointer.jitter);
 			};
 		}
 	}

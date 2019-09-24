@@ -278,12 +278,12 @@ void ShortcutSystem::update(
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-float get_lara_bearing()
+float get_lara_bearing(bool realistic_north)
 {
-	return core::tr4_angle_to_degrees(-Trng.pGlobTomb4->pAdr->pLara->OrientationH);
+	return core::tr4_angle_to_degrees((realistic_north ? -1 : 1) * Trng.pGlobTomb4->pAdr->pLara->OrientationH);
 }
 
-float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter)
+float get_lara_item_bearing(int32_t ngle_index, bool realistic_north, uint32_t jitter)
 {
 	uint32_t item_x = 0;
 	uint32_t item_z = 0;
@@ -301,7 +301,7 @@ float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter)
 		item_z = item_static->z;
 	}
 	else {
-		return get_lara_bearing();
+		return get_lara_bearing(realistic_north);
 	}
 
 	if (item_x == 0 && item_z == 0) {
