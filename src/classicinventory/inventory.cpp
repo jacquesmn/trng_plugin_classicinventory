@@ -278,6 +278,11 @@ InventoryRing* build_combo_ring(
 			for (auto it = combos.begin(); it != combos.end(); ++it) {
 				auto &combo = **it;
 
+				// skip if disabled
+				if (!combo.enabled) {
+					continue;
+				}
+
 				auto add_to_list = [&](ecs::Entity *combo_item) -> void {
 					// skip if zero quantity
 					if (!combo_item

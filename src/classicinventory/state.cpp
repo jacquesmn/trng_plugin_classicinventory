@@ -1558,7 +1558,7 @@ State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 						&& item.has_component<item::ItemQuantity>()) {
 						auto &item_data = *item.get_component<item::ItemData>();
 						auto &item_qty = *item.get_component<item::ItemQuantity>();
-						
+
 						const auto item_text = item_action.context_hide_qty
 							? text::build_item_text(item_data.name.get_string())
 							: text::build_item_text(item_data.name.get_string(), &item_qty, true);
@@ -2298,7 +2298,8 @@ State* ComboTryState::update(ecs::EntityManager &entity_manager)
 							auto &item_selected = ring_state.item->item;
 
 							const auto combo_data = inventory->get_component<item::ComboData>([&](item::ComboData &combo) -> bool {
-								return (combo.combine
+								return (combo.enabled
+									&& combo.combine
 									&& ((combo.item_first.get_id() == item_active.get_id()
 										&& combo.item_second.get_id() == item_selected.get_id())
 										|| (combo.vice_versa

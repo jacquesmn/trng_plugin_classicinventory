@@ -512,6 +512,7 @@ struct ComboData : public ecs::Component {
 	ecs::Entity *item_extra;
 	bool vice_versa;
 	bool separable;
+	bool enabled;
 
 	std::function<void(ComboData&)> combine;
 	std::function<void(ComboData&)> separate;
@@ -533,6 +534,7 @@ struct ComboData : public ecs::Component {
 		item_extra(item_extra),
 		vice_versa(vice_versa),
 		separable(separable),
+		enabled(true),
 		combine(combine),
 		separate(separate)
 	{}

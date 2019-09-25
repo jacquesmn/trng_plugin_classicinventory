@@ -3671,6 +3671,10 @@ bool action_enabled_combine(
 	for (auto it = combos.begin(); it != combos.end(); ++it) {
 		auto &combo = **it;
 
+		if (!combo.enabled) {
+			continue;
+		}
+
 		auto &item_first = combo.item_first;
 		auto &item_second = combo.item_second;
 
@@ -5377,7 +5381,7 @@ void customize_combo(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 8) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
@@ -5388,13 +5392,14 @@ void customize_combo(
 
 	int32_t cust_index = -1;
 
-	for (int32_t i = 0; i < customize.NArguments; i += 8) {
+	for (int32_t i = 0; i < customize.NArguments; i += 9) {
 		const auto first_item_id = customize.pVetArg[++cust_index];
 		const auto second_item_id = customize.pVetArg[++cust_index];
 		const auto final_item_id = customize.pVetArg[++cust_index];
 		const auto extra_item_id = customize.pVetArg[++cust_index];
 		const auto vice_versa = customize.pVetArg[++cust_index];
 		const auto separable = customize.pVetArg[++cust_index];
+		const auto enabled = customize.pVetArg[++cust_index];
 		const auto combine_tgroup = customize.pVetArg[++cust_index];
 		const auto separate_tgroup = customize.pVetArg[++cust_index];
 
@@ -5439,6 +5444,9 @@ void customize_combo(
 		}
 		if (separable >= 0) {
 			combo_data->separable = separable == CINV_TRUE;
+		}
+		if (enabled >= 0) {
+			combo_data->enabled = enabled == CINV_TRUE;
 		}
 		if (combine_tgroup >= 0) {
 			combo_data->combine = [=](item::ComboData &cd) -> void {
