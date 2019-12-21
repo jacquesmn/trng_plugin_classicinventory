@@ -2786,6 +2786,12 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 				if (input_state.command_active(enumCMD.DOWN)) {
 					item_display.rot.x -= 5;
 				}
+				if (input_state.command_active(enumCMD.DUCK) && item_display.scale > 1.0) {
+					item_display.scale -= 0.05f;
+				}
+				if (input_state.command_active(enumCMD.DASH) && item_display.scale < 3.0) {
+					item_display.scale += 0.05f;
+				}
 
 				core::wrap_angle(item_display.rot.x);
 				core::wrap_angle(item_display.rot.y);
