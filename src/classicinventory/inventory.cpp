@@ -45,20 +45,28 @@ void build_inventory(
 		return;
 	}
 
+	const auto inventory = entity_manager.find_entity_with_component<InventoryData>();
+	if (!inventory) {
+		return;
+	}
+	auto &inventory_display = *inventory->get_component<inventory::InventoryDisplay>();
+
 	// keep track of ammos for which we already have the weapon
 	std::vector<const ecs::Entity*> ammos_with_weapon;
-	const auto weapons = entity_manager.find_entities_with_component<item::ItemAmmo>();
-	for (auto weapon_it = weapons.begin(); weapon_it != weapons.end(); ++weapon_it) {
-		auto &weapon = **weapon_it;
+	if (!inventory_display.always_show_ammo) {
+		const auto weapons = entity_manager.find_entities_with_component<item::ItemAmmo>();
+		for (auto weapon_it = weapons.begin(); weapon_it != weapons.end(); ++weapon_it) {
+			auto& weapon = **weapon_it;
 
-		const auto item_qty = weapon.get_component<item::ItemQuantity>();
-		if (!item_qty || item_qty->get() == 0) {
-			continue;
-		}
+			const auto item_qty = weapon.get_component<item::ItemQuantity>();
+			if (!item_qty || item_qty->get() == 0) {
+				continue;
+			}
 
-		auto item_ammos = weapon.get_components<item::ItemAmmo>();
-		for (auto ammo_it = item_ammos.begin(); ammo_it != item_ammos.end(); ++ammo_it) {
-			ammos_with_weapon.push_back(&(*ammo_it)->ammo_item);
+			auto item_ammos = weapon.get_components<item::ItemAmmo>();
+			for (auto ammo_it = item_ammos.begin(); ammo_it != item_ammos.end(); ++ammo_it) {
+				ammos_with_weapon.push_back(&(*ammo_it)->ammo_item);
+			}
 		}
 	}
 
@@ -85,10 +93,6 @@ void build_inventory(
 
 	// now link the rings together for easy navigation
 	// context ring will sit separately and built dynamically based on state
-	const auto inventory = entity_manager.find_entity_with_component<InventoryData>();
-	if (!inventory) {
-		return;
-	}
 	inventory->remove_components<InventoryRing>();
 
 	inventory_state.ring = nullptr;

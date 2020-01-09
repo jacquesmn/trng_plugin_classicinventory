@@ -5225,7 +5225,7 @@ void customize_display(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 3) {
+	if (customize.NArguments < 4) {
 		return;
 	}
 
@@ -5240,6 +5240,7 @@ void customize_display(
 	const auto ring_radius = customize.pVetArg[++cust_index];
 	const auto item_base_size = customize.pVetArg[++cust_index];
 	const auto ring_rotate_lock = customize.pVetArg[++cust_index];
+	const auto always_show_ammo = customize.pVetArg[++cust_index];
 
 	if (ring_radius >= 0) {
 		inventory_display.ring_radius_opened = ring_radius;
@@ -5249,6 +5250,9 @@ void customize_display(
 	}
 	if (ring_rotate_lock >= 0) {
 		inventory_display.ring_rotate_lock = ring_rotate_lock == CINV_TRUE;
+	}
+	if (always_show_ammo >= 0) {
+		inventory_display.always_show_ammo = always_show_ammo == CINV_TRUE;
 	}
 }
 

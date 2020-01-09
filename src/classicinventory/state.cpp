@@ -2773,7 +2773,7 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 			if (item_active.has_component<item::ItemDisplay>()) {
 				auto &item_display = *item_active.get_component<item::ItemDisplay>();
 
-				// rotate item based on input
+				// rotate/zoom item based on input
 				if (input_state.command_active(enumCMD.LEFT)) {
 					item_display.rot.y -= 5;
 				}
@@ -2786,11 +2786,11 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 				if (input_state.command_active(enumCMD.DOWN)) {
 					item_display.rot.x -= 5;
 				}
-				if (input_state.command_active(enumCMD.DUCK) && item_display.scale > 1.0) {
-					item_display.scale -= 0.05f;
-				}
-				if (input_state.command_active(enumCMD.DASH) && item_display.scale < 3.0) {
+				if (input_state.command_active(enumCMD.DUCK) && item_display.scale < 3.0) {
 					item_display.scale += 0.05f;
+				}
+				if (input_state.command_active(enumCMD.DASH) && item_display.scale > 1.0) {
+					item_display.scale -= 0.05f;
 				}
 
 				core::wrap_angle(item_display.rot.x);
