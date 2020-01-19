@@ -568,6 +568,7 @@ State* RingRotateState::update(ecs::EntityManager &entity_manager)
 						ring_state.item->item.remove_components<render::ScreenText>();
 						ring_state.item->item.remove_components<render::ScreenBar>();
 						ring_state.item->item.remove_components<render::HealthBar>();
+						ring_state.item->item.remove_components<render::AirBar>();
 					}
 
 					ring_state.change_item();
@@ -4129,6 +4130,7 @@ void clear_hud(ecs::EntityManager &entity_manager)
 	entity_manager.remove_components<render::ScreenText>();
 	entity_manager.remove_components<render::ScreenBar>();
 	entity_manager.remove_components<render::HealthBar>();
+	entity_manager.remove_components<render::AirBar>();
 }
 
 void add_sfx(

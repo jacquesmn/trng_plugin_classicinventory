@@ -57,6 +57,7 @@ extern TYPE_phd_GetVectorAngles phd_GetVectorAngles;
 extern TYPE_phd_GenerateW2V phd_GenerateW2V;
 extern TYPE_AlterFOV AlterFOV;
 extern TYPE_DrawHealthBar DrawHealthBar;
+extern TYPE_DrawAirBar DrawAirBar;
 extern void BackupLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 extern void RestoreLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 
@@ -449,17 +450,22 @@ void InventoryRenderSystem::draw_text(
 
 void InventoryRenderSystem::draw_bars(ecs::EntityManager &entity_manager) const
 {
-	auto entities = entity_manager.find_entities_with_component<HealthBar>();
-
-	for (auto entity_it = entities.begin(); entity_it != entities.end(); ++entity_it) {
+	auto health_entities = entity_manager.find_entities_with_component<HealthBar>();
+	for (auto entity_it = health_entities.begin(); entity_it != health_entities.end(); ++entity_it) {
 		auto &entity = **entity_it;
 
-		auto bars = entity.get_components<HealthBar>();
-		for (auto bar_it = bars.begin(); bar_it != bars.end(); ++bar_it) {
-			auto &bar = **bar_it;
+		DrawHealthBar(entity.get_component<HealthBar>()->percent);
+		
+		break;
+	}
 
-			DrawHealthBar(bar.percent);
-		}
+	auto air_entities = entity_manager.find_entities_with_component<AirBar>();
+	for (auto entity_it = air_entities.begin(); entity_it != air_entities.end(); ++entity_it) {
+		auto& entity = **entity_it;
+
+		DrawAirBar(entity.get_component<AirBar>()->percent);
+
+		break;
 	}
 }
 

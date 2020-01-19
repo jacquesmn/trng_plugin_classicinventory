@@ -194,6 +194,15 @@ struct HealthBar : public ecs::Component {
 	{}
 };
 
+struct AirBar : public ecs::Component {
+	uint32_t percent;
+
+	AirBar(uint32_t percent)
+		:
+		percent(percent)
+	{}
+};
+
 struct PickupDisplay : public ecs::Component {
 	int32_t item_id;
 	core::Vector3D rotation;

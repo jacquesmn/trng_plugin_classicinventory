@@ -47,18 +47,20 @@ bool use_health(ecs::Entity &item, bool silent)
 
 	auto &lara = *Trng.pGlobTomb4->pAdr->pLara;
 	auto &lara_health = lara.Health;
-	auto &poison1 = *Trng.pGlobTomb4->pAdr->pPoison1;
-	auto &poison2 = *Trng.pGlobTomb4->pAdr->pPoison2;
+	auto &lara_air = *Trng.pGlobTomb4->pAdr->pAirAvailable;
+	auto &lara_poison1 = *Trng.pGlobTomb4->pAdr->pPoison1;
+	auto &lara_poison2 = *Trng.pGlobTomb4->pAdr->pPoison2;
 
 	if (lara_health <= 0) {
 		// lara ded
 		return false;
 	}
 
-	const auto can_use = lara_health < 1000
-		|| poison1 > 0
-		|| poison2 > 0
+	const auto can_use = (health_data.health_points > 0 && lara_health < 1000)
+		|| (health_data.air_points > 0 && lara_air < 1800)
+		|| (health_data.cure_poison && (lara_poison1 > 0 || lara_poison2 > 0))
 		|| health_data.health_points < 0
+		|| health_data.air_points < 0
 		|| health_data.poison_points > 0;
 
 	if (!can_use
@@ -71,32 +73,38 @@ bool use_health(ecs::Entity &item, bool silent)
 	}
 
 	const auto lara_health_before = lara_health;
-	const auto poison1_before = poison1;
-	const auto poison2_before = poison2;
+	const auto lara_air_before = lara_air;
+	const auto poison1_before = lara_poison1;
+	const auto poison2_before = lara_poison2;
 
 	lara_health = min(1000, lara_health + health_data.health_points);
 	lara_health = max(0, lara_health);
 
+	lara_air = min(1800, lara_air + health_data.air_points);
+	lara_air = max(0, lara_air);
+
 	if (health_data.cure_poison) {
-		poison1 = 0;
-		poison2 = 0;
+		lara_poison1 = 0;
+		lara_poison2 = 0;
 	}
 	else {
-		poison1 = min(4097, poison1 + health_data.poison_points);;
-		poison2 = min(4097, poison2 + health_data.poison_points);;
+		lara_poison1 = min(4097, lara_poison1 + health_data.poison_points);;
+		lara_poison2 = min(4097, lara_poison2 + health_data.poison_points);;
 	}
 
 	if (lara_health < lara_health_before
-		|| poison1 > poison1_before
-		|| poison2 > poison2_before) {
+		|| lara_air < lara_air_before
+		|| lara_poison1 > poison1_before
+		|| lara_poison2 > poison2_before) {
 		// hurt sfx
 		if (health_data.hurt_sound_id >= 0) {
 			SoundEffect(health_data.hurt_sound_id, nullptr, 2);
 		}
 	}
 	else if (lara_health > lara_health_before
-		|| poison1 < poison1_before
-		|| poison2 < poison2_before) {
+		|| lara_air > lara_air_before
+		|| lara_poison1 < poison1_before
+		|| lara_poison2 < poison2_before) {
 		// heal sfx
 		if (health_data.heal_sound_id >= 0) {
 			SoundEffect(health_data.heal_sound_id, nullptr, 2);

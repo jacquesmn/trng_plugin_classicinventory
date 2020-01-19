@@ -100,6 +100,7 @@ struct GameTime : public ecs::Component {
 struct HealthData : public ecs::Component {
 	int32_t health_points;
 	uint32_t poison_points;
+	int32_t air_points;
 	int32_t heal_sound_id;
 	int32_t hurt_sound_id;
 	bool cure_poison;
@@ -108,6 +109,7 @@ struct HealthData : public ecs::Component {
 	HealthData(
 		int32_t health_points,
 		uint32_t poison_points = 0,
+		int32_t air_points = 0,
 		int32_t heal_sound_id = -1,
 		int32_t hurt_sound_id = -1,
 		bool cure_poison = true,
@@ -116,6 +118,7 @@ struct HealthData : public ecs::Component {
 		:
 		health_points(health_points),
 		poison_points(poison_points),
+		air_points(air_points),
 		heal_sound_id(heal_sound_id),
 		hurt_sound_id(hurt_sound_id),
 		cure_poison(cure_poison),

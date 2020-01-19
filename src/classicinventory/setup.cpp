@@ -282,7 +282,7 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 		}
 	};
 
-	item->add_component(new special::HealthData(500, 0, 116, 31));
+	item->add_component(new special::HealthData(500, 0, 0, 116, 31));
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -324,7 +324,7 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 
 	set_tr4_pickup_orientation(*item, enumSLOT.BIGMEDI_ITEM);
 
-	item->add_component(new special::HealthData(1000, 0, 116, 31));
+	item->add_component(new special::HealthData(1000, 0, 0, 116, 31));
 }
 
 void setup_FLARE_INV(ecs::EntityManager &entity_manager)
@@ -4877,7 +4877,7 @@ void customize_health(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 7) {
+	if (customize.NArguments < 8) {
 		return;
 	}
 
@@ -4885,6 +4885,7 @@ void customize_health(
 
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto health_points = customize.pVetArg[++cust_index];
+	const auto air_points = customize.pVetArg[++cust_index];
 	const auto poison_points = customize.pVetArg[++cust_index];
 	const auto heal_sound_id = customize.pVetArg[++cust_index];
 	const auto hurt_sound_id = customize.pVetArg[++cust_index];
@@ -4910,7 +4911,7 @@ void customize_health(
 
 	auto health_data = item->get_component<special::HealthData>();
 	if (!health_data) {
-		health_data = &item->add_component(new special::HealthData(0, 0, 116, 31));
+		health_data = &item->add_component(new special::HealthData(0, 0, 0, 116, 31));
 
 		// only perform existing action if first time adding health data
 		// this is to allow existing medi-actions to be performed only once
@@ -4926,6 +4927,9 @@ void customize_health(
 
 	if (health_points != -1) {
 		health_data->health_points = health_points;
+	}
+	if (air_points != -1) {
+		health_data->air_points = air_points;
 	}
 	if (poison_points >= 0) {
 		health_data->poison_points = poison_points;

@@ -641,7 +641,15 @@ bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item
 void add_health_bar(ecs::Entity& item)
 {
 	if (item.has_component<special::HealthData>()) {
-		item.add_component(new render::HealthBar(Trng.pGlobTomb4->pAdr->pLara->Health * 100 / 1000));
+		const auto &health_data = *item.get_component<special::HealthData>();
+
+		if (health_data.health_points != 0 || health_data.poison_points != 0 || health_data.cure_poison) {
+			item.add_component(new render::HealthBar(Trng.pGlobTomb4->pAdr->pLara->Health * 100 / 1000));
+		}
+
+		if (health_data.air_points != 0) {
+			item.add_component(new render::AirBar(*Trng.pGlobTomb4->pAdr->pAirAvailable * 100 / 1800));
+		}
 	}
 }
 
