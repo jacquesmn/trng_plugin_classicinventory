@@ -371,5 +371,72 @@ bool exit_to_title()
 	return true;
 }
 
+void pickup_item(ecs::Entity &item, ecs::EntityManager &entity_manager)
+{
+	auto update_qty = [](item::ItemQuantity &item_qty, int32_t qty) {
+		if (qty >= 0) {
+			item_qty.increase(qty);
+		}
+		else {
+			item_qty.unlimited();
+		}
+	};
+
+	if (item.has_component<item::ItemData>()
+		&& item.has_component<item::ItemQuantity>()) {
+		const auto item_data = item.get_component<item::ItemData>();
+		const auto item_qty = item.get_component<item::ItemQuantity>();
+
+		update_qty(*item_qty, item_qty->pickup);
+
+		// if weapon, add ammo and load if unloaded
+		if (item.has_component<item::ItemAmmo>()) {
+			auto item_ammos = item.get_components<item::ItemAmmo>();
+			for (auto ammo_it = item_ammos.begin(); ammo_it != item_ammos.end(); ++ammo_it) {
+				auto &item_ammo = **ammo_it;
+				auto &ammo_item = item_ammo.ammo_item;
+
+				if (item_ammo.qty_with_weapon == 0) {
+					continue;
+				}
+
+				if (ammo_item.has_component<item::ItemData>()
+					&& ammo_item.has_component<item::ItemQuantity>()) {
+					const auto ammo_data = ammo_item.get_component<item::ItemData>();
+					const auto ammo_qty = ammo_item.get_component<item::ItemQuantity>();
+
+					update_qty(*ammo_qty, item_ammo.qty_with_weapon);
+
+					if (!item::get_loaded_ammo(item)) {
+						item::load_ammo(item, ammo_data->item_id);
+					}
+				}
+			}
+		}
+
+		// if ammo, load weapon if unloaded
+		const auto weapons = entity_manager.find_entities_with_component<item::ItemAmmo>([&](const item::ItemAmmo &item_ammo) -> bool {
+			auto &ammo_item = item_ammo.ammo_item;
+
+			if (ammo_item.has_component<item::ItemData>()) {
+				const auto ammo_data = ammo_item.get_component<item::ItemData>();
+
+				if (ammo_data->item_id == item_data->item_id) {
+					return true;
+				}
+			}
+
+			return false;
+		});
+		for (auto weapon_it = weapons.begin(); weapon_it != weapons.end(); ++weapon_it) {
+			auto& weapon = **weapon_it;
+
+			if (!item::get_loaded_ammo(weapon)) {
+				item::load_ammo(weapon, item_data->item_id);
+			}
+		}
+	}
+}
+
 }
 }

@@ -146,6 +146,7 @@ void setup_tr4_ammo(
 	int32_t ammo_item_id,
 	uint8_t *weapon_value,
 	uint8_t ammo_bit,
+	int32_t qty_with_weapon,
 	ecs::EntityManager &entity_manager
 )
 {
@@ -173,7 +174,7 @@ void setup_tr4_ammo(
 		core::set_bit(*weapon_value, ammo_bit, false);
 	};
 
-	weapon_item->add_component(new item::ItemAmmo(*ammo_item, loaded, load, unload));
+	weapon_item->add_component(new item::ItemAmmo(*ammo_item, loaded, load, unload, qty_with_weapon));
 }
 
 void load_first_ammo(ecs::Entity &item)
@@ -339,6 +340,7 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->Flares = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 12;
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 	item_action.action = [=]() {
@@ -805,6 +807,7 @@ void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = -1;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -836,6 +839,7 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 	));
 	item_qty.supports_unlimited = true;
 	item_qty.divider = 6;
+	item_qty.pickup = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -867,6 +871,7 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 	));
 	item_qty.supports_unlimited = true;
 	item_qty.divider = 6;
+	item_qty.pickup = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -897,6 +902,7 @@ void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 30;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -927,6 +933,7 @@ void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -957,6 +964,7 @@ void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 10;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -992,6 +1000,7 @@ void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 10;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1027,6 +1036,7 @@ void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 10;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1062,6 +1072,7 @@ void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 10;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1097,6 +1108,7 @@ void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 4;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1132,6 +1144,7 @@ void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 4;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -3420,21 +3433,21 @@ void setup_items(ecs::EntityManager &entity_manager)
 
 void setup_ammo(ecs::EntityManager &entity_manager)
 {
-	setup_tr4_ammo(item::ItemId::PISTOLS, item::ItemId::PISTOLS_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::SHOTGUN, item::ItemId::SHOTGUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::SHOTGUN, item::ItemId::SHOTGUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_AMMO_SUPER, entity_manager);
-	setup_tr4_ammo(item::ItemId::UZI, item::ItemId::UZI_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::REVOLVER, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::REVOLVER_LASERSIGHT_COMBO, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
-	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_SUPER, entity_manager);
-	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_EXPLOSIVE, entity_manager);
+	setup_tr4_ammo(item::ItemId::PISTOLS, item::ItemId::PISTOLS_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_AMMO_NORMAL, -1, entity_manager);
+	setup_tr4_ammo(item::ItemId::SHOTGUN, item::ItemId::SHOTGUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_AMMO_NORMAL, 6, entity_manager);
+	setup_tr4_ammo(item::ItemId::SHOTGUN, item::ItemId::SHOTGUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_AMMO_SUPER, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::UZI, item::ItemId::UZI_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_AMMO_NORMAL, 30, entity_manager);
+	setup_tr4_ammo(item::ItemId::REVOLVER, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, 6, entity_manager);
+	setup_tr4_ammo(item::ItemId::REVOLVER_LASERSIGHT_COMBO, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, 6, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, 10, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, 10, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_NORMAL, 10, entity_manager);
+	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_SUPER, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_EXPLOSIVE, 0, entity_manager);
 }
 
 void combo_combine(item::ComboData &combo_data)
@@ -4496,7 +4509,7 @@ void customize_item_quantity(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 7) {
+	if (customize.NArguments < 8) {
 		return;
 	}
 
@@ -4505,6 +4518,7 @@ void customize_item_quantity(
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto qty_min = customize.pVetArg[++cust_index];
 	const auto qty_max = customize.pVetArg[++cust_index];
+	const auto qty_pickup = customize.pVetArg[++cust_index];
 	const auto supports_unlimited = customize.pVetArg[++cust_index];
 	const auto divider = customize.pVetArg[++cust_index];
 	const auto qty_get_tgroup = customize.pVetArg[++cust_index];
@@ -4528,6 +4542,10 @@ void customize_item_quantity(
 
 	if (qty_max != -1) {
 		item_qty->quantity_max = max(0, qty_max);
+	}
+
+	if (qty_pickup != -1) {
+		item_qty->pickup = max(-1, qty_pickup);
 	}
 
 	if (item_qty->quantity_min > item_qty->quantity_max) {
@@ -4771,7 +4789,7 @@ void customize_ammo(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 5) {
+	if (customize.NArguments < 6) {
 		return;
 	}
 
@@ -4786,8 +4804,9 @@ void customize_ammo(
 		return;
 	}
 
-	for (int32_t i = 1; i < customize.NArguments; i += 4) {
+	for (int32_t i = 1; i < customize.NArguments; i += 5) {
 		const auto ammo_item_id = customize.pVetArg[++cust_index];
+		const auto weapon_pickup_qty = customize.pVetArg[++cust_index];
 		const auto loaded_cgroup = customize.pVetArg[++cust_index];
 		const auto load_tgroup = customize.pVetArg[++cust_index];
 		const auto unload_tgroup = customize.pVetArg[++cust_index];
@@ -4804,6 +4823,10 @@ void customize_ammo(
 		});
 		if (!item_ammo) {
 			item_ammo = &weapon->add_component(new item::ItemAmmo(*ammo));
+		}
+
+		if (weapon_pickup_qty != -1) {
+			item_ammo->qty_with_weapon = max(-1, weapon_pickup_qty);
 		}
 
 		if (loaded_cgroup >= 0) {

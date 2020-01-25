@@ -16,6 +16,7 @@
 #include <classicinventory/ring.h>
 #include <classicinventory/setup.h>
 #include <classicinventory/trigger.h>
+#include <classicinventory/action.h>
 
 using namespace classicinventory;
 
@@ -64,7 +65,7 @@ extern char BufferLog[4096]; // temporary global buffer to host error and warnin
 // If you chose an address used from other plugins you'll get an error and
 // the game will be aborted
 // note: if you don't mean use code patches you can let 0x0 in following line
-DWORD MyTomb4PatcherAddress = 0x0; // 0x5F5978; // <- TYPE_HERE: the new address you chose
+DWORD MyTomb4PatcherAddress = 0x5F5978; // <- TYPE_HERE: the new address you chose
 
 
 // this text will contain your plugin name (omitting .dll extension).
@@ -107,6 +108,16 @@ int patch_picked_up_object(void)
 	return ApplyRelocatorPatch(0x43E380, VetBytes, 10, 0x43E380, 0x43E75A);
 }
 
+// Date creation: 25 Jan 2020 00:49:44
+// 0043E58B     66:8305 FDDF8000 08         ADD WORD PTR DS:[80DFFD],8
+int patch_flares_pickup_amount(void)
+{
+	static BYTE VetBytes[]={0x66, 0x83, 0x5, 0xFD, 0xDF, 0x80, 0x0, 0x4};
+
+	return ApplyCodePatch(0x43E58B, VetBytes, 8);
+}
+
+
 
 
 // FOR_YOU: In this function you insert the callings of functions used to change tomb4 code
@@ -122,7 +133,8 @@ bool CreateMyCodePatches(void)
 	// to call the function Patch_RedirCollision() created with TrngPatcher program (command Assmembly->Create Dynamic Patch Generator)
 
 	// SET_PATCH(patch_have_i_got_object);
-	// SET_PATCH(patch_picked_up_object);
+	SET_PATCH(patch_picked_up_object);
+	// SET_PATCH(patch_flares_pickup_amount);
 
 	return true;
 }
@@ -163,11 +175,8 @@ void patch_01_picked_up_object(int slot)
 		return item_data.item_id == item_id;
 	});
 
-	if (item && item->has_component<item::ItemQuantity>()) {
-		const auto &item_qty = *item->get_component<item::ItemQuantity>();
-
-		//TODO: customize the qty added
-		item_qty.increase();
+	if (item) {
+		action::pickup_item(*item, entity_manager);
 	}
 }
 

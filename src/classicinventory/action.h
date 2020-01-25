@@ -32,6 +32,7 @@ bool exchange_waterskins(ecs::Entity &item);
 bool load_game();
 bool save_game();
 bool exit_to_title();
+void pickup_item(ecs::Entity &item, ecs::EntityManager &entity_manager);
 
 }
 }
