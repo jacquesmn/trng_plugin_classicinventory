@@ -3818,7 +3818,8 @@ void setup_text(ecs::EntityManager &entity_manager)
 		0,
 		enumFC.GOLD,
 		enumFTS.ALIGN_CENTER,
-		45
+		45,
+		script::ScriptString("%name")
 	));
 	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_DESC_IDLE,
@@ -3836,7 +3837,18 @@ void setup_text(ecs::EntityManager &entity_manager)
 		enumFT.LITTLE_ALWAYS,
 		enumFC.GOLD,
 		enumFTS.ALIGN_CENTER,
-		40
+		40,
+		script::ScriptString("%name")
+	));
+	inventory->add_component(new text::TextConfig(
+		text::TextType::ITEM_QTY_IDLE,
+		650,
+		750,
+		enumFT.LITTLE_ALWAYS,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_RIGHT,
+		40,
+		script::ScriptString("%qty")
 	));
 
 	inventory->add_component(new text::TextConfig(
@@ -3846,7 +3858,8 @@ void setup_text(ecs::EntityManager &entity_manager)
 		0,
 		enumFC.GOLD,
 		enumFTS.ALIGN_CENTER,
-		50
+		50,
+		script::ScriptString("%name")
 	));
 	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_DESC_ACTIVE,
@@ -3864,7 +3877,18 @@ void setup_text(ecs::EntityManager &entity_manager)
 		enumFT.LITTLE_ALWAYS,
 		enumFC.GOLD,
 		enumFTS.ALIGN_CENTER,
-		50
+		50,
+		script::ScriptString("%name")
+	));
+	inventory->add_component(new text::TextConfig(
+		text::TextType::ITEM_QTY_ACTIVE,
+		500,
+		150,
+		enumFT.LITTLE_ALWAYS,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER,
+		50,
+		script::ScriptString("%qty")
 	));
 
 	inventory->add_component(new text::TextConfig(
@@ -5350,7 +5374,7 @@ void customize_text(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 8) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
@@ -5368,6 +5392,7 @@ void customize_text(
 	const auto colour = customize.pVetArg[++cust_index];
 	const auto align = customize.pVetArg[++cust_index];
 	const auto line_height = customize.pVetArg[++cust_index];
+	const auto template_stridex = customize.pVetArg[++cust_index];
 	const auto enabled = customize.pVetArg[++cust_index];
 
 	if (type_id < 1 || type_id >= text::TextType::NONE) {
@@ -5399,6 +5424,9 @@ void customize_text(
 	}
 	if (line_height >= 0) {
 		text_config->line_height = line_height;
+	}
+	if (template_stridex != -1) {
+		text_config->text_template = script::ScriptString(template_stridex);
 	}
 	if (enabled != -1
 		&& type != text::TextType::ACTION_MENU

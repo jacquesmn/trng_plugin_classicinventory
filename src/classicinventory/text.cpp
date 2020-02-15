@@ -29,6 +29,14 @@
 namespace classicinventory {
 namespace text {
 
+std::string trim(std::string text)
+{
+	text.erase(text.find_last_not_of("\t\n\v\f\r ") + 1);
+	text.erase(0, text.find_first_not_of("\t\n\v\f\r "));
+
+	return text;
+}
+
 TextConfig* get_text_config(
 	TextType::Enum text_type,
 	ecs::EntityManager &entity_manager
@@ -92,24 +100,74 @@ void add_text(
 	));
 }
 
-std::string build_item_text(const std::string& item_name, const item::ItemQuantity *item_qty, bool force_qty)
+std::string build_item_text(
+	TextType::Enum text_type,
+	ecs::EntityManager &entity_manager,
+	const std::string& item_name,
+	const item::ItemQuantity *item_qty,
+	bool force_qty
+)
 {
+	const auto text_config = get_text_config(text_type, entity_manager);
+	if (!text_config || !text_config->enabled) {
+		return std::string();
+	}
+
+	const auto text_template = text_config->text_template.get_string();
+
+	const auto regex_name = std::regex("%s|%name");
+	const auto regex_qty = std::regex("%qty");
+
+	auto template_name = std::string("%name");
+	auto template_qty = std::string("%qty x");
+	auto template_unlimited = script::ScriptString(script::StringIndex::UNLIMITED).get_string();
+
+	TextConfig *text_config_qty = nullptr;
+	switch (text_type) {
+	case TextType::ITEM_NAME_IDLE:
+	case TextType::ITEM_AMMO_IDLE:
+		text_config_qty = get_text_config(TextType::ITEM_QTY_IDLE, entity_manager);
+		break;
+	case TextType::ITEM_NAME_ACTIVE:
+	case TextType::ITEM_AMMO_ACTIVE:
+		text_config_qty = get_text_config(TextType::ITEM_QTY_ACTIVE, entity_manager);
+		break;
+	case TextType::ITEM_QTY_IDLE:
+	case TextType::ITEM_QTY_ACTIVE:
+		text_config_qty = text_config;
+	default:
+		break;
+	}
+	if (text_config_qty) {
+		template_qty = text_config_qty->text_template.get_string();
+	}
+
+	auto text_name = trim(std::regex_replace(template_name, regex_name, item_name));
+	
+	auto text_qty = std::string();
 	if (item_qty) {
 		const auto qty = item_qty->get();
-
+		
 		if (qty == item::ITEM_QTY_UNLIMITED) {
-			const auto unlimited = script::ScriptString(script::StringIndex::UNLIMITED);
-
-			return std::regex_replace(unlimited.get_string(), std::regex("%s"), item_name);;
+			text_qty = trim(std::regex_replace(template_unlimited, regex_name, std::string()));
 		}
 		else if (qty > 1 || force_qty) {
-			std::ostringstream item_text;
-			item_text << qty << " x " << item_name;
-			return item_text.str();
+			std::ostringstream stream_qty;
+			stream_qty << qty;
+
+			text_qty = template_qty;
+			text_qty = trim(std::regex_replace(text_qty, regex_qty, stream_qty.str()));
+			text_qty = trim(std::regex_replace(text_qty, regex_name, std::string()));
 		}
 	}
 
-	return item_name;
+	auto text = text_template;
+	text = std::regex_replace(text, regex_name, text_name);
+	text = std::regex_replace(text, regex_qty, text_qty);
+
+	text = trim(text);
+
+	return text;
 }
 
 }
