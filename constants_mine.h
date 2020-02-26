@@ -51,6 +51,9 @@
 // type here the constant name for new progressive action you create
 // use progressive number to have always different value for each AXN_ constant/action
 
+#define AXN_HEALTH_UPDATE				1
+#define AXN_AIR_UPDATE					2
+
 
 // MPS_ flags
 // you should type here your MPS_ flags for plugin command.

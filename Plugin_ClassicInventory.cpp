@@ -732,17 +732,85 @@ int cbCycleEnd(void)
 // this function will be called for each your (common) progressive action to be peformed
 void PerformMyProgrAction(StrProgressiveAction *pAction)
 {
-	switch (pAction->ActionType) {
-		// replace the "case -1:" with your first "case AXN_...:" progressive action to manage)		
-	case -1:
-		break;
+	if (pAction->Arg1 == 0) {
+		// completed! disable and free this progressive action
+		pAction->ActionType = AXN_FREE;
+		return;
+	}
 
+	// decrease performed frames
+	if (pAction->Arg1 != ENDLESS_DURATE) {
+		pAction->Arg1--;
+	}
+
+	const auto update_value_progressively = [&](
+		short &value,
+		int total,
+		int maximum,
+		int minimum,
+		float value_per_frame,
+		float &value_total,
+		float &value_tmp
+	) {
+		value_total += abs(value_per_frame);
+		value_tmp += abs(value_per_frame);
+
+		if (value_total <= abs(total) && value_tmp >= 1) {
+			const auto value_per_frame_int = int32_t(floor(value_per_frame));
+
+			value = min(maximum, value + value_per_frame_int);
+			value = max(minimum, value);
+
+			value_tmp -= abs(value_per_frame_int);
+		}
+
+		if (value == maximum
+			|| value == minimum
+			|| value_total >= abs(total)) {
+			pAction->Arg1 = 0;
+		}
+	};
+
+	switch (pAction->ActionType) {
+	case AXN_HEALTH_UPDATE:
+		update_value_progressively(
+			Trng.pGlobTomb4->pAdr->pLara->Health,
+			pAction->VetArg[0],
+			1000,
+			0,
+			pAction->VetArgFloat[1],
+			pAction->VetArgFloat[2],
+			pAction->VetArgFloat[3]
+		);
+		break;
+	case AXN_AIR_UPDATE:
+		update_value_progressively(
+			*Trng.pGlobTomb4->pAdr->pAirAvailable,
+			pAction->VetArg[0],
+			1800,
+			0,
+			pAction->VetArgFloat[1],
+			pAction->VetArgFloat[2],
+			pAction->VetArgFloat[3]
+		);
+		break;
 	}
 }
 
 // callback called from trng for each frame in game cycle to perform your (common) progressive action
 void cbProgrActionMine(void)
 {
+	int i;
+	StrProgressiveAction *pAction;
+
+	pAction = &MyData.VetProgrActions[0];
+	for (i=0;i<MyData.TotProgrActions;i++) {
+		if (pAction->ActionType != AXN_FREE) {
+			PerformMyProgrAction(pAction);
+		}
+		pAction++;
+	}
+
 	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
 		controller::get_controller(
 			ecs::get_entity_manager(),

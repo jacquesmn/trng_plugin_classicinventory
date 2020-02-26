@@ -72,39 +72,75 @@ bool use_health(ecs::Entity &item, bool silent)
 		return false;
 	}
 
-	const auto lara_health_before = lara_health;
-	const auto lara_air_before = lara_air;
+	const auto health_before = lara_health;
+	const auto air_before = lara_air;
 	const auto poison1_before = lara_poison1;
 	const auto poison2_before = lara_poison2;
 
-	lara_health = min(1000, lara_health + health_data.health_points);
-	lara_health = max(0, lara_health);
+	auto health_after = health_before;
+	auto air_after = air_before;
+	auto poison1_after = poison1_before;
+	auto poison2_after = poison2_before;
 
-	lara_air = min(1800, lara_air + health_data.air_points);
-	lara_air = max(0, lara_air);
+	health_after = min(1000, health_before + health_data.health_points);
+	health_after = max(0, health_after);
+
+	air_after = min(1800, air_before + health_data.air_points);
+	air_after = max(0, air_after);
 
 	if (health_data.cure_poison) {
-		lara_poison1 = 0;
-		lara_poison2 = 0;
+		poison1_after = 0;
+		poison2_after = 0;
 	}
 	else {
-		lara_poison1 = min(4097, lara_poison1 + health_data.poison_points);;
-		lara_poison2 = min(4097, lara_poison2 + health_data.poison_points);;
+		poison1_after = min(4097, poison1_before + health_data.poison_points);
+		poison2_after = min(4097, poison2_before + health_data.poison_points);
 	}
 
-	if (lara_health < lara_health_before
-		|| lara_air < lara_air_before
-		|| lara_poison1 > poison1_before
-		|| lara_poison2 > poison2_before) {
+	if (health_data.duration_frames > 0) {
+		// update progressively
+		const auto add_prog_action = [&](uint32_t type, uint32_t frames, int32_t amount) -> void {
+			Get(enumGET.PROGRESSIVE_ACTION, 0, 0);
+
+			auto& prog_action = *GET.pAction;
+			prog_action.ActionType = type;
+			prog_action.Arg1 = frames;
+			prog_action.VetArg[0] = amount;
+			prog_action.VetArgFloat[1] = float(prog_action.VetArg[0]) / float(prog_action.Arg1);
+			prog_action.VetArgFloat[2] = 0;
+			prog_action.VetArgFloat[3] = 0;
+		};
+
+		if (health_data.health_points != 0) {
+			add_prog_action(AXN_HEALTH_UPDATE, health_data.duration_frames, health_data.health_points);
+		}
+
+		if (health_data.air_points != 0) {
+			add_prog_action(AXN_AIR_UPDATE, health_data.duration_frames, health_data.air_points);
+		}
+	}
+	else {
+		// update instantly
+		lara_health = health_after;
+		lara_air = air_after;
+	}
+
+	lara_poison1 = poison1_after;
+	lara_poison2 = poison2_after;
+
+	if (health_after < health_before
+		|| air_after < air_before
+		|| poison1_after > poison1_before
+		|| poison2_after > poison2_before) {
 		// hurt sfx
 		if (health_data.hurt_sound_id >= 0) {
 			SoundEffect(health_data.hurt_sound_id, nullptr, 2);
 		}
 	}
-	else if (lara_health > lara_health_before
-		|| lara_air > lara_air_before
-		|| lara_poison1 < poison1_before
-		|| lara_poison2 < poison2_before) {
+	else if (health_after > health_before
+		|| air_after > air_before
+		|| poison1_after < poison1_before
+		|| poison2_after < poison2_before) {
 		// heal sfx
 		if (health_data.heal_sound_id >= 0) {
 			SoundEffect(health_data.heal_sound_id, nullptr, 2);

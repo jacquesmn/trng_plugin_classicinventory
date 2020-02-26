@@ -78,8 +78,6 @@ public:
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 };
 
-
-
 struct GameTime : public ecs::Component {
 	uint32_t frames;
 	float hours;
@@ -103,6 +101,7 @@ struct HealthData : public ecs::Component {
 	int32_t air_points;
 	int32_t heal_sound_id;
 	int32_t hurt_sound_id;
+	uint32_t duration_frames;
 	bool cure_poison;
 	bool increase_usage_stats;
 
@@ -121,6 +120,7 @@ struct HealthData : public ecs::Component {
 		air_points(air_points),
 		heal_sound_id(heal_sound_id),
 		hurt_sound_id(hurt_sound_id),
+		duration_frames(0),
 		cure_poison(cure_poison),
 		increase_usage_stats(increase_usage_stats)
 	{}

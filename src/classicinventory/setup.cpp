@@ -4924,7 +4924,7 @@ void customize_health(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 8) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
@@ -4938,6 +4938,7 @@ void customize_health(
 	const auto hurt_sound_id = customize.pVetArg[++cust_index];
 	const auto cure_poison = customize.pVetArg[++cust_index];
 	const auto increase_usage_stats = customize.pVetArg[++cust_index];
+	const auto duration_frames = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -4992,6 +4993,9 @@ void customize_health(
 	}
 	if (increase_usage_stats >= 0) {
 		health_data->increase_usage_stats = increase_usage_stats == CINV_TRUE;
+	}
+	if (duration_frames > 0) {
+		health_data->duration_frames = duration_frames;
 	}
 }
 
