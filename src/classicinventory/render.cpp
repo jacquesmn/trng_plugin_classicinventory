@@ -20,6 +20,9 @@
 
 #include "render.h"
 
+#include <sstream>
+#include <iomanip>
+
 #include "camera.h"
 #include "cheat.h"
 #include "core.h"
@@ -60,6 +63,7 @@ extern TYPE_DrawHealthBar DrawHealthBar;
 extern TYPE_DrawAirBar DrawAirBar;
 extern void BackupLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 extern void RestoreLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
+extern StrMyData MyData;
 
 namespace classicinventory {
 namespace render {
@@ -425,29 +429,6 @@ void InventoryRenderSystem::draw_texts(ecs::EntityManager &entity_manager) const
 	UpdateTextPulse();
 }
 
-void InventoryRenderSystem::draw_text(
-	std::string text,
-	uint32_t screen_x,
-	uint32_t screen_y,
-	int32_t flags_size,
-	int32_t flags_colour,
-	int32_t flags_align
-) const {
-	RECT text_area;
-	text_area.left = screen_x;
-	text_area.top = screen_y;
-	ConvertMicroUnits(&text_area);
-
-	PrintText(
-		text_area.left,
-		text_area.top,
-		&text[0],
-		flags_size,
-		flags_colour,
-		flags_align
-	);
-}
-
 void InventoryRenderSystem::draw_bars(ecs::EntityManager &entity_manager) const
 {
 	auto health_entities = entity_manager.find_entities_with_component<HealthBar>();
@@ -469,28 +450,6 @@ void InventoryRenderSystem::draw_bars(ecs::EntityManager &entity_manager) const
 	}
 }
 
-void InventoryRenderSystem::draw_bar(
-	uint32_t screen_x,
-	uint32_t screen_y,
-	uint32_t width,
-	uint32_t height,
-	uint32_t percent,
-	uint32_t colour1,
-	uint32_t colour2
-) const
-{
-	// position and size needs to be based on resolution of 640x480
-	// game will adjust proportionally to fit current resolution
-
-	screen_x = screen_x * 640 / 1000;
-	screen_y = screen_y * Trng.pGlobTomb4->ScreenSizeY / 1000; // not computed from 480, bug?
-
-	width = width * 640 / 10000;
-	height = height * 480 / 1000;
-
-	DoBar(screen_x, screen_y, width, height, percent, colour1, colour2);
-}
-
 void InventoryRenderSystem::draw_statistics(
 	ecs::EntityManager &entity_manager
 ) const
@@ -498,7 +457,8 @@ void InventoryRenderSystem::draw_statistics(
 	const auto entity = entity_manager.find_entity_with_component<StatisticsScreen>();
 
 	if (entity) {
-		DoStatScreen();
+		//DoStatScreen();
+		draw_stats();
 	}
 }
 
@@ -779,6 +739,164 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager &entity_manager)
 	entity_manager.remove_components<PickupDisplay>([](const PickupDisplay &pickup_display) -> bool {
 		return !pickup_display.active;
 	});
+}
+
+void StatisticsRenderSystem::update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
+{
+	draw_stats();
+}
+
+void draw_text(
+	std::string text,
+	uint32_t screen_x,
+	uint32_t screen_y,
+	int32_t flags_size,
+	int32_t flags_colour,
+	int32_t flags_align
+) {
+	RECT text_area;
+	text_area.left = screen_x;
+	text_area.top = screen_y;
+	ConvertMicroUnits(&text_area);
+
+	PrintText(
+		text_area.left,
+		text_area.top,
+		&text[0],
+		flags_size,
+		flags_colour,
+		flags_align
+	);
+}
+
+void draw_stats()
+{
+	const auto &statistics_global = MyData.Save.Global.statistics;
+	const auto &statistics_local = MyData.Save.Local.statistics;
+	const auto &statistics = statistics_global;
+	
+	const auto font_size = 0;
+	const auto line_height = 68;
+	const auto div_width = 500;
+	const auto text_x = 130;
+	auto text_y = 100;
+
+	draw_text(script::ScriptString(script::StringIndex::STATISTICS).get_string(), 500, text_y, 0, enumFC.GOLD, enumFTS.ALIGN_CENTER);
+
+	// Level Name
+	text_y += int(line_height * 1.5);
+	const auto level_index = *Trng.pGlobTomb4->pAdr->pLevelNow;
+	const auto level_name_stridex = reinterpret_cast<BYTE*>(0x7FD1A0)[level_index];
+	draw_text(script::ScriptString(level_name_stridex).get_string(), 500, text_y, 0, enumFC.WHITE, enumFTS.ALIGN_CENTER);
+
+	// Time Taken
+	text_y += int(line_height * 1.5);
+	draw_text(script::ScriptString(script::StringIndex::TIME_TAKEN).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto game_seconds = statistics.time_taken_seconds;
+	const auto d = game_seconds / 86400;
+	const auto h = game_seconds % 86400 / 3600;
+	const auto m = game_seconds % 3600 / 60;
+	const auto s = game_seconds % 60;
+
+	std::ostringstream stream_time;
+	if (d) {
+		stream_time << d;
+		stream_time << " " << script::ScriptString(script::StringIndex::DAYS).get_string() << " ";
+	}
+	stream_time << std::setfill('0') << std::setw(2) << h;
+	stream_time << ":";
+	stream_time << std::setfill('0') << std::setw(2) << m;
+	stream_time << ":";
+	stream_time << std::setfill('0') << std::setw(2) << s;
+	draw_text(std::string(stream_time.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Distance Travelled
+	text_y += line_height;
+	draw_text(script::ScriptString(script::StringIndex::DISTANCE_TRAVELLED).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto distance_meters = statistics.distance_travelled_meters;
+	
+	std::ostringstream stream_distance;
+	if (distance_meters < 1000) {
+		stream_distance << distance_meters << "m";
+	}
+	else {
+		stream_distance << std::setprecision(2) << std::fixed << distance_meters / 1000.f << "km";
+	}
+	draw_text(std::string(stream_distance.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Ammo Used
+	text_y += line_height;
+	draw_text(script::ScriptString(script::StringIndex::AMMO_USED).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto ammo_used = statistics.ammo_used;
+
+	std::ostringstream stream_ammo;
+	stream_ammo << ammo_used;
+	draw_text(std::string(stream_ammo.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Hits
+	text_y += line_height;
+	draw_text("Hits", text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto hits = statistics.hits;
+
+	std::ostringstream stream_hits;
+	stream_hits << hits;
+	draw_text(std::string(stream_hits.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Kills
+	text_y += line_height;
+	draw_text("Kills", text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto kills = statistics.kills;
+
+	std::ostringstream stream_kills;
+	stream_kills << kills;
+	draw_text(std::string(stream_kills.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Health Packs Used
+	text_y += line_height;
+	draw_text(script::ScriptString(script::StringIndex::HEALTH_PACKS_USED).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto health_packs_used = statistics.health_packs_used;
+
+	std::ostringstream stream_health_packs;
+	stream_health_packs << health_packs_used;
+	draw_text(std::string(stream_health_packs.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Health Lost
+	text_y += line_height;
+	draw_text(script::ScriptString("Health Lost").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto health_lost = statistics.health_lost;
+
+	std::ostringstream stream_injuries;
+	stream_injuries << health_lost << " HP";
+	draw_text(std::string(stream_injuries.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Flares Used
+	text_y += line_height;
+	draw_text(script::ScriptString("Flares Used").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto flares_used = statistics.flares_used;
+
+	std::ostringstream stream_flares;
+	stream_flares << flares_used;
+	draw_text(std::string(stream_flares.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Times Saved
+	text_y += line_height;
+	draw_text(script::ScriptString("Times Saved").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto times_saved = statistics.times_saved;
+
+	std::ostringstream stream_saved;
+	stream_saved << times_saved;
+	draw_text(std::string(stream_saved.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Secrets Found
+	text_y += line_height;
+	draw_text(script::ScriptString(script::StringIndex::SECRETS_FOUND).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto secrets_found = statistics.secrets_found;
+
+	std::ostringstream stream_secrets;
+	stream_secrets << secrets_found;
+	stream_secrets << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
+	stream_secrets << Trng.pGlobTomb4->pBaseCustomize->SecretsAmount;
+	draw_text(std::string(stream_secrets.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 }
 
 }

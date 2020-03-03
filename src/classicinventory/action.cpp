@@ -155,7 +155,7 @@ bool use_health(ecs::Entity &item, bool silent)
 	return true;
 }
 
-bool use_flare(ecs::Entity &item)
+bool use_flare(ecs::Entity &item, bool throw_away, bool silent)
 {
 	if (!item.has_component<item::ItemQuantity>()) {
 		return false;
@@ -171,12 +171,21 @@ bool use_flare(ecs::Entity &item)
 
 	if (in_hands_now == enumHOLD.FLARE) {
 		// already holding flare
+
+		if (throw_away 
+			&& !(hand_flags & enumFLH.IS_EXTRACTING)
+			&& !(hand_flags & enumFLH.IS_GRABBING)) {
+			hand_flags = enumFLH.IS_THROWING;
+		}
+		
 		return false;
 	}
 
 	if (hand_flags != 0) {
 		// lara is busy doing something important
-		SayNo();
+		if (!silent) {
+			SayNo();
+		}
 		return false;
 	}
 
@@ -185,6 +194,9 @@ bool use_flare(ecs::Entity &item)
 	}
 
 	in_hands_next = enumHOLD.FLARE;
+
+	MyData.Save.Global.statistics.flares_used++;
+	MyData.Save.Local.statistics.flares_used++;
 
 	return true;
 }
@@ -365,9 +377,13 @@ bool exchange_waterskins(ecs::Entity &item)
 	return true;
 }
 
-bool load_game()
+bool load_game(bool draw_background, int32_t *result)
 {
-	const int save_number = ShowSaveScreen(0x800000, true);
+	const int save_number = ShowSaveScreen(0x800000, !draw_background);
+
+	if (result) {
+		*result = save_number;
+	}
 
 	if (save_number >= 0) {
 		// loaded game
@@ -379,9 +395,16 @@ bool load_game()
 	return false;
 }
 
-bool save_game()
+bool save_game(bool draw_background, int32_t *result)
 {
-	const int save_number = ShowSaveScreen(0x400000, true);
+	MyData.Save.Global.statistics.times_saved++;
+	MyData.Save.Local.statistics.times_saved++;
+	
+	const int save_number = ShowSaveScreen(0x400000, !draw_background);
+
+	if (result) {
+		*result = save_number;
+	}
 
 	if (save_number >= 0) {
 		// saved game
@@ -392,6 +415,9 @@ bool save_game()
 
 		return true;
 	}
+
+	MyData.Save.Global.statistics.times_saved--;
+	MyData.Save.Local.statistics.times_saved--;
 
 	return false;
 }

@@ -300,10 +300,11 @@ void cbInitLoadNewLevel(void)
 	MyData.TotProgrActions = 0;
 	MyData.LastProgrActionIndex = 0;
 
-	// clear GLOBAL inventory state
+	// clear GLOBAL state
 	// GLOBAL state will still be carried over between levels
 	// this is just to prevent GLOBAL state from being carried over to the title screen and subsequent new-game
 	ClearMemory(&MyData.Save.Global.inventory_data, sizeof(MyData.Save.Global.inventory_data));
+	ClearMemory(&MyData.Save.Global.statistics, sizeof(MyData.Save.Global.statistics));
 
 	// initialize inventory state
 	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
@@ -579,6 +580,54 @@ void cbLoadMyData(BYTE *pAdrZone, DWORD SizeData)
 }
 
 
+int cbFlipEffect(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode)
+{
+	int RetValue = enumTRET.PERFORM_ONCE_AND_GO;
+
+	// if the flip has no Extra paremeter you can handle a Timer value with values upto 32767
+	// in this case you'll use the following TimerFull variable, where (with following code) we set a unique big number 
+	// pasting togheter the timer+extra arguments:
+	WORD TimerFull = Timer | (Extra << 8);
+
+	if (!inventory::inventory_enabled(ecs::get_entity_manager())) {
+		return enumTRET.EXECUTE_ORIGINAL;
+	}
+
+	if (FlipIndex == 53 && Timer == 11) {
+		// simulate flare shortcut
+		core::set_bit<DWORD>(*Trng.pGlobTomb4->pAdr->pInputExtGameCommands, enumCMD.USE_FLARE, true);
+
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_input(
+			Trng.pGlobTomb4->pAdr->pVetInputKeyboard,
+			reinterpret_cast<uint32_t*>(Trng.pGlobTomb4->pAdr->pInputExtGameCommands)
+		);
+	}
+	else if (FlipIndex == 53 && Timer == 18) {
+		// simulate save shortcut
+		Trng.pGlobTomb4->pAdr->pVetInputKeyboard[63] = 1;
+
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_input(
+			Trng.pGlobTomb4->pAdr->pVetInputKeyboard,
+			reinterpret_cast<uint32_t*>(Trng.pGlobTomb4->pAdr->pInputExtGameCommands)
+		);
+	}
+	else {
+		return enumTRET.EXECUTE_ORIGINAL;
+	}
+
+	// if there was the one-shot button enabled, return TRET_PERFORM_NEVER_MORE
+	if (ActivationMode & enumSCANF.BUTTON_ONE_SHOT) {
+		RetValue = enumTRET.PERFORM_NEVER_MORE;
+	}
+
+	return RetValue;
+}
 
 // this procedure will be called everytime a flipeffect of yours will be engaged
 // you have to elaborate it and then return a TRET_.. value (most common is TRET_PERFORM_ONCE_AND_GO)
@@ -853,6 +902,20 @@ int cbInventoryAfter(WORD CBT_Flags, bool TestLoadedGame, int SelectedItem)
 	return enumIRET.SKIP_ORIGINAL;
 }
 
+bool cbStatisticsManager()
+{
+	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_statistics();
+
+		return true;
+	}
+
+	return false;
+}
+
 // callback for managing input
 // this way we can override inputs if needed
 bool cbInputManager(
@@ -892,7 +955,6 @@ void* cbNumericTrngPatch(WORD PatchIndex, WORD CBT_Flags, bool TestFromJump, Str
 }
 
 
-
 // FOR_YOU:
 // in this function RequireMyCallBacks() you'll type
 // a list of:
@@ -925,9 +987,13 @@ bool RequireMyCallBacks(void)
 
 	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_FIRST, 0, cbInventoryMain);
 	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_AFTER, 0, cbInventoryAfter);
+	GET_CALLBACK(CB_STATISTICS_MANAGER, CBT_REPLACE, 0, cbStatisticsManager);
+	
 	GET_CALLBACK(CB_INPUT_MANAGER, CBT_FIRST, 0, cbInputManager);
 
 	GET_CALLBACK(CB_NUMERIC_TRNG_PATCH, CBT_FIRST, 0x136, cbNumericTrngPatch);
+
+	GET_CALLBACK(CB_FLIPEFFECT, CBT_REPLACE, 53, cbFlipEffect);
 
 
 	return true;

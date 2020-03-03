@@ -55,25 +55,8 @@ private:
 	) const;
 
 	void draw_texts(ecs::EntityManager &entity_manager) const;
-	void draw_text(
-		std::string text,
-		uint32_t screen_x,
-		uint32_t screen_y,
-		int32_t flags_size,
-		int32_t flags_colour,
-		int32_t flags_align
-	) const;
 
 	void draw_bars(ecs::EntityManager &entity_manager) const;
-	void draw_bar(
-		uint32_t screen_x,
-		uint32_t screen_y,
-		uint32_t width,
-		uint32_t height,
-		uint32_t percent,
-		uint32_t colour1,
-		uint32_t colour2
-	) const;
 
 	void draw_statistics(ecs::EntityManager &entity_manager) const;
 	void draw_options(ecs::EntityManager &entity_manager) const;
@@ -98,6 +81,11 @@ public:
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 
 	void cleanup(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;
+};
+
+class StatisticsRenderSystem : public ecs::System {
+public:
+	void update(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;
 };
 
 struct LightingLocation : public ecs::Component {
@@ -235,6 +223,13 @@ struct OptionsScreen : public ecs::Component {
 		finished(false)
 	{}
 };
+
+// ----------------------------
+// ##### HELPER FUNCTIONS #####
+// ----------------------------
+void draw_text(std::string text, uint32_t screen_x,	uint32_t screen_y, int32_t flags_size, int32_t flags_colour, int32_t flags_align);
+
+void draw_stats();
 
 }
 }

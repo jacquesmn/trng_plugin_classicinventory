@@ -78,6 +78,20 @@ public:
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 };
 
+class StatisticsSystem : public ecs::System {
+private:
+	StrStatistics &statistics_local;
+	StrStatistics &statistics_global;
+
+	int32_t health_before;
+	
+	
+public:
+	StatisticsSystem(StrStatistics &statistics_local, StrStatistics &statistics_global);
+	
+	void update(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;
+};
+
 struct GameTime : public ecs::Component {
 	uint32_t frames;
 	float hours;

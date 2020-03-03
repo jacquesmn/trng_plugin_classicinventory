@@ -25,12 +25,12 @@ namespace classicinventory {
 namespace action {
 
 bool use_health(ecs::Entity &item, bool silent = false);
-bool use_flare(ecs::Entity &item);
+bool use_flare(ecs::Entity &item, bool throw_away = false, bool silent = false);
 bool use_binoculars(ecs::Entity &item);
 bool equip_weapon(ecs::Entity &item);
 bool exchange_waterskins(ecs::Entity &item);
-bool load_game();
-bool save_game();
+bool load_game(bool draw_background = false, int32_t *result = nullptr);
+bool save_game(bool draw_background = false, int32_t *result = nullptr);
 bool exit_to_title();
 void pickup_item(ecs::Entity &item, ecs::EntityManager &entity_manager);
 
