@@ -635,7 +635,13 @@ void GameRenderSystem::update(
 
 void GameRenderSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
 {
-	entity_manager.remove_components<render::PickupDisplay>();
+	entity_manager.remove_components<PickupDisplay>([](const PickupDisplay &pickup_display) -> bool {
+		if (pickup_display.param_show_sprite_id >= 0) {
+			PerformFlipeffect(nullptr, 358, pickup_display.param_show_sprite_id, 0);
+		}
+		
+		return true;
+	});
 }
 
 void GameRenderSystem::draw_pickups(ecs::EntityManager &entity_manager)
@@ -687,22 +693,32 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager &entity_manager)
 			if (item_model_pickup->sprite_id >= 0
 				&& item_model_pickup->size_x > 0
 				&& item_model_pickup->size_y > 0) {
-				RECT screen_pos;
-				screen_pos.left = core::round(item_display_pickup->pos.x);
-				screen_pos.top = core::round(item_display_pickup->pos.y);
-				screen_pos.right = item_model_pickup->size_x;
-				screen_pos.bottom = item_model_pickup->size_y;
-				ConvertMicroUnits(&screen_pos);
-
-				const auto sprite_alpha = core::round(pickup_display.alpha);
-
-				DrawSprite2D(
-					&screen_pos,
-					item_model_pickup->slot_id,
-					item_model_pickup->sprite_id,
-					sprite_alpha,
-					RGB(sprite_alpha, sprite_alpha, sprite_alpha)
-				);
+				if (pickup_display.param_show_sprite_id < 0) {
+					RECT screen_pos;
+					screen_pos.left = core::round(item_display_pickup->pos.x);
+					screen_pos.top = core::round(item_display_pickup->pos.y);
+					screen_pos.right = item_model_pickup->size_x;
+					screen_pos.bottom = item_model_pickup->size_y;
+					
+					pickup_display.param_show_sprite_id = Service(
+						enumSRV.CREATE_PARAM_COMMAND,
+						true,
+						PARAM_SHOW_SPRITE,
+						item_display_pickup->fade ? FSS_EFFECT_ZOOM : -1,
+						screen_pos.left,
+						screen_pos.top,
+						screen_pos.right,
+						screen_pos.bottom,
+						item_model_pickup->slot_id,
+						item_model_pickup->sprite_id,
+						-1,
+						-1,
+						-1,
+						item_display_pickup->fade ? 15 : -1,
+						END_LIST
+					);
+					PerformFlipeffect(nullptr, 357, pickup_display.param_show_sprite_id, 0);
+				}
 			}
 			else {
 				RECT screen_pos;
@@ -732,6 +748,10 @@ void GameRenderSystem::draw_pickups(ecs::EntityManager &entity_manager)
 
 	// mark as done
 	if (pickup_done) {
+		if (pickup_display.param_show_sprite_id >= 0) {
+			PerformFlipeffect(nullptr, 358, pickup_display.param_show_sprite_id, 0);
+		}
+		
 		pickup_display.active = false;
 	}
 

@@ -195,6 +195,7 @@ struct PickupDisplay : public ecs::Component {
 	int32_t item_id;
 	core::Vector3D rotation;
 	float alpha;
+	int param_show_sprite_id;
 	bool active;
 
 	PickupDisplay(
@@ -204,6 +205,7 @@ struct PickupDisplay : public ecs::Component {
 		item_id(item_id),
 		rotation(core::Vector3D()),
 		alpha(255),
+		param_show_sprite_id(-1),
 		active(true)
 	{}
 };
