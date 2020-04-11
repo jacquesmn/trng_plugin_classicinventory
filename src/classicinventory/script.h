@@ -52,14 +52,13 @@ private:
 	int32_t index;
 	std::string string;
 
-	void init();
-
 public:
 	ScriptString(int32_t index = -1);
 	ScriptString(std::string string);
 
+	std::string get_string() const;
+	
 	int32_t get_index() const { return index; }
-	std::string get_string() const { return string; };
 };
 
 }

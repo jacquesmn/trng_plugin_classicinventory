@@ -18,8 +18,12 @@
 
 #include "StdAfx.h"
 
+#include <regex>
+
 #include <trng_core.h>
 #include "script.h"
+
+extern char* ReadTextVariable(int Code);
 
 namespace classicinventory {
 namespace script {
@@ -27,31 +31,42 @@ namespace script {
 ScriptString::ScriptString(int32_t index)
 	:
 	index(index)
-{
-	init();
-}
+{}
 
 ScriptString::ScriptString(std::string string)
 	:
 	index(-1),
 	string(string)
-{
-	init();
-}
+{}
 
-void ScriptString::init()
+std::string ScriptString::get_string() const
 {
-	if (index < 0) {
-		return;
+	auto value = string;
+	
+	if (index >= 0) {
+		const auto string_type = index <= 358 ? enumGET.STRING : enumGET.STRINGNG;
+
+		Get(string_type, index > 358 ? index - 359 : index, 0);
+
+		value = std::string(string_type == enumGET.STRING ? GET.pString : GET.pStringNG);
 	}
 
-	const auto string_type = index <= 358 ? enumGET.STRING : enumGET.STRINGNG;
-	if (index > 358) {
-		index -= 359;
+	// replace script code with text variable value
+	const std::regex script_code_regex("#([0-9A-Fa-f]{4})");
+	std::string script_code_subject = std::string(value);
+	std::smatch script_code_match;
+
+	while (std::regex_search(script_code_subject, script_code_match, script_code_regex)) {
+		value = std::regex_replace(
+			value,
+			std::regex(script_code_match.str(0)),
+			std::string(ReadTextVariable(std::stoi(script_code_match.str(1), 0, 16) | SCRIPT_CODE))
+		);
+
+		script_code_subject = script_code_match.suffix().str();
 	}
 
-	Get(string_type, index, 0);
-	string = string_type == enumGET.STRING ? GET.pString : GET.pStringNG;
+	return value;
 }
 
 }
