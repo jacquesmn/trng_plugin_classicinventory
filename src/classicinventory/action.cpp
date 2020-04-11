@@ -451,6 +451,9 @@ void pickup_item(ecs::Entity &item, ecs::EntityManager &entity_manager)
 
 		update_qty(*item_qty, item_qty->pickup);
 
+		MyData.Save.Global.statistics.pickups++;
+		MyData.Save.Local.statistics.pickups++;
+
 		// if weapon, add ammo and load if unloaded
 		if (item.has_component<item::ItemAmmo>()) {
 			auto item_ammos = item.get_components<item::ItemAmmo>();

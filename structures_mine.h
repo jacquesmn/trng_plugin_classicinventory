@@ -28,6 +28,7 @@ typedef struct StrStatistics {
 	uint32_t ammo_used;
 	uint32_t hits;
 	uint32_t kills;
+	uint32_t pickups;
 	uint32_t health_packs_used;
 	uint32_t health_lost;
 	uint32_t flares_used;
@@ -41,6 +42,7 @@ typedef struct StrStatistics {
 		ammo_used(0),
 		hits(0),
 		kills(0),
+		pickups(0),
 		health_packs_used(0),
 		health_lost(0),
 		flares_used(0),

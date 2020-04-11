@@ -784,13 +784,13 @@ void draw_stats()
 	draw_text(script::ScriptString(script::StringIndex::STATISTICS).get_string(), 500, text_y, 0, enumFC.GOLD, enumFTS.ALIGN_CENTER);
 
 	// Level Name
-	text_y += int(line_height * 1.5);
+	text_y += int(line_height * 1.25);
 	const auto level_index = *Trng.pGlobTomb4->pAdr->pLevelNow;
 	const auto level_name_stridex = reinterpret_cast<BYTE*>(0x7FD1A0)[level_index];
 	draw_text(script::ScriptString(level_name_stridex).get_string(), 500, text_y, 0, enumFC.WHITE, enumFTS.ALIGN_CENTER);
 
 	// Time Taken
-	text_y += int(line_height * 1.5);
+	text_y += int(line_height * 1.25);
 	draw_text(script::ScriptString(script::StringIndex::TIME_TAKEN).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
 	const auto game_seconds = statistics.time_taken_seconds;
 	const auto d = game_seconds / 86400;
@@ -850,6 +850,15 @@ void draw_stats()
 	std::ostringstream stream_kills;
 	stream_kills << kills;
 	draw_text(std::string(stream_kills.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Pickups
+	text_y += line_height;
+	draw_text("Pickups", text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto pickups = statistics.pickups;
+
+	std::ostringstream stream_pickups;
+	stream_pickups << pickups;
+	draw_text(std::string(stream_pickups.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
 	// Health Packs Used
 	text_y += line_height;
