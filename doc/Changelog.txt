@@ -1,6 +1,20 @@
 #Changelog
 All notable changes to this project will be documented in this file.
 
+##[1.2.0.0] - 2020-04-16
+- Add RealisticNorth field to CUST_CINV_COMPASS to enable realistic compass behaviour.
+- Add Enabled field to CUST_CINV_COMBO to disable combos.
+- Add AirPoints field to CUST_CINV_HEALTH to add points to air bar.
+- Add DurationFrames field to CUST_CINV_HEALTH to customize how long it takes to add health/air points.
+- Add AlwaysShowAmmo field to CUST_CINV_DISPLAY to show ammo even when weapon has been picked up.
+- Add PickupQuantity field to CUST_CINV_ITEM_QUANTITY to customize pickup amounts.
+- Add WeaponPickupQuantity field to CUST_CINV_AMMO to customize ammo amount received with weapons.
+- Add TemplateStringIndex field to CUST_CINV_TEXT to use a template for certain inventory strings.
+- Fix issue with horizon showing around edges of sprites in pickup notifier.
+- Text variable placeholders can now be used in inventory strings.
+- Quantities are now shown using the classic style of TR1-3.
+- Examinable items can now be zoomed using dash/duck keys.
+
 ##[1.1.1.0] - 2019-08-20
 - Add support for multiple compass pointers in CUST_CINV_COMPASS.
 - Add PointerJitter and PointerFrequencyFrames fields to CUST_CINV_COMPASS.
@@ -95,6 +109,7 @@ All notable changes to this project will be documented in this file.
 ##[0.9.0.0] - 2018-10-24
 - First private beta release.
 
+[1.2.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/01e07044744d7b5ea2d59af3fd701eedec4af552...f3f76c4a7056aae13e21a9fc0a73bab4b4b9920a
 [1.1.1.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/3fbadf55306cead61c2d78f3469e0658c76ac16c...01e07044744d7b5ea2d59af3fd701eedec4af552
 [1.1.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/87bbe968ce12c8fcee5f81c99793ac8ab7a664a2...3fbadf55306cead61c2d78f3469e0658c76ac16c
 [1.0.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f3e88fb1d59f82fd1fabe3109a27b06884d06fd7...87bbe968ce12c8fcee5f81c99793ac8ab7a664a2
