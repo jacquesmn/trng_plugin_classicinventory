@@ -105,10 +105,9 @@ bool use_health(ecs::Entity &item, bool silent)
 			auto& prog_action = *GET.pAction;
 			prog_action.ActionType = type;
 			prog_action.Arg1 = frames;
-			prog_action.VetArg[0] = amount;
-			prog_action.VetArgFloat[1] = float(prog_action.VetArg[0]) / float(prog_action.Arg1);
+			prog_action.VetArgFloat[0] = float(amount) / float(frames);
+			prog_action.VetArgFloat[1] = 0;
 			prog_action.VetArgFloat[2] = 0;
-			prog_action.VetArgFloat[3] = 0;
 		};
 
 		if (health_data.health_points != 0) {

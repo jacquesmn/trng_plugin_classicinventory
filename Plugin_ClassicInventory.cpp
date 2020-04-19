@@ -794,28 +794,31 @@ void PerformMyProgrAction(StrProgressiveAction *pAction)
 
 	const auto update_value_progressively = [&](
 		short &value,
-		int total,
 		int maximum,
 		int minimum,
 		float value_per_frame,
-		float &value_total,
-		float &value_tmp
+		float &value_residual,
+		float &frames_total
 	) {
-		value_total += abs(value_per_frame);
-		value_tmp += abs(value_per_frame);
+		frames_total++;
+		
+		auto value_per_frame_int = int32_t(floor(value_per_frame));
+		value_residual += value_per_frame - value_per_frame_int;
 
-		if (value_total <= abs(total) && value_tmp >= 1) {
-			const auto value_per_frame_int = int32_t(floor(value_per_frame));
-
-			value = min(maximum, value + value_per_frame_int);
-			value = max(minimum, value);
-
-			value_tmp -= abs(value_per_frame_int);
+		if (value_residual >= 1) {
+			value_per_frame_int += int32_t(floor(value_residual));
+			value_residual -= abs(int32_t(floor(value_residual)));
 		}
 
+		if (pAction->Arg1 == 0 && value_residual > 0) {
+			value_per_frame_int += 1;
+		}
+		
+		value = min(maximum, value + value_per_frame_int);
+		value = max(minimum, value);
+
 		if (value == maximum
-			|| value == minimum
-			|| value_total >= abs(total)) {
+			|| value == minimum) {
 			pAction->Arg1 = 0;
 		}
 	};
@@ -824,23 +827,21 @@ void PerformMyProgrAction(StrProgressiveAction *pAction)
 	case AXN_HEALTH_UPDATE:
 		update_value_progressively(
 			Trng.pGlobTomb4->pAdr->pLara->Health,
-			pAction->VetArg[0],
 			1000,
 			0,
+			pAction->VetArgFloat[0],
 			pAction->VetArgFloat[1],
-			pAction->VetArgFloat[2],
-			pAction->VetArgFloat[3]
+			pAction->VetArgFloat[2]
 		);
 		break;
 	case AXN_AIR_UPDATE:
 		update_value_progressively(
 			*Trng.pGlobTomb4->pAdr->pAirAvailable,
-			pAction->VetArg[0],
 			1800,
 			0,
+			pAction->VetArgFloat[0],
 			pAction->VetArgFloat[1],
-			pAction->VetArgFloat[2],
-			pAction->VetArgFloat[3]
+			pAction->VetArgFloat[2]
 		);
 		break;
 	}
@@ -992,8 +993,8 @@ bool RequireMyCallBacks(void)
 
 	GET_CALLBACK(CB_NUMERIC_TRNG_PATCH, CBT_FIRST, 0x136, cbNumericTrngPatch);
 
-	//GET_CALLBACK(CB_STATISTICS_MANAGER, CBT_REPLACE, 0, cbStatisticsManager);
-	//GET_CALLBACK(CB_FLIPEFFECT, CBT_REPLACE, 53, cbFlipEffect);
+	// GET_CALLBACK(CB_STATISTICS_MANAGER, CBT_REPLACE, 0, cbStatisticsManager);
+	// GET_CALLBACK(CB_FLIPEFFECT, CBT_REPLACE, 53, cbFlipEffect);
 
 
 	return true;
