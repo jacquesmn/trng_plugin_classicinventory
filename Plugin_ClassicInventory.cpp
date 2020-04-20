@@ -797,21 +797,18 @@ void PerformMyProgrAction(StrProgressiveAction *pAction)
 		int maximum,
 		int minimum,
 		float value_per_frame,
-		float &value_residual,
-		float &frames_total
+		float &value_residual
 	) {
-		frames_total++;
-		
 		auto value_per_frame_int = int32_t(floor(value_per_frame));
 		value_residual += value_per_frame - value_per_frame_int;
 
 		if (value_residual >= 1) {
 			value_per_frame_int += int32_t(floor(value_residual));
-			value_residual -= abs(int32_t(floor(value_residual)));
+			value_residual -= float(floor(value_residual));
 		}
 
-		if (pAction->Arg1 == 0 && value_residual > 0) {
-			value_per_frame_int += 1;
+		if (pAction->Arg1 == 0 && value_residual > 0.01f) {
+			value_per_frame_int += 1 * (value_per_frame < 0 ? -1 : 1);
 		}
 		
 		value = min(maximum, value + value_per_frame_int);
@@ -830,8 +827,7 @@ void PerformMyProgrAction(StrProgressiveAction *pAction)
 			1000,
 			0,
 			pAction->VetArgFloat[0],
-			pAction->VetArgFloat[1],
-			pAction->VetArgFloat[2]
+			pAction->VetArgFloat[1]
 		);
 		break;
 	case AXN_AIR_UPDATE:
@@ -840,8 +836,7 @@ void PerformMyProgrAction(StrProgressiveAction *pAction)
 			1800,
 			0,
 			pAction->VetArgFloat[0],
-			pAction->VetArgFloat[1],
-			pAction->VetArgFloat[2]
+			pAction->VetArgFloat[1]
 		);
 		break;
 	}
@@ -993,8 +988,8 @@ bool RequireMyCallBacks(void)
 
 	GET_CALLBACK(CB_NUMERIC_TRNG_PATCH, CBT_FIRST, 0x136, cbNumericTrngPatch);
 
-	// GET_CALLBACK(CB_STATISTICS_MANAGER, CBT_REPLACE, 0, cbStatisticsManager);
-	// GET_CALLBACK(CB_FLIPEFFECT, CBT_REPLACE, 53, cbFlipEffect);
+	//GET_CALLBACK(CB_STATISTICS_MANAGER, CBT_REPLACE, 0, cbStatisticsManager);
+	//GET_CALLBACK(CB_FLIPEFFECT, CBT_REPLACE, 53, cbFlipEffect);
 
 
 	return true;

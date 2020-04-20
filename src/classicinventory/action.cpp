@@ -107,7 +107,6 @@ bool use_health(ecs::Entity &item, bool silent)
 			prog_action.Arg1 = frames;
 			prog_action.VetArgFloat[0] = float(amount) / float(frames);
 			prog_action.VetArgFloat[1] = 0;
-			prog_action.VetArgFloat[2] = 0;
 		};
 
 		if (health_data.health_points != 0) {
