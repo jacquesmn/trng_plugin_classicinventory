@@ -799,23 +799,22 @@ void PerformMyProgrAction(StrProgressiveAction *pAction)
 		float value_per_frame,
 		float &value_residual
 	) {
-		auto value_per_frame_int = int32_t(floor(value_per_frame));
+		auto value_per_frame_int = int32_t(value_per_frame);
 		value_residual += value_per_frame - value_per_frame_int;
 
-		if (value_residual >= 1) {
-			value_per_frame_int += int32_t(floor(value_residual));
-			value_residual -= float(floor(value_residual));
+		if (abs(value_residual) >= 1) {
+			value_per_frame_int += int32_t(value_residual);
+			value_residual -= int32_t(value_residual);
 		}
 
-		if (pAction->Arg1 == 0 && value_residual > 0.01f) {
+		if (pAction->Arg1 == 0 && abs(value_residual) > 0.01f) {
 			value_per_frame_int += 1 * (value_per_frame < 0 ? -1 : 1);
 		}
 		
 		value = min(maximum, value + value_per_frame_int);
 		value = max(minimum, value);
 
-		if (value == maximum
-			|| value == minimum) {
+		if ((value_per_frame > 0 && value == maximum) || (value_per_frame < 0 && value == minimum)) {
 			pAction->Arg1 = 0;
 		}
 	};
