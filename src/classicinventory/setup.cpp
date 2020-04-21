@@ -5378,7 +5378,7 @@ void customize_text(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 9) {
+	if (customize.NArguments < 8) {
 		return;
 	}
 
@@ -5396,7 +5396,6 @@ void customize_text(
 	const auto colour = customize.pVetArg[++cust_index];
 	const auto align = customize.pVetArg[++cust_index];
 	const auto line_height = customize.pVetArg[++cust_index];
-	const auto template_stridex = customize.pVetArg[++cust_index];
 	const auto enabled = customize.pVetArg[++cust_index];
 
 	if (type_id < 1 || type_id >= text::TextType::NONE) {
@@ -5428,9 +5427,6 @@ void customize_text(
 	}
 	if (line_height >= 0) {
 		text_config->line_height = line_height;
-	}
-	if (template_stridex != -1) {
-		text_config->text_template = script::ScriptString(template_stridex);
 	}
 	if (enabled != -1
 		&& type != text::TextType::ACTION_MENU
