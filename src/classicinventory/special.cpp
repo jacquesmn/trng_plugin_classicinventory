@@ -186,7 +186,7 @@ void PickupSystem::update(
 	auto clear_tr4_pickup_buffer = false;
 	const int32_t tr4_pickup_buffer_offset = 0x7FD100;
 
-	for (uint8_t i = 0; i < 128; i += 4) {
+	for (uint8_t i = 0; i < 32; i += 4) {
 		if (*reinterpret_cast<uint16_t*>(tr4_pickup_buffer_offset + i) == UINT16_MAX) {
 			break;
 		}
