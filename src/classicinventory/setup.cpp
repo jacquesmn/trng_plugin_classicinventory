@@ -2567,6 +2567,23 @@ void setup_QUEST6(ecs::EntityManager &entity_manager)
 	set_tr4_pickup_orientation(*item, enumSLOT.QUEST_ITEM6);
 }
 
+void setup_BURNING_TORCH(ecs::EntityManager &entity_manager)
+{
+	const auto item = setup_tr4_item(item::ItemId::BURNING_TORCH, enumSLOT.BURNING_TORCH_ITEM, ring::RingId::INVENTORY, entity_manager);
+	if (!item) {
+		return;
+	}
+
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.BURNING_TORCH_ITEM);
+}
+
 void setup_EXAMINE1(ecs::EntityManager &entity_manager)
 {
 	const auto item = setup_tr4_item(item::ItemId::EXAMINE1, enumSLOT.EXAMINE1, ring::RingId::ITEMS, entity_manager);
@@ -3413,6 +3430,7 @@ void setup_items(ecs::EntityManager &entity_manager)
 	setup_QUEST4(entity_manager);
 	setup_QUEST5(entity_manager);
 	setup_QUEST6(entity_manager);
+	setup_BURNING_TORCH(entity_manager);
 	setup_EXAMINE1(entity_manager);
 	setup_EXAMINE2(entity_manager);
 	setup_EXAMINE3(entity_manager);
