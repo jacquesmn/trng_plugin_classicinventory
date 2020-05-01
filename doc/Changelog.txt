@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - Text variable placeholders can now be used in inventory strings.
 - Quantities are now shown using the classic style of TR1-3.
 - Examinable items can now be zoomed using dash/duck keys.
+- Enable pickup notifier for burning torch.
 
 ##[1.1.1.0] - 2019-08-20
 - Add support for multiple compass pointers in CUST_CINV_COMPASS.
@@ -109,7 +110,7 @@ All notable changes to this project will be documented in this file.
 ##[0.9.0.0] - 2018-10-24
 - First private beta release.
 
-[1.2.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/01e07044744d7b5ea2d59af3fd701eedec4af552...c4d12f150d4a3bfff8c56ab5f89539d061e97913
+[1.2.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/01e07044744d7b5ea2d59af3fd701eedec4af552...c698a2e127bef9408f23ab1573a70d5f21cdbc1b
 [1.1.1.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/3fbadf55306cead61c2d78f3469e0658c76ac16c...01e07044744d7b5ea2d59af3fd701eedec4af552
 [1.1.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/87bbe968ce12c8fcee5f81c99793ac8ab7a664a2...3fbadf55306cead61c2d78f3469e0658c76ac16c
 [1.0.0.0]: https://gitlab.com/jacquesmn/trng_plugin_classicinventory/compare/f3e88fb1d59f82fd1fabe3109a27b06884d06fd7...87bbe968ce12c8fcee5f81c99793ac8ab7a664a2
