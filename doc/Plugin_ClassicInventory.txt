@@ -1,4 +1,4 @@
-Classic Inventory 1.1.1.0
+Classic Inventory 1.2.0.0
 -------------------------
 Required TRNG version: 1.3.0.7
 Required NG Center version: 1.5.7

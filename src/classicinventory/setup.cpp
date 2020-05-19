@@ -146,6 +146,7 @@ void setup_tr4_ammo(
 	int32_t ammo_item_id,
 	uint8_t *weapon_value,
 	uint8_t ammo_bit,
+	int32_t qty_with_weapon,
 	ecs::EntityManager &entity_manager
 )
 {
@@ -173,7 +174,7 @@ void setup_tr4_ammo(
 		core::set_bit(*weapon_value, ammo_bit, false);
 	};
 
-	weapon_item->add_component(new item::ItemAmmo(*ammo_item, loaded, load, unload));
+	weapon_item->add_component(new item::ItemAmmo(*ammo_item, loaded, load, unload, qty_with_weapon));
 }
 
 void load_first_ammo(ecs::Entity &item)
@@ -259,7 +260,7 @@ void setup_COMPASS(ecs::EntityManager &entity_manager)
 
 
 	auto &compass_data = item->add_component(new special::CompassData());
-	compass_data.pointers.push_back(special::CompassPointer([]()->float { return special::get_lara_bearing(); }, 1));
+	compass_data.pointers.push_back(special::CompassPointer([]()->float { return special::get_lara_bearing(false); }, 1));
 }
 
 void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
@@ -282,7 +283,7 @@ void setup_SMALLMEDI(ecs::EntityManager &entity_manager)
 		}
 	};
 
-	item->add_component(new special::HealthData(500, 0, 116, 31));
+	item->add_component(new special::HealthData(500, 0, 0, 116, 31));
 
 	auto item_display_idle = item::get_item_display_config(*item, item::ItemDisplayType::IDLE);
 	if (item_display_idle) {
@@ -324,7 +325,7 @@ void setup_BIGMEDI(ecs::EntityManager &entity_manager)
 
 	set_tr4_pickup_orientation(*item, enumSLOT.BIGMEDI_ITEM);
 
-	item->add_component(new special::HealthData(1000, 0, 116, 31));
+	item->add_component(new special::HealthData(1000, 0, 0, 116, 31));
 }
 
 void setup_FLARE_INV(ecs::EntityManager &entity_manager)
@@ -339,6 +340,7 @@ void setup_FLARE_INV(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->Flares = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 12;
 
 	auto &item_action = add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 	item_action.action = [=]() {
@@ -805,6 +807,7 @@ void setup_PISTOLS_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoPistols = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = -1;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -836,6 +839,7 @@ void setup_SHOTGUN_AMMO1(ecs::EntityManager &entity_manager)
 	));
 	item_qty.supports_unlimited = true;
 	item_qty.divider = 6;
+	item_qty.pickup = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -867,6 +871,7 @@ void setup_SHOTGUN_AMMO2(ecs::EntityManager &entity_manager)
 	));
 	item_qty.supports_unlimited = true;
 	item_qty.divider = 6;
+	item_qty.pickup = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -897,6 +902,7 @@ void setup_UZI_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoUZI = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 30;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -927,6 +933,7 @@ void setup_REVOLVER_AMMO(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoRevolver = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 6;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -957,6 +964,7 @@ void setup_CROSSBOW_AMMO1(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowNormals = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 10;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -992,6 +1000,7 @@ void setup_CROSSBOW_AMMO2(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowPoison = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 10;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1027,6 +1036,7 @@ void setup_CROSSBOW_AMMO3(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoCrossBowExplosive = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 10;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1062,6 +1072,7 @@ void setup_GRENADE_GUN_AMMO1(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeNormals = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 10;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1097,6 +1108,7 @@ void setup_GRENADE_GUN_AMMO2(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeSuper = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 4;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -1132,6 +1144,7 @@ void setup_GRENADE_GUN_AMMO3(ecs::EntityManager &entity_manager)
 		[](int32_t qty) -> void {Trng.pGlobTomb4->pAdr->pInventory->AmmoGrenadeFlash = qty; }
 	));
 	item_qty.supports_unlimited = true;
+	item_qty.pickup = 4;
 
 	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
 
@@ -2554,6 +2567,23 @@ void setup_QUEST6(ecs::EntityManager &entity_manager)
 	set_tr4_pickup_orientation(*item, enumSLOT.QUEST_ITEM6);
 }
 
+void setup_BURNING_TORCH(ecs::EntityManager &entity_manager)
+{
+	const auto item = setup_tr4_item(item::ItemId::BURNING_TORCH, enumSLOT.BURNING_TORCH_ITEM, ring::RingId::INVENTORY, entity_manager);
+	if (!item) {
+		return;
+	}
+
+	add_item_action(*item, script::ScriptString(script::StringIndex::USE), item::ItemActionType::USE);
+
+	auto item_display_pickup = item::get_item_display_config(*item, item::ItemDisplayType::PICKUP, item::ItemDisplayType::PICKUP);
+	if (item_display_pickup) {
+		item_display_pickup->scale = 0.5f;
+	}
+
+	set_tr4_pickup_orientation(*item, enumSLOT.BURNING_TORCH_ITEM);
+}
+
 void setup_EXAMINE1(ecs::EntityManager &entity_manager)
 {
 	const auto item = setup_tr4_item(item::ItemId::EXAMINE1, enumSLOT.EXAMINE1, ring::RingId::ITEMS, entity_manager);
@@ -3400,6 +3430,7 @@ void setup_items(ecs::EntityManager &entity_manager)
 	setup_QUEST4(entity_manager);
 	setup_QUEST5(entity_manager);
 	setup_QUEST6(entity_manager);
+	setup_BURNING_TORCH(entity_manager);
 	setup_EXAMINE1(entity_manager);
 	setup_EXAMINE2(entity_manager);
 	setup_EXAMINE3(entity_manager);
@@ -3420,21 +3451,21 @@ void setup_items(ecs::EntityManager &entity_manager)
 
 void setup_ammo(ecs::EntityManager &entity_manager)
 {
-	setup_tr4_ammo(item::ItemId::PISTOLS, item::ItemId::PISTOLS_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::SHOTGUN, item::ItemId::SHOTGUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::SHOTGUN, item::ItemId::SHOTGUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_AMMO_SUPER, entity_manager);
-	setup_tr4_ammo(item::ItemId::UZI, item::ItemId::UZI_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::REVOLVER, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::REVOLVER_LASERSIGHT_COMBO, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, entity_manager);
-	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, entity_manager);
-	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_NORMAL, entity_manager);
-	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_SUPER, entity_manager);
-	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_EXPLOSIVE, entity_manager);
+	setup_tr4_ammo(item::ItemId::PISTOLS, item::ItemId::PISTOLS_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponPistols, FWEAP_AMMO_NORMAL, -1, entity_manager);
+	setup_tr4_ammo(item::ItemId::SHOTGUN, item::ItemId::SHOTGUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_AMMO_NORMAL, 6, entity_manager);
+	setup_tr4_ammo(item::ItemId::SHOTGUN, item::ItemId::SHOTGUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponShotGun, FWEAP_AMMO_SUPER, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::UZI, item::ItemId::UZI_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponUZI, FWEAP_AMMO_NORMAL, 30, entity_manager);
+	setup_tr4_ammo(item::ItemId::REVOLVER, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, 6, entity_manager);
+	setup_tr4_ammo(item::ItemId::REVOLVER_LASERSIGHT_COMBO, item::ItemId::REVOLVER_AMMO, &Trng.pGlobTomb4->pAdr->pInventory->WeaponRevolver, FWEAP_AMMO_NORMAL, 6, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, 10, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_NORMAL, 10, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_SUPER, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::CROSSBOW_LASERSIGHT_COMBO, item::ItemId::CROSSBOW_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponCrossBow, FWEAP_AMMO_EXPLOSIVE, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO1, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_NORMAL, 10, entity_manager);
+	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO2, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_SUPER, 0, entity_manager);
+	setup_tr4_ammo(item::ItemId::GRENADE_GUN, item::ItemId::GRENADE_GUN_AMMO3, &Trng.pGlobTomb4->pAdr->pInventory->WeaponGrenadeGun, FWEAP_AMMO_EXPLOSIVE, 0, entity_manager);
 }
 
 void combo_combine(item::ComboData &combo_data)
@@ -3671,6 +3702,10 @@ bool action_enabled_combine(
 	for (auto it = combos.begin(); it != combos.end(); ++it) {
 		auto &combo = **it;
 
+		if (!combo.enabled) {
+			continue;
+		}
+
 		auto &item_first = combo.item_first;
 		auto &item_second = combo.item_second;
 
@@ -3801,7 +3836,8 @@ void setup_text(ecs::EntityManager &entity_manager)
 		0,
 		enumFC.GOLD,
 		enumFTS.ALIGN_CENTER,
-		45
+		45,
+		script::ScriptString("%name")
 	));
 	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_DESC_IDLE,
@@ -3819,7 +3855,18 @@ void setup_text(ecs::EntityManager &entity_manager)
 		enumFT.LITTLE_ALWAYS,
 		enumFC.GOLD,
 		enumFTS.ALIGN_CENTER,
-		40
+		40,
+		script::ScriptString("%name")
+	));
+	inventory->add_component(new text::TextConfig(
+		text::TextType::ITEM_QTY_IDLE,
+		650,
+		750,
+		enumFT.LITTLE_ALWAYS,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_RIGHT,
+		40,
+		script::ScriptString("%qty")
 	));
 
 	inventory->add_component(new text::TextConfig(
@@ -3829,7 +3876,8 @@ void setup_text(ecs::EntityManager &entity_manager)
 		0,
 		enumFC.GOLD,
 		enumFTS.ALIGN_CENTER,
-		50
+		50,
+		script::ScriptString("%name")
 	));
 	inventory->add_component(new text::TextConfig(
 		text::TextType::ITEM_DESC_ACTIVE,
@@ -3847,7 +3895,18 @@ void setup_text(ecs::EntityManager &entity_manager)
 		enumFT.LITTLE_ALWAYS,
 		enumFC.GOLD,
 		enumFTS.ALIGN_CENTER,
-		50
+		50,
+		script::ScriptString("%name")
+	));
+	inventory->add_component(new text::TextConfig(
+		text::TextType::ITEM_QTY_ACTIVE,
+		500,
+		150,
+		enumFT.LITTLE_ALWAYS,
+		enumFC.LIGHT_GRAY,
+		enumFTS.ALIGN_CENTER,
+		50,
+		script::ScriptString("%qty")
 	));
 
 	inventory->add_component(new text::TextConfig(
@@ -4492,7 +4551,7 @@ void customize_item_quantity(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 7) {
+	if (customize.NArguments < 8) {
 		return;
 	}
 
@@ -4501,6 +4560,7 @@ void customize_item_quantity(
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto qty_min = customize.pVetArg[++cust_index];
 	const auto qty_max = customize.pVetArg[++cust_index];
+	const auto qty_pickup = customize.pVetArg[++cust_index];
 	const auto supports_unlimited = customize.pVetArg[++cust_index];
 	const auto divider = customize.pVetArg[++cust_index];
 	const auto qty_get_tgroup = customize.pVetArg[++cust_index];
@@ -4524,6 +4584,10 @@ void customize_item_quantity(
 
 	if (qty_max != -1) {
 		item_qty->quantity_max = max(0, qty_max);
+	}
+
+	if (qty_pickup != -1) {
+		item_qty->pickup = max(-1, qty_pickup);
 	}
 
 	if (item_qty->quantity_min > item_qty->quantity_max) {
@@ -4767,7 +4831,7 @@ void customize_ammo(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 5) {
+	if (customize.NArguments < 6) {
 		return;
 	}
 
@@ -4782,8 +4846,9 @@ void customize_ammo(
 		return;
 	}
 
-	for (int32_t i = 1; i < customize.NArguments; i += 4) {
+	for (int32_t i = 1; i < customize.NArguments; i += 5) {
 		const auto ammo_item_id = customize.pVetArg[++cust_index];
+		const auto weapon_pickup_qty = customize.pVetArg[++cust_index];
 		const auto loaded_cgroup = customize.pVetArg[++cust_index];
 		const auto load_tgroup = customize.pVetArg[++cust_index];
 		const auto unload_tgroup = customize.pVetArg[++cust_index];
@@ -4800,6 +4865,10 @@ void customize_ammo(
 		});
 		if (!item_ammo) {
 			item_ammo = &weapon->add_component(new item::ItemAmmo(*ammo));
+		}
+
+		if (weapon_pickup_qty != -1) {
+			item_ammo->qty_with_weapon = max(-1, weapon_pickup_qty);
 		}
 
 		if (loaded_cgroup >= 0) {
@@ -4873,7 +4942,7 @@ void customize_health(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 7) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
@@ -4881,11 +4950,13 @@ void customize_health(
 
 	const auto item_id = customize.pVetArg[++cust_index];
 	const auto health_points = customize.pVetArg[++cust_index];
+	const auto air_points = customize.pVetArg[++cust_index];
 	const auto poison_points = customize.pVetArg[++cust_index];
 	const auto heal_sound_id = customize.pVetArg[++cust_index];
 	const auto hurt_sound_id = customize.pVetArg[++cust_index];
 	const auto cure_poison = customize.pVetArg[++cust_index];
 	const auto increase_usage_stats = customize.pVetArg[++cust_index];
+	const auto duration_frames = customize.pVetArg[++cust_index];
 
 	auto item = entity_manager.find_entity_with_component<item::ItemData>([&](const item::ItemData &item_data) -> bool {
 		return item_data.item_id == item_id;
@@ -4906,7 +4977,7 @@ void customize_health(
 
 	auto health_data = item->get_component<special::HealthData>();
 	if (!health_data) {
-		health_data = &item->add_component(new special::HealthData(0, 0, 116, 31));
+		health_data = &item->add_component(new special::HealthData(0, 0, 0, 116, 31));
 
 		// only perform existing action if first time adding health data
 		// this is to allow existing medi-actions to be performed only once
@@ -4923,6 +4994,9 @@ void customize_health(
 	if (health_points != -1) {
 		health_data->health_points = health_points;
 	}
+	if (air_points != -1) {
+		health_data->air_points = air_points;
+	}
 	if (poison_points >= 0) {
 		health_data->poison_points = poison_points;
 	}
@@ -4938,6 +5012,9 @@ void customize_health(
 	if (increase_usage_stats >= 0) {
 		health_data->increase_usage_stats = increase_usage_stats == CINV_TRUE;
 	}
+	if (duration_frames > 0) {
+		health_data->duration_frames = duration_frames;
+	}
 }
 
 void customize_compass(
@@ -4945,7 +5022,7 @@ void customize_compass(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 9) {
+	if (customize.NArguments < 10) {
 		return;
 	}
 
@@ -4965,7 +5042,7 @@ void customize_compass(
 		compass_data = &item->add_component(new special::CompassData());
 	}
 
-	for (uint32_t i = 1, pointer_index = 0; i < customize.NArguments; i += 8, ++pointer_index) {
+	for (uint32_t i = 1, pointer_index = 0; i < customize.NArguments; i += 9, ++pointer_index) {
 		const auto pointer_mesh_index = customize.pVetArg[++cust_index];
 		const auto pointer_mesh_axis = customize.pVetArg[++cust_index];
 		const auto pointer_attraction = customize.pVetArg[++cust_index];
@@ -4973,10 +5050,13 @@ void customize_compass(
 		const auto pointer_offset = customize.pVetArg[++cust_index];
 		const auto pointer_jitter = customize.pVetArg[++cust_index];
 		const auto pointer_frequency_frame = customize.pVetArg[++cust_index];
+		const auto pointer_realistic_north = customize.pVetArg[++cust_index] == CINV_TRUE;
 		const auto get_target_tg = customize.pVetArg[++cust_index];
 
+		const auto get_bearing_north = [=]() -> float { return special::get_lara_bearing(pointer_realistic_north); };
+
 		if (pointer_index >= compass_data->pointers.size()) {
-			compass_data->pointers.push_back(special::CompassPointer([]() -> float { return special::get_lara_bearing(); }, 1));
+			compass_data->pointers.push_back(special::CompassPointer(get_bearing_north, 1));
 		}
 		auto &pointer = compass_data->pointers.at(pointer_index);
 
@@ -5008,13 +5088,15 @@ void customize_compass(
 			pointer.frequency_frames = pointer_frequency_frame;
 		}
 
+		pointer.get_bearing = get_bearing_north;
+
 		if (get_target_tg >= 0) {
 			pointer.get_bearing = [=, &pointer]() -> float {
 				PerformTriggerGroup(get_target_tg);
 
 				const auto ngle_index = Trng.pGlobTomb4->pBaseVariableTRNG->Globals.CurrentValue;
 
-				return special::get_lara_item_bearing(ngle_index, pointer.jitter);
+				return special::get_lara_item_bearing(ngle_index, pointer_realistic_north, pointer.jitter);
 			};
 		}
 	}
@@ -5216,7 +5298,7 @@ void customize_display(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 3) {
+	if (customize.NArguments < 4) {
 		return;
 	}
 
@@ -5231,6 +5313,7 @@ void customize_display(
 	const auto ring_radius = customize.pVetArg[++cust_index];
 	const auto item_base_size = customize.pVetArg[++cust_index];
 	const auto ring_rotate_lock = customize.pVetArg[++cust_index];
+	const auto always_show_ammo = customize.pVetArg[++cust_index];
 
 	if (ring_radius >= 0) {
 		inventory_display.ring_radius_opened = ring_radius;
@@ -5240,6 +5323,9 @@ void customize_display(
 	}
 	if (ring_rotate_lock >= 0) {
 		inventory_display.ring_rotate_lock = ring_rotate_lock == CINV_TRUE;
+	}
+	if (always_show_ammo >= 0) {
+		inventory_display.always_show_ammo = always_show_ammo == CINV_TRUE;
 	}
 }
 
@@ -5372,7 +5458,7 @@ void customize_combo(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 8) {
+	if (customize.NArguments < 9) {
 		return;
 	}
 
@@ -5383,13 +5469,14 @@ void customize_combo(
 
 	int32_t cust_index = -1;
 
-	for (int32_t i = 0; i < customize.NArguments; i += 8) {
+	for (int32_t i = 0; i < customize.NArguments; i += 9) {
 		const auto first_item_id = customize.pVetArg[++cust_index];
 		const auto second_item_id = customize.pVetArg[++cust_index];
 		const auto final_item_id = customize.pVetArg[++cust_index];
 		const auto extra_item_id = customize.pVetArg[++cust_index];
 		const auto vice_versa = customize.pVetArg[++cust_index];
 		const auto separable = customize.pVetArg[++cust_index];
+		const auto enabled = customize.pVetArg[++cust_index];
 		const auto combine_tgroup = customize.pVetArg[++cust_index];
 		const auto separate_tgroup = customize.pVetArg[++cust_index];
 
@@ -5434,6 +5521,9 @@ void customize_combo(
 		}
 		if (separable >= 0) {
 			combo_data->separable = separable == CINV_TRUE;
+		}
+		if (enabled >= 0) {
+			combo_data->enabled = enabled == CINV_TRUE;
 		}
 		if (combine_tgroup >= 0) {
 			combo_data->combine = [=](item::ComboData &cd) -> void {

@@ -50,6 +50,8 @@ public:
 
 	void do_inventory();
 
+	void do_statistics();
+
 	void do_input(
 		uint8_t VetInputKeyboard[],
 		uint32_t *pInputExtGameCommands

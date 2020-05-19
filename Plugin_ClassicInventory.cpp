@@ -16,6 +16,7 @@
 #include <classicinventory/ring.h>
 #include <classicinventory/setup.h>
 #include <classicinventory/trigger.h>
+#include <classicinventory/action.h>
 
 using namespace classicinventory;
 
@@ -64,7 +65,7 @@ extern char BufferLog[4096]; // temporary global buffer to host error and warnin
 // If you chose an address used from other plugins you'll get an error and
 // the game will be aborted
 // note: if you don't mean use code patches you can let 0x0 in following line
-DWORD MyTomb4PatcherAddress = 0x0; // 0x5F5978; // <- TYPE_HERE: the new address you chose
+DWORD MyTomb4PatcherAddress = 0x5F5978; // <- TYPE_HERE: the new address you chose
 
 
 // this text will contain your plugin name (omitting .dll extension).
@@ -107,6 +108,16 @@ int patch_picked_up_object(void)
 	return ApplyRelocatorPatch(0x43E380, VetBytes, 10, 0x43E380, 0x43E75A);
 }
 
+// Date creation: 25 Jan 2020 00:49:44
+// 0043E58B     66:8305 FDDF8000 08         ADD WORD PTR DS:[80DFFD],8
+int patch_flares_pickup_amount(void)
+{
+	static BYTE VetBytes[]={0x66, 0x83, 0x5, 0xFD, 0xDF, 0x80, 0x0, 0x4};
+
+	return ApplyCodePatch(0x43E58B, VetBytes, 8);
+}
+
+
 
 
 // FOR_YOU: In this function you insert the callings of functions used to change tomb4 code
@@ -122,7 +133,8 @@ bool CreateMyCodePatches(void)
 	// to call the function Patch_RedirCollision() created with TrngPatcher program (command Assmembly->Create Dynamic Patch Generator)
 
 	// SET_PATCH(patch_have_i_got_object);
-	// SET_PATCH(patch_picked_up_object);
+	SET_PATCH(patch_picked_up_object);
+	// SET_PATCH(patch_flares_pickup_amount);
 
 	return true;
 }
@@ -163,11 +175,8 @@ void patch_01_picked_up_object(int slot)
 		return item_data.item_id == item_id;
 	});
 
-	if (item && item->has_component<item::ItemQuantity>()) {
-		const auto &item_qty = *item->get_component<item::ItemQuantity>();
-
-		//TODO: customize the qty added
-		item_qty.increase();
+	if (item) {
+		action::pickup_item(*item, entity_manager);
 	}
 }
 
@@ -291,10 +300,11 @@ void cbInitLoadNewLevel(void)
 	MyData.TotProgrActions = 0;
 	MyData.LastProgrActionIndex = 0;
 
-	// clear GLOBAL inventory state
+	// clear GLOBAL state
 	// GLOBAL state will still be carried over between levels
 	// this is just to prevent GLOBAL state from being carried over to the title screen and subsequent new-game
 	ClearMemory(&MyData.Save.Global.inventory_data, sizeof(MyData.Save.Global.inventory_data));
+	ClearMemory(&MyData.Save.Global.statistics, sizeof(MyData.Save.Global.statistics));
 
 	// initialize inventory state
 	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
@@ -570,6 +580,54 @@ void cbLoadMyData(BYTE *pAdrZone, DWORD SizeData)
 }
 
 
+int cbFlipEffect(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode)
+{
+	int RetValue = enumTRET.PERFORM_ONCE_AND_GO;
+
+	// if the flip has no Extra paremeter you can handle a Timer value with values upto 32767
+	// in this case you'll use the following TimerFull variable, where (with following code) we set a unique big number 
+	// pasting togheter the timer+extra arguments:
+	WORD TimerFull = Timer | (Extra << 8);
+
+	if (!inventory::inventory_enabled(ecs::get_entity_manager())) {
+		return enumTRET.EXECUTE_ORIGINAL;
+	}
+
+	if (FlipIndex == 53 && Timer == 11) {
+		// simulate flare shortcut
+		core::set_bit<DWORD>(*Trng.pGlobTomb4->pAdr->pInputExtGameCommands, enumCMD.USE_FLARE, true);
+
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_input(
+			Trng.pGlobTomb4->pAdr->pVetInputKeyboard,
+			reinterpret_cast<uint32_t*>(Trng.pGlobTomb4->pAdr->pInputExtGameCommands)
+		);
+	}
+	else if (FlipIndex == 53 && Timer == 18) {
+		// simulate save shortcut
+		Trng.pGlobTomb4->pAdr->pVetInputKeyboard[63] = 1;
+
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_input(
+			Trng.pGlobTomb4->pAdr->pVetInputKeyboard,
+			reinterpret_cast<uint32_t*>(Trng.pGlobTomb4->pAdr->pInputExtGameCommands)
+		);
+	}
+	else {
+		return enumTRET.EXECUTE_ORIGINAL;
+	}
+
+	// if there was the one-shot button enabled, return TRET_PERFORM_NEVER_MORE
+	if (ActivationMode & enumSCANF.BUTTON_ONE_SHOT) {
+		RetValue = enumTRET.PERFORM_NEVER_MORE;
+	}
+
+	return RetValue;
+}
 
 // this procedure will be called everytime a flipeffect of yours will be engaged
 // you have to elaborate it and then return a TRET_.. value (most common is TRET_PERFORM_ONCE_AND_GO)
@@ -723,17 +781,80 @@ int cbCycleEnd(void)
 // this function will be called for each your (common) progressive action to be peformed
 void PerformMyProgrAction(StrProgressiveAction *pAction)
 {
-	switch (pAction->ActionType) {
-		// replace the "case -1:" with your first "case AXN_...:" progressive action to manage)		
-	case -1:
-		break;
+	if (pAction->Arg1 == 0) {
+		// completed! disable and free this progressive action
+		pAction->ActionType = AXN_FREE;
+		return;
+	}
 
+	// decrease performed frames
+	if (pAction->Arg1 != ENDLESS_DURATE) {
+		pAction->Arg1--;
+	}
+
+	const auto update_value_progressively = [&](
+		short &value,
+		int maximum,
+		int minimum,
+		float value_per_frame,
+		float &value_residual
+	) {
+		auto value_per_frame_int = int32_t(value_per_frame);
+		value_residual += value_per_frame - value_per_frame_int;
+
+		if (abs(value_residual) >= 1) {
+			value_per_frame_int += int32_t(value_residual);
+			value_residual -= int32_t(value_residual);
+		}
+
+		if (pAction->Arg1 == 0 && abs(value_residual) > 0.01f) {
+			value_per_frame_int += 1 * (value_per_frame < 0 ? -1 : 1);
+		}
+		
+		value = min(maximum, value + value_per_frame_int);
+		value = max(minimum, value);
+
+		if ((value_per_frame > 0 && value == maximum) || (value_per_frame < 0 && value == minimum)) {
+			pAction->Arg1 = 0;
+		}
+	};
+
+	switch (pAction->ActionType) {
+	case AXN_HEALTH_UPDATE:
+		update_value_progressively(
+			Trng.pGlobTomb4->pAdr->pLara->Health,
+			1000,
+			0,
+			pAction->VetArgFloat[0],
+			pAction->VetArgFloat[1]
+		);
+		break;
+	case AXN_AIR_UPDATE:
+		update_value_progressively(
+			*Trng.pGlobTomb4->pAdr->pAirAvailable,
+			1800,
+			0,
+			pAction->VetArgFloat[0],
+			pAction->VetArgFloat[1]
+		);
+		break;
 	}
 }
 
 // callback called from trng for each frame in game cycle to perform your (common) progressive action
 void cbProgrActionMine(void)
 {
+	int i;
+	StrProgressiveAction *pAction;
+
+	pAction = &MyData.VetProgrActions[0];
+	for (i=0;i<MyData.TotProgrActions;i++) {
+		if (pAction->ActionType != AXN_FREE) {
+			PerformMyProgrAction(pAction);
+		}
+		pAction++;
+	}
+
 	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
 		controller::get_controller(
 			ecs::get_entity_manager(),
@@ -776,6 +897,20 @@ int cbInventoryAfter(WORD CBT_Flags, bool TestLoadedGame, int SelectedItem)
 	return enumIRET.SKIP_ORIGINAL;
 }
 
+bool cbStatisticsManager()
+{
+	if (inventory::inventory_enabled(ecs::get_entity_manager())) {
+		controller::get_controller(
+			ecs::get_entity_manager(),
+			ecs::get_system_manager()
+		).do_statistics();
+
+		return true;
+	}
+
+	return false;
+}
+
 // callback for managing input
 // this way we can override inputs if needed
 bool cbInputManager(
@@ -815,7 +950,6 @@ void* cbNumericTrngPatch(WORD PatchIndex, WORD CBT_Flags, bool TestFromJump, Str
 }
 
 
-
 // FOR_YOU:
 // in this function RequireMyCallBacks() you'll type
 // a list of:
@@ -848,9 +982,13 @@ bool RequireMyCallBacks(void)
 
 	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_FIRST, 0, cbInventoryMain);
 	GET_CALLBACK(CB_INVENTORY_MAIN, CBT_AFTER, 0, cbInventoryAfter);
+	
 	GET_CALLBACK(CB_INPUT_MANAGER, CBT_FIRST, 0, cbInputManager);
 
 	GET_CALLBACK(CB_NUMERIC_TRNG_PATCH, CBT_FIRST, 0x136, cbNumericTrngPatch);
+
+	//GET_CALLBACK(CB_STATISTICS_MANAGER, CBT_REPLACE, 0, cbStatisticsManager);
+	//GET_CALLBACK(CB_FLIPEFFECT, CBT_REPLACE, 53, cbFlipEffect);
 
 
 	return true;

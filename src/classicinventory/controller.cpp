@@ -36,6 +36,8 @@
 #include "state.h"
 #include "camera.h"
 
+extern StrMyData MyData;
+
 namespace classicinventory {
 namespace controller {
 
@@ -65,10 +67,12 @@ void Controller::init()
 	system_manager.add_system(new special::StopwatchSystem());
 	system_manager.add_system(new special::PickupSystem());
 	system_manager.add_system(new special::ShortcutSystem(input_state));
+	system_manager.add_system(new special::StatisticsSystem(MyData.Save.Local.statistics, MyData.Save.Global.statistics));
 	system_manager.add_system(new cheat::CheatSystem(input_state));
 	system_manager.add_system(new camera::InventoryCameraSystem());
 	system_manager.add_system(new render::InventoryRenderSystem());
 	system_manager.add_system(new render::GameRenderSystem());
+	system_manager.add_system(new render::StatisticsRenderSystem());
 }
 
 void Controller::do_main()
@@ -77,6 +81,7 @@ void Controller::do_main()
 	std::vector<ecs::System*> systems;
 	systems.push_back(system_manager.get_system<special::PickupSystem>());
 	systems.push_back(system_manager.get_system<special::ShortcutSystem>());
+	systems.push_back(system_manager.get_system<special::StatisticsSystem>());
 
 	// update systems
 	std::for_each(systems.begin(), systems.end(), [&](ecs::System *system) -> void {
@@ -173,6 +178,18 @@ void Controller::do_inventory()
 	});
 }
 
+void Controller::do_statistics()
+{
+	// get list of applicable systems in desired order
+	std::vector<ecs::System*> systems;
+	systems.push_back(system_manager.get_system<render::StatisticsRenderSystem>());
+
+	// update systems
+	std::for_each(systems.begin(), systems.end(), [&](ecs::System *system) -> void {
+		system->update(entity_manager, system_manager);
+	});
+}
+
 void Controller::do_input(
 	uint8_t VetInputKeyboard[],
 	uint32_t *pInputExtGameCommands
@@ -190,6 +207,12 @@ void Controller::do_input(
 	// medi shortcuts
 	VetInputKeyboard[10] = 0;
 	VetInputKeyboard[11] = 0;
+
+	// flare shortcut
+	core::set_bit<uint32_t>(*pInputExtGameCommands, enumCMD.USE_FLARE, false);
+
+	// save shortcut
+	VetInputKeyboard[63] = 0;
 }
 
 bool Controller::inventory_active() const

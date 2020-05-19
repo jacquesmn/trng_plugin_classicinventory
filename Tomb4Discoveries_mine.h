@@ -72,4 +72,5 @@ typedef short(__cdecl* TYPE_GunMiss) (int x, int y, int z, short speed, short yr
 // discovered by ChocolateFan
 typedef void(__cdecl *TYPE_SeedRandomControl) (int seed);
 typedef void(__cdecl *TYPE_DrawHealthBar) (int Percentuale);
+typedef void(__cdecl* TYPE_DrawAirBar) (int Percentuale);
 typedef void(__cdecl *TYPE_SayNo) ();

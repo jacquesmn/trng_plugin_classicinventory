@@ -35,7 +35,15 @@ enum Enum {
 	COMBINE_WITH,
 	LOAD_GAME,
 	SAVE_GAME,
-	EXAMINE
+	EXAMINE,
+	STATISTICS = 183,
+	DISTANCE_TRAVELLED,
+	AMMO_USED,
+	SECRETS_FOUND,
+	HEALTH_PACKS_USED = 188,
+	TIME_TAKEN,
+	DAYS,
+	OF
 };
 }
 
@@ -44,14 +52,13 @@ private:
 	int32_t index;
 	std::string string;
 
-	void init();
-
 public:
 	ScriptString(int32_t index = -1);
 	ScriptString(std::string string);
 
+	std::string get_string() const;
+	
 	int32_t get_index() const { return index; }
-	std::string get_string() const { return string; };
 };
 
 }

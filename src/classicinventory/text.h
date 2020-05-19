@@ -32,9 +32,11 @@ enum Enum {
 	ITEM_NAME_IDLE,
 	ITEM_DESC_IDLE,
 	ITEM_AMMO_IDLE,
+	ITEM_QTY_IDLE,
 	ITEM_NAME_ACTIVE,
 	ITEM_DESC_ACTIVE,
 	ITEM_AMMO_ACTIVE,
+	ITEM_QTY_ACTIVE,
 	EXAMINE_1,
 	EXAMINE_2,
 	EXAMINE_3,
@@ -52,6 +54,13 @@ enum Enum {
 };
 }
 
+namespace TextVarType {
+enum Enum {
+	ITEM_NAME,
+	ITEM_QTY
+};
+}
+
 struct TextConfig : public ecs::Component {
 	const TextType::Enum type;
 	uint32_t x;
@@ -60,6 +69,7 @@ struct TextConfig : public ecs::Component {
 	int32_t colour;
 	int32_t align;
 	uint32_t line_height;
+	script::ScriptString text_template;
 	bool enabled;
 
 	TextConfig(
@@ -69,7 +79,9 @@ struct TextConfig : public ecs::Component {
 		int32_t size = 0,
 		int32_t colour = enumFC.WHITE,
 		int32_t align = enumFTS.ALIGN_CENTER,
-		uint32_t line_height = 0
+		uint32_t line_height = 0,
+		script::ScriptString text_template = script::ScriptString(),
+		bool enabled = true
 	)
 		:
 		type(type),
@@ -79,7 +91,8 @@ struct TextConfig : public ecs::Component {
 		colour(colour),
 		align(align),
 		line_height(line_height),
-		enabled(true)
+		text_template(text_template),
+		enabled(enabled)
 	{}
 };
 
@@ -91,7 +104,13 @@ TextConfig* get_text_config(TextType::Enum text_type, ecs::EntityManager &entity
 
 void add_text(ecs::Entity &entity, TextType::Enum text_type, const std::string &text, ecs::EntityManager &entity_manager);
 
-std::string build_item_text(const std::string& item_name, const item::ItemQuantity *item_qty = nullptr, bool force_qty = false);
+std::string build_item_text(
+	TextType::Enum text_type,
+	ecs::EntityManager &entity_manager,
+	const std::string &item_name,
+	const item::ItemQuantity *item_qty = nullptr,
+	bool force_qty = false
+);
 
 }
 }

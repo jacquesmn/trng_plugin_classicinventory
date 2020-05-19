@@ -78,7 +78,19 @@ public:
 	void update(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager) override;
 };
 
+class StatisticsSystem : public ecs::System {
+private:
+	StrStatistics &statistics_local;
+	StrStatistics &statistics_global;
 
+	int32_t health_before;
+	
+	
+public:
+	StatisticsSystem(StrStatistics &statistics_local, StrStatistics &statistics_global);
+	
+	void update(ecs::EntityManager& entity_manager, ecs::SystemManager& system_manager) override;
+};
 
 struct GameTime : public ecs::Component {
 	uint32_t frames;
@@ -100,14 +112,17 @@ struct GameTime : public ecs::Component {
 struct HealthData : public ecs::Component {
 	int32_t health_points;
 	uint32_t poison_points;
+	int32_t air_points;
 	int32_t heal_sound_id;
 	int32_t hurt_sound_id;
+	uint32_t duration_frames;
 	bool cure_poison;
 	bool increase_usage_stats;
 
 	HealthData(
 		int32_t health_points,
 		uint32_t poison_points = 0,
+		int32_t air_points = 0,
 		int32_t heal_sound_id = -1,
 		int32_t hurt_sound_id = -1,
 		bool cure_poison = true,
@@ -116,8 +131,10 @@ struct HealthData : public ecs::Component {
 		:
 		health_points(health_points),
 		poison_points(poison_points),
+		air_points(air_points),
 		heal_sound_id(heal_sound_id),
 		hurt_sound_id(hurt_sound_id),
+		duration_frames(0),
 		cure_poison(cure_poison),
 		increase_usage_stats(increase_usage_stats)
 	{}
@@ -132,6 +149,7 @@ struct CompassPointer : public ecs::Component {
 	float offset;
 	int32_t jitter;
 	int32_t frequency_frames;
+	bool realistic_north;
 
 	float acceleration;
 	float velocity;
@@ -147,7 +165,8 @@ struct CompassPointer : public ecs::Component {
 		float friction = 0.03f,
 		float offset = 180.f,
 		int jitter = 0,
-		int32_t frequency_frames = 1
+		int32_t frequency_frames = 1,
+		bool realistic_north = false
 	)
 		:
 		get_bearing(get_bearing),
@@ -158,6 +177,7 @@ struct CompassPointer : public ecs::Component {
 		offset(offset),
 		jitter(jitter),
 		frequency_frames(frequency_frames),
+		realistic_north(realistic_north),
 		acceleration(0),
 		velocity(0),
 		oscill_angle(0),
@@ -259,8 +279,8 @@ struct MapData : public ecs::Component {
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-float get_lara_bearing();
-float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter = 0);
+float get_lara_bearing(bool realistic_north);
+float get_lara_item_bearing(int32_t ngle_index, bool realistic_north, uint32_t jitter = 0);
 
 }
 }

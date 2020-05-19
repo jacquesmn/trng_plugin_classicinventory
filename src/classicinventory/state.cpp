@@ -290,10 +290,32 @@ State* IdleState::start(ecs::EntityManager &entity_manager)
 							const auto item_qty = item.get_component<item::ItemQuantity>();
 
 							// add text for item
+							const auto item_text = text::build_item_text(
+								text::TextType::ITEM_NAME_IDLE,
+								entity_manager,
+								item_data.name.get_string(),
+								item_qty,
+								false
+							);
 							text::add_text(
 								item,
 								text::TextType::ITEM_NAME_IDLE,
-								text::build_item_text(item_data.name.get_string(), item_qty, false),
+								item_text,
+								entity_manager
+							);
+
+							// add text for item qty
+							const auto qty_text = text::build_item_text(
+								text::TextType::ITEM_QTY_IDLE,
+								entity_manager,
+								item_data.name.get_string(),
+								item_qty,
+								false
+							);
+							text::add_text(
+								item,
+								text::TextType::ITEM_QTY_IDLE,
+								qty_text,
 								entity_manager
 							);
 
@@ -308,10 +330,32 @@ State* IdleState::start(ecs::EntityManager &entity_manager)
 										const auto &ammo_data = *ammo_item.get_component<item::ItemData>();
 										const auto ammo_qty = ammo_item.get_component<item::ItemQuantity>();
 
+										const auto ammo_text = text::build_item_text(
+											text::TextType::ITEM_AMMO_IDLE,
+											entity_manager,
+											ammo_data.name.get_string(),
+											ammo_qty,
+											true
+										);
 										text::add_text(
 											item,
 											text::TextType::ITEM_AMMO_IDLE,
-											text::build_item_text(ammo_data.name.get_string(), ammo_qty, true),
+											ammo_text,
+											entity_manager
+										);
+
+										// add text for ammo qty
+										const auto ammo_qty_text = text::build_item_text(
+											text::TextType::ITEM_QTY_IDLE,
+											entity_manager,
+											ammo_data.name.get_string(),
+											ammo_qty,
+											true
+										);
+										text::add_text(
+											item,
+											text::TextType::ITEM_QTY_IDLE,
+											ammo_qty_text,
 											entity_manager
 										);
 									}
@@ -568,6 +612,7 @@ State* RingRotateState::update(ecs::EntityManager &entity_manager)
 						ring_state.item->item.remove_components<render::ScreenText>();
 						ring_state.item->item.remove_components<render::ScreenBar>();
 						ring_state.item->item.remove_components<render::HealthBar>();
+						ring_state.item->item.remove_components<render::AirBar>();
 					}
 
 					ring_state.change_item();
@@ -955,12 +1000,28 @@ State* ItemActiveState::start(ecs::EntityManager &entity_manager)
 
 			if (!item_active.has_component<render::ScreenText>()) {
 				// add text for active item
+				const auto item_text = text::build_item_text(
+					text::TextType::ITEM_NAME_ACTIVE,
+					entity_manager,
+					item_data.name.get_string(),
+					item_qty,
+					false
+				);
 				text::add_text(
 					item_active,
 					text::TextType::ITEM_NAME_ACTIVE,
-					text::build_item_text(item_data.name.get_string(), item_qty, false),
+					item_text,
 					entity_manager
 				);
+
+				const auto qty_text = text::build_item_text(
+					text::TextType::ITEM_QTY_ACTIVE,
+					entity_manager,
+					item_data.name.get_string(),
+					item_qty,
+					false
+				);
+				auto ammo_qty_text = std::string();
 
 				// add text for loaded ammo, if any
 				if (item_active.has_component<item::ItemAmmo>()) {
@@ -973,11 +1034,26 @@ State* ItemActiveState::start(ecs::EntityManager &entity_manager)
 							auto &ammo_data = *ammo_item.get_component<item::ItemData>();
 							const auto ammo_qty = ammo_item.get_component<item::ItemQuantity>();
 
+							const auto ammo_text = text::build_item_text(
+								text::TextType::ITEM_AMMO_ACTIVE,
+								entity_manager,
+								ammo_data.name.get_string(),
+								ammo_qty,
+								true
+							);
 							text::add_text(
 								item_active,
 								text::TextType::ITEM_AMMO_ACTIVE,
-								text::build_item_text(ammo_data.name.get_string(), ammo_qty, true),
+								ammo_text,
 								entity_manager
+							);
+
+							ammo_qty_text = text::build_item_text(
+								text::TextType::ITEM_QTY_ACTIVE,
+								entity_manager,
+								ammo_data.name.get_string(),
+								ammo_qty,
+								true
 							);
 						}
 					}
@@ -988,6 +1064,20 @@ State* ItemActiveState::start(ecs::EntityManager &entity_manager)
 					item_active,
 					text::TextType::ITEM_DESC_ACTIVE,
 					item_data.description.get_string(),
+					entity_manager
+				);
+
+				// add text for qty
+				text::add_text(
+					item_active,
+					text::TextType::ITEM_QTY_ACTIVE,
+					qty_text,
+					entity_manager
+				);
+				text::add_text(
+					item_active,
+					text::TextType::ITEM_QTY_ACTIVE,
+					ammo_qty_text,
 					entity_manager
 				);
 
@@ -1520,10 +1610,15 @@ State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 				&& item_active.has_component<item::ItemData>()) {
 				auto &item_data = *item_active.get_component<item::ItemData>();
 
+				const auto item_text = text::build_item_text(
+					text::TextType::ITEM_NAME_ACTIVE,
+					entity_manager,
+					item_data.name.get_string()
+				);
 				text::add_text(
 					item_active,
 					text::TextType::ITEM_NAME_ACTIVE,
-					text::build_item_text(item_data.name.get_string()),
+					item_text,
 					entity_manager
 				);
 			}
@@ -1558,10 +1653,10 @@ State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 						&& item.has_component<item::ItemQuantity>()) {
 						auto &item_data = *item.get_component<item::ItemData>();
 						auto &item_qty = *item.get_component<item::ItemQuantity>();
-						
+
 						const auto item_text = item_action.context_hide_qty
-							? text::build_item_text(item_data.name.get_string())
-							: text::build_item_text(item_data.name.get_string(), &item_qty, true);
+							? text::build_item_text(text::TextType::ITEM_NAME_IDLE, entity_manager, item_data.name.get_string())
+							: text::build_item_text(text::TextType::ITEM_NAME_IDLE, entity_manager, item_data.name.get_string(), &item_qty, true);
 
 						text::add_text(
 							item,
@@ -1569,6 +1664,23 @@ State* AmmoContextState::start(ecs::EntityManager &entity_manager)
 							item_text,
 							entity_manager
 						);
+
+						if (!item_action.context_hide_qty) {
+							// add text for item qty
+							const auto qty_text = text::build_item_text(
+								text::TextType::ITEM_QTY_IDLE,
+								entity_manager,
+								item_data.name.get_string(),
+								&item_qty,
+								true
+							);
+							text::add_text(
+								item,
+								text::TextType::ITEM_QTY_IDLE,
+								qty_text,
+								entity_manager
+							);
+						}
 					}
 				}
 			}
@@ -1973,10 +2085,15 @@ State* ComboContextState::start(ecs::EntityManager &entity_manager)
 				&& item_active.has_component<item::ItemData>()) {
 				auto &item_data = *item_active.get_component<item::ItemData>();
 
+				const auto item_text = text::build_item_text(
+					text::TextType::ITEM_NAME_ACTIVE,
+					entity_manager,
+					item_data.name.get_string()
+				);
 				text::add_text(
 					item_active,
 					text::TextType::ITEM_NAME_ACTIVE,
-					text::build_item_text(item_data.name.get_string()),
+					item_text,
 					entity_manager
 				);
 			}
@@ -2012,8 +2129,8 @@ State* ComboContextState::start(ecs::EntityManager &entity_manager)
 						auto &item_qty = *item.get_component<item::ItemQuantity>();
 
 						const auto item_text = item_action.context_hide_qty
-							? text::build_item_text(item_data.name.get_string())
-							: text::build_item_text(item_data.name.get_string(), &item_qty);
+							? text::build_item_text(text::TextType::ITEM_NAME_IDLE, entity_manager, item_data.name.get_string())
+							: text::build_item_text(text::TextType::ITEM_NAME_IDLE, entity_manager, item_data.name.get_string(), &item_qty);
 
 						text::add_text(
 							item,
@@ -2021,6 +2138,22 @@ State* ComboContextState::start(ecs::EntityManager &entity_manager)
 							item_text,
 							entity_manager
 						);
+
+						if (!item_action.context_hide_qty) {
+							// add text for item qty
+							const auto qty_text = text::build_item_text(
+								text::TextType::ITEM_QTY_IDLE,
+								entity_manager,
+								item_data.name.get_string(),
+								&item_qty
+							);
+							text::add_text(
+								item,
+								text::TextType::ITEM_QTY_IDLE,
+								qty_text,
+								entity_manager
+							);
+						}
 					}
 				}
 			}
@@ -2298,7 +2431,8 @@ State* ComboTryState::update(ecs::EntityManager &entity_manager)
 							auto &item_selected = ring_state.item->item;
 
 							const auto combo_data = inventory->get_component<item::ComboData>([&](item::ComboData &combo) -> bool {
-								return (combo.combine
+								return (combo.enabled
+									&& combo.combine
 									&& ((combo.item_first.get_id() == item_active.get_id()
 										&& combo.item_second.get_id() == item_selected.get_id())
 										|| (combo.vice_versa
@@ -2772,7 +2906,7 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 			if (item_active.has_component<item::ItemDisplay>()) {
 				auto &item_display = *item_active.get_component<item::ItemDisplay>();
 
-				// rotate item based on input
+				// rotate/zoom item based on input
 				if (input_state.command_active(enumCMD.LEFT)) {
 					item_display.rot.y -= 5;
 				}
@@ -2784,6 +2918,12 @@ State* ExamineState::input(input::InputState &input_state, ecs::EntityManager &e
 				}
 				if (input_state.command_active(enumCMD.DOWN)) {
 					item_display.rot.x -= 5;
+				}
+				if (input_state.command_active(enumCMD.DUCK) && item_display.scale < 3.0) {
+					item_display.scale += 0.05f;
+				}
+				if (input_state.command_active(enumCMD.DASH) && item_display.scale > 1.0) {
+					item_display.scale -= 0.05f;
 				}
 
 				core::wrap_angle(item_display.rot.x);
@@ -3029,10 +3169,15 @@ State* PassportState::update(ecs::EntityManager &entity_manager)
 
 				if (!item_active.has_component<render::ScreenText>()) {
 					// add text for item name
+					const auto item_text = text::build_item_text(
+						text::TextType::ITEM_NAME_ACTIVE,
+						entity_manager,
+						item_data.name.get_string()
+					);
 					text::add_text(
 						item_active,
 						text::TextType::ITEM_NAME_ACTIVE,
-						text::build_item_text(item_data.name.get_string()),
+						item_text,
 						entity_manager
 					);
 
@@ -3270,10 +3415,15 @@ State* MapState::start(ecs::EntityManager &entity_manager)
 
 			// add text for item name
 			if (inventory) {
+				const auto item_text = text::build_item_text(
+					text::TextType::ITEM_NAME_ACTIVE,
+					entity_manager,
+					item_data.name.get_string()
+				);
 				text::add_text(
 					*inventory,
 					text::TextType::ITEM_NAME_ACTIVE,
-					text::build_item_text(item_data.name.get_string()),
+					item_text,
 					entity_manager
 				);
 			}
@@ -4122,6 +4272,7 @@ void clear_hud(ecs::EntityManager &entity_manager)
 	entity_manager.remove_components<render::ScreenText>();
 	entity_manager.remove_components<render::ScreenBar>();
 	entity_manager.remove_components<render::HealthBar>();
+	entity_manager.remove_components<render::AirBar>();
 }
 
 void add_sfx(

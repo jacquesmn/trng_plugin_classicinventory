@@ -186,7 +186,7 @@ void PickupSystem::update(
 	auto clear_tr4_pickup_buffer = false;
 	const int32_t tr4_pickup_buffer_offset = 0x7FD100;
 
-	for (uint8_t i = 0; i < 128; i += 4) {
+	for (uint8_t i = 0; i < 32; i += 4) {
 		if (*reinterpret_cast<uint16_t*>(tr4_pickup_buffer_offset + i) == UINT16_MAX) {
 			break;
 		}
@@ -254,7 +254,8 @@ void ShortcutSystem::update(
 		return;
 	}
 
-	// replace shortcut functions for medipacks
+	// replace shortcut functions:
+	// medipacks
 	int32_t medi_item_id = item::ItemId::NONE;
 
 	if (input_state.key_first_press(10)) {
@@ -273,17 +274,121 @@ void ShortcutSystem::update(
 			action::use_health(*item, true);
 		}
 	}
+
+	// flares
+	if (input_state.command_first_press(enumCMD.USE_FLARE)) {
+		const auto item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
+			return item_data.item_id == item::ItemId::FLARE_INV;
+		});
+		action::use_flare(*item, true, true);
+	}
+
+	// savegame
+	if (input_state.key_first_press(63)) {
+		action::save_game(true);
+	}
+}
+
+StatisticsSystem::StatisticsSystem(
+	StrStatistics& statistics_local,
+	StrStatistics& statistics_global
+)
+	:
+	statistics_local(statistics_local),
+	statistics_global(statistics_global),
+	health_before(0)
+{}
+
+void StatisticsSystem::update(
+	ecs::EntityManager &entity_manager,
+	ecs::SystemManager &system_manager
+)
+{
+	// skip if any undesired phase is active
+	const auto undesired_phases = enumSKIP.LOADING_LEVEL
+		| enumSKIP.TITLE_LEVEL;
+
+	Get(enumGET.INFO_LARA, 0, 0);
+	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
+		return;
+	}
+	
+	// Time Taken
+	const auto game_frames = *reinterpret_cast<uint32_t*>(0x7FD138);
+	const auto game_seconds = game_frames / 30;
+	const auto game_seconds_diff = game_seconds - statistics_global.time_taken_seconds;
+
+	statistics_global.time_taken_seconds += game_seconds_diff;
+	statistics_local.time_taken_seconds += game_seconds_diff;
+
+	// Distance Travelled
+	const auto distance_travelled_meters = *reinterpret_cast<uint32_t*>(0x7F7736) / 419;
+	const auto distance_travelled_meters_diff = distance_travelled_meters - statistics_global.distance_travelled_meters;
+
+	statistics_global.distance_travelled_meters += distance_travelled_meters_diff;
+	statistics_local.distance_travelled_meters += distance_travelled_meters_diff;
+
+	// Ammo Used
+	const auto ammo_used = int(*reinterpret_cast<uint32_t*>(0x7F773A));
+	const auto ammo_used_diff = ammo_used - statistics_global.ammo_used;
+
+	statistics_global.ammo_used += ammo_used_diff;
+	statistics_local.ammo_used += ammo_used_diff;
+
+	// Hits
+	const auto hits = int(*reinterpret_cast<uint32_t*>(0x7F773E));
+	const auto hits_diff = hits - statistics_global.hits;
+
+	statistics_global.hits += hits_diff;
+	statistics_local.hits += hits_diff;
+
+	// Kills
+	auto &kills = *reinterpret_cast<uint32_t*>(0x7F7756);
+
+	// keep kills between levels
+	if (!kills && statistics_global.kills) {
+		kills = statistics_global.kills;
+	}
+	
+	const auto kills_diff = kills - statistics_global.kills;
+
+	statistics_global.kills += kills_diff;
+	statistics_local.kills += kills_diff;
+
+	// Health Packs Used
+	const auto health_packs_used = int(*reinterpret_cast<uint8_t*>(0x7F7745));
+	const auto health_packs_used_diff = health_packs_used - statistics_global.health_packs_used;
+
+	statistics_global.health_packs_used += health_packs_used_diff;
+	statistics_local.health_packs_used += health_packs_used_diff;
+
+	// Health Lost
+	const auto health = max(0, Trng.pGlobTomb4->pAdr->pLara->Health);
+	const auto health_diff = health - health_before;
+	health_before = health;
+
+	if (health_diff < 0) {
+		statistics_global.health_lost += abs(health_diff);
+		statistics_local.health_lost += abs(health_diff);
+	}
+
+	// Secrets Found
+	const auto secrets_found = int(*reinterpret_cast<uint8_t*>(0x7F7744));
+	const auto secrets_found_diff = secrets_found - statistics_global.secrets_found;
+
+	statistics_global.secrets_found += secrets_found_diff;
+	statistics_local.secrets_found += secrets_found_diff;
 }
 
 // ----------------------------
 // ##### HELPER FUNCTIONS #####
 // ----------------------------
-float get_lara_bearing()
+float get_lara_bearing(bool realistic_north)
 {
-	return core::tr4_angle_to_degrees(-Trng.pGlobTomb4->pAdr->pLara->OrientationH);
+	return core::tr4_angle_to_degrees((realistic_north ? -1 : 1) * Trng.pGlobTomb4->pAdr->pLara->OrientationH);
 }
 
-float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter)
+float get_lara_item_bearing(int32_t ngle_index, bool realistic_north, uint32_t jitter)
 {
 	uint32_t item_x = 0;
 	uint32_t item_z = 0;
@@ -301,7 +406,7 @@ float get_lara_item_bearing(int32_t ngle_index, uint32_t jitter)
 		item_z = item_static->z;
 	}
 	else {
-		return get_lara_bearing();
+		return get_lara_bearing(realistic_north);
 	}
 
 	if (item_x == 0 && item_z == 0) {

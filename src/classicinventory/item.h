@@ -361,6 +361,7 @@ public:
 	int32_t quantity_max;
 	int32_t quantity_min;
 	int32_t divider;
+	int32_t pickup;
 	bool supports_unlimited;
 
 	ItemQuantity(
@@ -375,6 +376,7 @@ public:
 		quantity_max(quantity_max),
 		quantity_min(quantity_min),
 		divider(1),
+		pickup(1),
 		supports_unlimited(false)
 	{}
 
@@ -476,18 +478,21 @@ struct ItemAmmo : public ecs::Component {
 	std::function<bool(void)> loaded;
 	std::function<void(void)> load;
 	std::function<void(void)> unload;
+	int32_t qty_with_weapon;
 
 	ItemAmmo(
 		ecs::Entity &ammo_item,
 		const std::function<bool()> loaded = []() -> bool { return false; },
 		const std::function<void()> load = []() -> void {},
-		const std::function<void()> unload = []() -> void {}
+		const std::function<void()> unload = []() -> void {},
+		int32_t qty_with_weapon = 0
 	)
 		:
 		ammo_item(ammo_item),
 		loaded(loaded),
 		load(load),
-		unload(unload)
+		unload(unload),
+		qty_with_weapon(qty_with_weapon)
 	{}
 };
 
@@ -512,6 +517,7 @@ struct ComboData : public ecs::Component {
 	ecs::Entity *item_extra;
 	bool vice_versa;
 	bool separable;
+	bool enabled;
 
 	std::function<void(ComboData&)> combine;
 	std::function<void(ComboData&)> separate;
@@ -533,6 +539,7 @@ struct ComboData : public ecs::Component {
 		item_extra(item_extra),
 		vice_versa(vice_versa),
 		separable(separable),
+		enabled(true),
 		combine(combine),
 		separate(separate)
 	{}
