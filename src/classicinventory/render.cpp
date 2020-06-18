@@ -457,7 +457,6 @@ void InventoryRenderSystem::draw_statistics(
 	const auto entity = entity_manager.find_entity_with_component<StatisticsScreen>();
 
 	if (entity) {
-		//DoStatScreen();
 		draw_stats();
 	}
 }
@@ -791,6 +790,11 @@ void draw_text(
 
 void draw_stats()
 {
+	if (true) {
+		DoStatScreen();
+		return;
+	}
+	
 	const auto &statistics_global = MyData.Save.Global.statistics;
 	const auto &statistics_local = MyData.Save.Local.statistics;
 	const auto &statistics = statistics_global;
