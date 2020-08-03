@@ -209,10 +209,10 @@ void Controller::do_input(
 	VetInputKeyboard[11] = 0;
 
 	// flare shortcut
-	core::set_bit<uint32_t>(*pInputExtGameCommands, enumCMD.USE_FLARE, false);
+	//core::set_bit<uint32_t>(*pInputExtGameCommands, enumCMD.USE_FLARE, false);
 
 	// save shortcut
-	VetInputKeyboard[63] = 0;
+	//VetInputKeyboard[63] = 0;
 }
 
 bool Controller::inventory_active() const

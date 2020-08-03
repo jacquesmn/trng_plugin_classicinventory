@@ -276,17 +276,17 @@ void ShortcutSystem::update(
 	}
 
 	// flares
-	if (input_state.command_first_press(enumCMD.USE_FLARE)) {
-		const auto item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
-			return item_data.item_id == item::ItemId::FLARE_INV;
-		});
-		action::use_flare(*item, true, true);
-	}
+	// if (input_state.command_first_press(enumCMD.USE_FLARE)) {
+	// 	const auto item = entity_manager.find_entity_with_component<item::ItemData>([=](const item::ItemData &item_data) -> bool {
+	// 		return item_data.item_id == item::ItemId::FLARE_INV;
+	// 	});
+	// 	action::use_flare(*item, true, true);
+	// }
 
 	// savegame
-	if (input_state.key_first_press(63)) {
-		action::save_game(true);
-	}
+	// if (input_state.key_first_press(63)) {
+	// 	action::save_game(true);
+	// }
 }
 
 StatisticsSystem::StatisticsSystem(
