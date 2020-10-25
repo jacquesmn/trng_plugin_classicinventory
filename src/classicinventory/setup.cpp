@@ -4406,7 +4406,7 @@ void customize_item_model(
 		return;
 	}
 
-	for (int32_t i = 1; i < customize.NArguments; i += 4) {
+	for (int32_t i = 1; i < customize.NArguments; i += 6) {
 		const auto type_id = customize.pVetArg[++cust_index];
 		const auto slot_id = customize.pVetArg[++cust_index];
 		const auto sprite_id = customize.pVetArg[++cust_index];
