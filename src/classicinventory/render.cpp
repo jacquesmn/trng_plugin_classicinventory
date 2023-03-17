@@ -36,7 +36,6 @@ extern TYPE_FreeMonoScreen FreeMonoScreen;
 extern TYPE_S_InitialisePolyList S_InitialisePolyList;
 extern TYPE_S_DisplayMonoScreen S_DisplayMonoScreen;
 extern TYPE_S_OutputPolyList S_OutputPolyList;
-extern TYPE_S_DumpScreen S_DumpScreen;
 extern TYPE_phd_PushMatrix phd_PushMatrix;
 extern TYPE_phd_TranslateAbs phd_TranslateAbs;
 extern TYPE_phd_TranslateRel phd_TranslateRel;
@@ -93,7 +92,6 @@ void InventoryRenderSystem::update(ecs::EntityManager &entity_manager, ecs::Syst
 
 	// finish drawing cycle
 	S_OutputPolyList();
-	S_DumpScreen();
 }
 
 void InventoryRenderSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)

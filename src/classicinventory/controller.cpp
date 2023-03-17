@@ -24,11 +24,9 @@
 #include <ctime>
 #include <memory>
 #include <vector>
-
 #include <trng_core.h>
 #include "action.h"
 #include "cheat.h"
-#include "item.h"
 #include "motion.h"
 #include "render.h"
 #include "sound.h"
@@ -36,6 +34,7 @@
 #include "state.h"
 #include "camera.h"
 
+extern TYPE_S_DumpScreen S_DumpScreen;
 extern StrMyData MyData;
 
 namespace classicinventory {
@@ -150,12 +149,7 @@ void Controller::do_inventory()
 	state_machine.set_state(new state::OpeningState());
 
 	// inventory loop
-	const int32_t fps = 30;
-	const int32_t frame_budget = 1000 / fps;
-	
 	while (inventory_active()) {
-		const auto frame_start = clock();
-
 		// update systems
 		for (auto system_it = systems.begin(); system_it != systems.end(); ++system_it) {
 			(*system_it)->update(entity_manager, system_manager);
@@ -165,11 +159,7 @@ void Controller::do_inventory()
 			}
 		}
 
-		// frame rate
-		const auto frame_spent = clock() - frame_start;
-		if (frame_budget > frame_spent) {
-			Sleep(frame_budget - frame_spent);
-		}
+		S_DumpScreen();
 	}
 
 	// cleanup systems
