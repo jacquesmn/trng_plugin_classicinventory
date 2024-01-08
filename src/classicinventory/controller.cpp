@@ -20,9 +20,6 @@
 
 #include "controller.h"
 
-#include <algorithm>
-#include <ctime>
-#include <memory>
 #include <vector>
 #include <trng_core.h>
 #include "action.h"
@@ -34,7 +31,6 @@
 #include "state.h"
 #include "camera.h"
 
-extern TYPE_S_DumpScreen S_DumpScreen;
 extern StrMyData MyData;
 
 namespace classicinventory {
@@ -135,6 +131,7 @@ void Controller::do_inventory()
 	systems.push_back(system_manager.get_system<special::TimeSystem>());
 	systems.push_back(system_manager.get_system<special::CompassSystem>());
 	systems.push_back(system_manager.get_system<special::StopwatchSystem>());
+	systems.push_back(system_manager.get_system<special::StatisticsSystem>());
 	systems.push_back(system_manager.get_system<cheat::CheatSystem>());
 	systems.push_back(system_manager.get_system<camera::InventoryCameraSystem>());
 	systems.push_back(system_manager.get_system<render::InventoryRenderSystem>());
@@ -158,8 +155,6 @@ void Controller::do_inventory()
 				break;
 			}
 		}
-
-		S_DumpScreen();
 	}
 
 	// cleanup systems

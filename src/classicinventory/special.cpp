@@ -249,7 +249,7 @@ void ShortcutSystem::update(
 		| enumSKIP.FULL_IMAGE
 		| enumSKIP.FLY_CAMERA;
 
-	Get(enumGET.INFO_LARA, 0, 0);
+	GET.LaraInfo.SkipPhaseFlags = FindSkipPhase();
 	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
 		return;
 	}
@@ -308,7 +308,7 @@ void StatisticsSystem::update(
 	const auto undesired_phases = enumSKIP.LOADING_LEVEL
 		| enumSKIP.TITLE_LEVEL;
 
-	Get(enumGET.INFO_LARA, 0, 0);
+	GET.LaraInfo.SkipPhaseFlags = FindSkipPhase();
 	if (core::bit_set(GET.LaraInfo.SkipPhaseFlags, undesired_phases, true)) {
 		return;
 	}
@@ -344,12 +344,6 @@ void StatisticsSystem::update(
 
 	// Kills
 	auto &kills = *reinterpret_cast<uint32_t*>(0x7F7756);
-
-	// keep kills between levels
-	if (!kills && statistics_global.kills) {
-		kills = statistics_global.kills;
-	}
-	
 	const auto kills_diff = kills - statistics_global.kills;
 
 	statistics_global.kills += kills_diff;

@@ -22,4 +22,6 @@
 
 #include "trng.h" // list of trng functions imported from trng.cpp source.
 
+DWORD FindSkipPhase(void);
+
 #pragma pack(pop)

@@ -160,9 +160,6 @@ bool use_flare(ecs::Entity &item, bool throw_away, bool silent)
 	}
 	auto &item_quantity = *item.get_component<item::ItemQuantity>();
 
-	Get(enumGET.INFO_LARA, 0, 0);
-	auto &lara_info = GET.LaraInfo;
-
 	auto &in_hands_next = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNext;
 	auto &in_hands_now = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow;
 	auto &hand_flags = *Trng.pGlobTomb4->pAdr->pFlagsLaraHands;
@@ -213,7 +210,14 @@ bool use_binoculars(ecs::Entity &item)
 	Get(enumGET.LARA, 0, 0);
 	auto &lara = *GET.pLara;
 
-	Get(enumGET.INFO_LARA, 0, 0);
+	GET.LaraInfo.TestIsHoldingWeapon = false;
+	if (*Trng.pGlobTomb4->pAdr->pFlagsLaraHands == enumFLH.HOLDS_ITEM || *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow == enumHOLD.FLARE) {
+		GET.LaraInfo.HoldedItem = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow;
+		if (GET.LaraInfo.HoldedItem >= enumHOLD.PISTOLS && GET.LaraInfo.HoldedItem <= enumHOLD.CROSSBOW) {
+			GET.LaraInfo.TestIsHoldingWeapon = true;
+		}
+	}
+
 	auto &lara_info = GET.LaraInfo;
 
 	auto &in_hands_now = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow;
@@ -252,7 +256,13 @@ bool equip_weapon(ecs::Entity &item)
 		return false;
 	}
 
-	Get(enumGET.INFO_LARA, 0, 0);
+	GET.LaraInfo.TestIsHoldingWeapon = false;
+	if (*Trng.pGlobTomb4->pAdr->pFlagsLaraHands == enumFLH.HOLDS_ITEM || *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow == enumHOLD.FLARE) {
+		GET.LaraInfo.HoldedItem = *Trng.pGlobTomb4->pAdr->pObjInLaraHandsNow;
+		if (GET.LaraInfo.HoldedItem >= enumHOLD.PISTOLS && GET.LaraInfo.HoldedItem <= enumHOLD.CROSSBOW) {
+			GET.LaraInfo.TestIsHoldingWeapon = true;
+		}
+	}
 	auto &lara_info = GET.LaraInfo;
 
 	const auto weapons_disabled = core::bit_set(Trng.pGlobTomb4->StatusNG, SNG_DISABLE_WEAPONS);

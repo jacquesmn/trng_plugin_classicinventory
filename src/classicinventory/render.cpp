@@ -36,6 +36,7 @@ extern TYPE_FreeMonoScreen FreeMonoScreen;
 extern TYPE_S_InitialisePolyList S_InitialisePolyList;
 extern TYPE_S_DisplayMonoScreen S_DisplayMonoScreen;
 extern TYPE_S_OutputPolyList S_OutputPolyList;
+extern TYPE_S_DumpScreen S_DumpScreen;
 extern TYPE_phd_PushMatrix phd_PushMatrix;
 extern TYPE_phd_TranslateAbs phd_TranslateAbs;
 extern TYPE_phd_TranslateRel phd_TranslateRel;
@@ -92,6 +93,7 @@ void InventoryRenderSystem::update(ecs::EntityManager &entity_manager, ecs::Syst
 
 	// finish drawing cycle
 	S_OutputPolyList();
+	S_DumpScreen();
 }
 
 void InventoryRenderSystem::cleanup(ecs::EntityManager &entity_manager, ecs::SystemManager &system_manager)
@@ -605,7 +607,7 @@ void GameRenderSystem::update(
 	ecs::SystemManager &system_manager
 )
 {
-	Get(enumGET.INFO_LARA, 0, 0);
+	GET.LaraInfo.SkipPhaseFlags = FindSkipPhase();
 
 	// cleanup if any undesired phase is active
 	const auto undesired_phases = enumSKIP.LOADING_LEVEL
@@ -788,14 +790,14 @@ void draw_text(
 
 void draw_stats()
 {
-	if (true) {
-		DoStatScreen();
-		return;
-	}
+	// if (true) {
+	// 	DoStatScreen();
+	// 	return;
+	// }
 	
 	const auto &statistics_global = MyData.Save.Global.statistics;
 	const auto &statistics_local = MyData.Save.Local.statistics;
-	const auto &statistics = statistics_global;
+	const auto &statistics = statistics_local;
 	
 	const auto font_size = 0;
 	const auto line_height = 68;
@@ -901,22 +903,22 @@ void draw_stats()
 	draw_text(std::string(stream_injuries.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
 	// Flares Used
-	text_y += line_height;
-	draw_text(script::ScriptString("Flares Used").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
-	const auto flares_used = statistics.flares_used;
-
-	std::ostringstream stream_flares;
-	stream_flares << flares_used;
-	draw_text(std::string(stream_flares.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+	// text_y += line_height;
+	// draw_text(script::ScriptString("Flares Used").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	// const auto flares_used = statistics.flares_used;
+	//
+	// std::ostringstream stream_flares;
+	// stream_flares << flares_used;
+	// draw_text(std::string(stream_flares.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
 	// Times Saved
-	text_y += line_height;
-	draw_text(script::ScriptString("Times Saved").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
-	const auto times_saved = statistics.times_saved;
-
-	std::ostringstream stream_saved;
-	stream_saved << times_saved;
-	draw_text(std::string(stream_saved.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+	// text_y += line_height;
+	// draw_text(script::ScriptString("Times Saved").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	// const auto times_saved = statistics.times_saved;
+	//
+	// std::ostringstream stream_saved;
+	// stream_saved << times_saved;
+	// draw_text(std::string(stream_saved.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
 	// Secrets Found
 	text_y += line_height;
