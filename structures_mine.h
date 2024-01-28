@@ -13,12 +13,14 @@ typedef struct StrSavegameLocalInventoryData {
 	int ring_id_selected;
 	int item_id_selected;
 	int item_id_used;
+	bool show_global_stats;
 
 	StrSavegameLocalInventoryData()
 		:
 		ring_id_selected(-1),
 		item_id_selected(-1),
-		item_id_used(-1)
+		item_id_used(-1),
+		show_global_stats(false)
 	{}
 }SavegameLocalInventoryData;
 

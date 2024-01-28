@@ -790,14 +790,15 @@ void draw_text(
 
 void draw_stats()
 {
-	// if (true) {
-	// 	DoStatScreen();
-	// 	return;
-	// }
-	
+	if (!inventory::stats_enabled(ecs::get_entity_manager())) {
+		DoStatScreen();
+		return;
+	}
+
+	const auto &show_global_stats = MyData.Save.Local.inventory_data.show_global_stats;
 	const auto &statistics_global = MyData.Save.Global.statistics;
 	const auto &statistics_local = MyData.Save.Local.statistics;
-	const auto &statistics = statistics_local;
+	const auto &statistics = show_global_stats ? statistics_global : statistics_local;
 	
 	const auto font_size = 0;
 	const auto line_height = 68;

@@ -4243,7 +4243,7 @@ void customize_inventory_data(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 1) {
+	if (customize.NArguments < 2) {
 		return;
 	}
 
@@ -4256,9 +4256,13 @@ void customize_inventory_data(
 	int32_t cust_index = -1;
 
 	const auto enabled = customize.pVetArg[++cust_index];
+	const auto enable_stats = customize.pVetArg[++cust_index];
 
 	if (enabled >= 0) {
 		inventory_data.enabled = enabled == CINV_TRUE;
+	}
+	if (enable_stats >= 0) {
+		inventory_data.enable_stats = enable_stats == CINV_TRUE;
 	}
 }
 

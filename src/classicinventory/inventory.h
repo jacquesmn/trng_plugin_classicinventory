@@ -45,10 +45,12 @@ enum Enum {
 
 struct InventoryData : public ecs::Component {
 	bool enabled;
+	bool enable_stats;
 
 	InventoryData()
 		:
-		enabled(true)
+		enabled(true),
+		enable_stats(false)
 	{}
 };
 
@@ -222,6 +224,8 @@ inventory::InventoryDuration* get_inventory_duration(ecs::EntityManager &entity_
 bool inventory_enabled(ecs::EntityManager &entity_manager);
 
 bool debug_enabled(ecs::EntityManager &entity_manager);
+
+bool stats_enabled(ecs::EntityManager &entity_manager);
 
 }
 }

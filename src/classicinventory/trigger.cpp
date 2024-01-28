@@ -156,6 +156,11 @@ void flipeffect_show_pickup_notifier(
 	pickup_display.alpha = 0;
 }
 
+void flipeffect_set_stats_type(bool global, ecs::EntityManager &entity_manager)
+{
+	MyData.Save.Local.inventory_data.show_global_stats = global;
+}
+
 bool condition_item_qty_at_least(
 	int32_t item_id,
 	int32_t qty,

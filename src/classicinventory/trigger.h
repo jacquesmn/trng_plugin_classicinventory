@@ -55,6 +55,8 @@ void flipeffect_open_inventory_at_item(
 
 void flipeffect_show_pickup_notifier(int32_t item_id, ecs::EntityManager &entity_manager);
 
+void flipeffect_set_stats_type(bool global, ecs::EntityManager &entity_manager);
+
 bool condition_item_qty_at_least(int32_t item_id, int32_t qty, ecs::EntityManager &entity_manager);
 
 bool condition_item_qty_less_than(int32_t item_id, int32_t qty, ecs::EntityManager &entity_manager);

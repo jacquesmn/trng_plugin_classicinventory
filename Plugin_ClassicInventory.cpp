@@ -163,6 +163,8 @@ bool patch_00_have_i_got_object(int slot)
 		}
 	}
 
+	SayNo();
+
 	return false;
 }
 
@@ -310,6 +312,7 @@ void cbInitLoadNewLevel(void)
 	MyData.Save.Local.inventory_data.ring_id_selected = ring::RingId::INVENTORY;
 	MyData.Save.Local.inventory_data.item_id_selected = item::ItemId::NONE;
 	MyData.Save.Local.inventory_data.item_id_used = item::ItemId::NONE;
+	MyData.Save.Local.inventory_data.show_global_stats = false;
 
 	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::COMPASS)] = 1;
 	MyData.Save.Global.inventory_data.item_qty[item::item_id_to_item_index(item::ItemId::MEMCARD_LOAD_INV)] = 1;
@@ -689,6 +692,9 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 	}
 	else if (FlipIndex == 708) {
 		trigger::flipeffect_show_pickup_notifier(item_id, ecs::get_entity_manager());
+	}
+	else if (FlipIndex == 709) {
+		trigger::flipeffect_set_stats_type(Timer == 1, ecs::get_entity_manager());
 	}
 	else {
 		SendToLog("WARNING: Flipeffect trigger number %d has not been handled in cbFlipEffectMine() function", FlipIndex);

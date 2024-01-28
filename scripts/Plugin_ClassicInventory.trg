@@ -9,6 +9,7 @@
 706:Inventory. Set <&> as selected and open inventory in (E) way
 707:Inventory. Set <&> as activated and open inventory in (E) way
 708:Inventory. Show pickup notifier for <&>
+709:Inventory. Set statistics screen to <&> values
 <END>
 
 <START_EFFECT_700_T_H>
@@ -312,6 +313,11 @@
 
 <START_EFFECT_708_T_H>
 #SAME_OF#=EFFECT_700_T
+<END>
+
+<START_EFFECT_709_T_H>
+1: Global
+2: Local
 <END>
 
 ; ----- CONDITION TRIGGERS -----

@@ -697,5 +697,17 @@ bool debug_enabled(ecs::EntityManager &entity_manager)
 	return false;
 }
 
+bool stats_enabled(ecs::EntityManager& entity_manager)
+{
+	const auto inventory = entity_manager.find_entity_with_component<InventoryData>();
+	if (inventory) {
+		const auto &inventory_data = *inventory->get_component<InventoryData>();
+
+		return inventory_data.enable_stats;
+	}
+
+	return false;
+}
+
 }
 }
