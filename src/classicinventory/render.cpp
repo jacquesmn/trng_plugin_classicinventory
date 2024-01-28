@@ -284,7 +284,7 @@ void InventoryRenderSystem::draw_item(
 	const uint32_t poly_alpha_backup = *poly_alpha;
 	const auto mesh_tree = reinterpret_cast<int32_t*>(0x533958);
 	auto bone = reinterpret_cast<int32_t*>(*mesh_tree) + slot_tr4.IndexFirstTree;
-	uint16_t mesh_bit = 1;
+	uint32_t mesh_bit = 1;
 
 	for (int32_t mesh_index = 0; mesh_index < slot_tr4.TotMesh; ++mesh_index) {
 		// draw mesh if mesh-mask bit is set
