@@ -61,6 +61,7 @@ extern TYPE_phd_GenerateW2V phd_GenerateW2V;
 extern TYPE_AlterFOV AlterFOV;
 extern TYPE_DrawHealthBar DrawHealthBar;
 extern TYPE_DrawAirBar DrawAirBar;
+extern TYPE_SoundEffect SoundEffect;
 extern void BackupLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 extern void RestoreLara(StrBackupLara *pBack, StrItemTr4 *pOggetto);
 extern StrMyData MyData;
@@ -240,6 +241,33 @@ void InventoryRenderSystem::draw_item(
 	const int32_t frame_trans_z = *(anim_frame + 8);
 	auto frame_rot = (anim_frame + 9);
 	// TODO: interpolate based on frame rate
+
+	// animcommands
+	if (item_anim && tr4_anim.NunAnimCommands > 0) {
+		const auto anim_commands = reinterpret_cast<int32_t *>(0x53395C);
+
+		auto anim_command = reinterpret_cast<WORD *>(*anim_commands) + tr4_anim.AnimCommand;
+		for (int i = tr4_anim.NunAnimCommands; i > 0; i--) {
+			switch (*anim_command++) {
+			case 1:
+				anim_command += 3;
+				break;
+			case 2:
+				anim_command += 2;
+				break;
+			case 5:
+				if (core::round(item_anim->frame) == *anim_command) {
+					const auto sound_id = anim_command[1] & 0x3FFF;
+					SoundEffect(sound_id, nullptr, 2);
+				}
+				anim_command += 2;
+				break;
+			case 6:
+				anim_command += 2;
+				break;
+			}
+		}
+	}
 
 	const auto item_pos_x = core::round(item_display->pos.x);
 	const auto item_pos_y = core::round(item_display->pos.y);
