@@ -38,11 +38,26 @@ enum Enum {
 };
 }
 
+namespace StatsType {
+enum Enum {
+	KILLS = 1,
+	PICKUPS
+};
+}
+
 void flipeffect_increase_item_qty(int32_t item_id, int32_t qty, ecs::EntityManager &entity_manager);
 
 void flipeffect_decrease_item_qty(int32_t item_id, int32_t qty, ecs::EntityManager &entity_manager);
 
 void flipeffect_set_item_qty(int32_t item_id, int32_t qty, ecs::EntityManager &entity_manager);
+
+void flipeffect_increase_stats_kills(int32_t qty);
+
+void flipeffect_decrease_stats_kills(int32_t qty);
+
+void flipeffect_increase_stats_pickups(int32_t qty);
+
+void flipeffect_decrease_stats_pickups(int32_t qty);
 
 void flipeffect_open_inventory_at_item(
 	int32_t item_id,

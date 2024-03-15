@@ -653,6 +653,16 @@ void add_health_bar(ecs::Entity& item)
 	}
 }
 
+InventoryData* get_inventory_data(ecs::EntityManager &entity_manager)
+{
+	const auto inventory = entity_manager.find_entity_with_component<InventoryData>();
+	if (inventory) {
+		return inventory->get_component<InventoryData>();
+	}
+
+	return nullptr;
+}
+
 InventoryState* get_inventory_state(ecs::EntityManager &entity_manager)
 {
 	const auto inventory = entity_manager.find_entity_with_component<InventoryState>();

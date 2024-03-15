@@ -10,6 +10,8 @@
 707:Inventory. Set <&> as activated and open inventory in (E) way
 708:Inventory. Show pickup notifier for <&>
 709:Inventory. Set statistics screen to <&> values
+710:Statistics. Increase <&> by (E)
+711:Statistics. Decrease <&> by (E)
 <END>
 
 <START_EFFECT_700_T_H>
@@ -318,6 +320,23 @@
 <START_EFFECT_709_T_H>
 1: Global
 2: Local
+<END>
+
+<START_EFFECT_710_T_H>
+1: Kills
+2: Pickups
+<END>
+
+<START_EFFECT_710_E_H>
+#REPEAT##1#127
+<END>
+
+<START_EFFECT_711_T_H>
+#SAME_OF#=EFFECT_710_T
+<END>
+
+<START_EFFECT_711_E_H>
+#SAME_OF#=EFFECT_710_E
 <END>
 
 ; ----- CONDITION TRIGGERS -----

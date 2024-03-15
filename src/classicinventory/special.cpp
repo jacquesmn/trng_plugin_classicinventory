@@ -343,11 +343,17 @@ void StatisticsSystem::update(
 	statistics_local.hits += hits_diff;
 
 	// Kills
-	auto &kills = *reinterpret_cast<uint32_t*>(0x7F7756);
-	const auto kills_diff = kills - statistics_global.kills;
+	const auto &kills_global = *reinterpret_cast<uint32_t*>(0x7F7756);
+	const auto kills_diff = kills_global >= statistics_global.kills ? kills_global - statistics_global.kills : statistics_global.kills - kills_global;
 
-	statistics_global.kills += kills_diff;
-	statistics_local.kills += kills_diff;
+	if (kills_global >= statistics_global.kills)
+	{
+		statistics_local.kills += kills_diff;
+	} else
+	{
+		statistics_local.kills -= kills_diff;
+	}
+	statistics_global.kills = kills_global;
 
 	// Health Packs Used
 	const auto health_packs_used = int(*reinterpret_cast<uint8_t*>(0x7F7745));

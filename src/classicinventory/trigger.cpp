@@ -90,6 +90,35 @@ void flipeffect_set_item_qty(
 	item_qty.set(qty);
 }
 
+void flipeffect_increase_stats_kills(int32_t qty)
+{
+	*reinterpret_cast<uint32_t *>(0x7F7756) += qty;
+}
+
+void flipeffect_decrease_stats_kills(int32_t qty)
+{
+	auto &kills = *reinterpret_cast<uint32_t*>(0x7F7756);
+	if (kills >= static_cast<uint32_t>(qty)) {
+		kills -= qty;
+	}
+}
+
+void flipeffect_increase_stats_pickups(int32_t qty)
+{
+	MyData.Save.Global.statistics.pickups += qty;
+	MyData.Save.Local.statistics.pickups += qty;
+}
+
+void flipeffect_decrease_stats_pickups(int32_t qty)
+{
+	if (MyData.Save.Global.statistics.pickups >= static_cast<uint32_t>(qty)) {
+		MyData.Save.Global.statistics.pickups -= qty;
+	}
+	if (MyData.Save.Local.statistics.pickups >= static_cast<uint32_t>(qty)) {
+		MyData.Save.Local.statistics.pickups -= qty;
+	}
+}
+
 void flipeffect_open_inventory_at_item(
 	int32_t item_id,
 	ItemSelectType::Enum select_type,

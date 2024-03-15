@@ -46,11 +46,15 @@ enum Enum {
 struct InventoryData : public ecs::Component {
 	bool enabled;
 	bool enable_stats;
+	int32_t total_kills;
+	int32_t total_pickups;
 
 	InventoryData()
 		:
 		enabled(true),
-		enable_stats(false)
+		enable_stats(false),
+		total_kills(-1),
+		total_pickups(-1)
 	{}
 };
 
@@ -216,6 +220,8 @@ void rotate_ring(ecs::Entity &ring, uint32_t duration_frames, bool clockwise);
 bool sort_items_by_sort_index(const ecs::Entity *item_a, const ecs::Entity *item_b);
 
 void add_health_bar(ecs::Entity &item);
+
+inventory::InventoryData* get_inventory_data(ecs::EntityManager &entity_manager);
 
 inventory::InventoryState* get_inventory_state(ecs::EntityManager &entity_manager);
 

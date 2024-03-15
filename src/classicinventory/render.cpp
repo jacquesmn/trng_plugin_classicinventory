@@ -823,6 +823,8 @@ void draw_stats()
 		return;
 	}
 
+	const auto inventory_data = inventory::get_inventory_data(ecs::get_entity_manager());
+
 	const auto &show_global_stats = MyData.Save.Local.inventory_data.show_global_stats;
 	const auto &statistics_global = MyData.Save.Global.statistics;
 	const auto &statistics_local = MyData.Save.Local.statistics;
@@ -902,6 +904,10 @@ void draw_stats()
 
 	std::ostringstream stream_kills;
 	stream_kills << kills;
+	if (inventory_data->total_kills >= 0) {
+		stream_kills << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
+		stream_kills << inventory_data->total_kills;
+	}
 	draw_text(std::string(stream_kills.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
 	// Pickups
@@ -911,6 +917,10 @@ void draw_stats()
 
 	std::ostringstream stream_pickups;
 	stream_pickups << pickups;
+	if (inventory_data->total_pickups >= 0) {
+		stream_pickups << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
+		stream_pickups << inventory_data->total_pickups;
+	}
 	draw_text(std::string(stream_pickups.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
 	// Health Packs Used
@@ -930,24 +940,6 @@ void draw_stats()
 	std::ostringstream stream_injuries;
 	stream_injuries << health_lost << " HP";
 	draw_text(std::string(stream_injuries.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
-
-	// Flares Used
-	// text_y += line_height;
-	// draw_text(script::ScriptString("Flares Used").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
-	// const auto flares_used = statistics.flares_used;
-	//
-	// std::ostringstream stream_flares;
-	// stream_flares << flares_used;
-	// draw_text(std::string(stream_flares.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
-
-	// Times Saved
-	// text_y += line_height;
-	// draw_text(script::ScriptString("Times Saved").get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
-	// const auto times_saved = statistics.times_saved;
-	//
-	// std::ostringstream stream_saved;
-	// stream_saved << times_saved;
-	// draw_text(std::string(stream_saved.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
 	// Secrets Found
 	text_y += line_height;

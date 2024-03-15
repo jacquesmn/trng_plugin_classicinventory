@@ -4243,7 +4243,7 @@ void customize_inventory_data(
 	ecs::EntityManager &entity_manager
 )
 {
-	if (customize.NArguments < 2) {
+	if (customize.NArguments < 1) {
 		return;
 	}
 
@@ -4256,13 +4256,41 @@ void customize_inventory_data(
 	int32_t cust_index = -1;
 
 	const auto enabled = customize.pVetArg[++cust_index];
-	const auto enable_stats = customize.pVetArg[++cust_index];
 
 	if (enabled >= 0) {
 		inventory_data.enabled = enabled == CINV_TRUE;
 	}
+}
+
+void customize_inventory_stats(
+	const StrGenericCustomize &customize,
+	ecs::EntityManager &entity_manager
+)
+{
+	if (customize.NArguments < 3) {
+		return;
+	}
+
+	const auto inventory = entity_manager.find_entity_with_component<inventory::InventoryData>();
+	if (!inventory) {
+		return;
+	}
+	auto &inventory_data = *inventory->get_component<inventory::InventoryData>();
+
+	int32_t cust_index = -1;
+
+	const auto enable_stats = customize.pVetArg[++cust_index];
+	const auto total_kills = customize.pVetArg[++cust_index];
+	const auto total_pickups = customize.pVetArg[++cust_index];
+
 	if (enable_stats >= 0) {
 		inventory_data.enable_stats = enable_stats == CINV_TRUE;
+	}
+	if (total_kills >= 0) {
+		inventory_data.total_kills = total_kills;
+	}
+	if (total_pickups >= 0) {
+		inventory_data.total_pickups = total_pickups;
 	}
 }
 
@@ -5923,6 +5951,9 @@ void customize_phase1(const StrGenericCustomize &customize, ecs::EntityManager &
 	switch (customize.CustValue) {
 	case CUST_CINV:
 		customize_inventory_data(customize, entity_manager);
+		break;
+	case CUST_CINV_STATS:
+		customize_inventory_stats(customize, entity_manager);
 		break;
 	case CUST_CINV_DEBUG:
 		customize_debug(customize, entity_manager);

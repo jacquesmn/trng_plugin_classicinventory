@@ -30,6 +30,7 @@
 #define CUST_CINV_PASSPORT				24
 #define CUST_CINV_MAP					25
 #define CUST_CINV_DEBUG					26
+#define CUST_CINV_STATS					27
 
 #define CINV_FALSE						0
 #define CINV_TRUE						1

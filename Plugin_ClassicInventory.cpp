@@ -696,6 +696,26 @@ int cbFlipEffectMine(WORD FlipIndex, WORD Timer, WORD Extra, WORD ActivationMode
 	else if (FlipIndex == 709) {
 		trigger::flipeffect_set_stats_type(Timer == 1, ecs::get_entity_manager());
 	}
+	else if (FlipIndex == 710) {
+		const auto stats_type = static_cast<trigger::StatsType::Enum>(Timer);
+		if (stats_type == trigger::StatsType::KILLS)
+		{
+			trigger::flipeffect_increase_stats_kills(Extra);
+		} else if (stats_type == trigger::StatsType::PICKUPS)
+		{
+			trigger::flipeffect_increase_stats_pickups(Extra);
+		}
+	}
+	else if (FlipIndex == 711) {
+		const auto stats_type = static_cast<trigger::StatsType::Enum>(Timer);
+		if (stats_type == trigger::StatsType::KILLS)
+		{
+			trigger::flipeffect_decrease_stats_kills(Extra);
+		} else if (stats_type == trigger::StatsType::PICKUPS)
+		{
+			trigger::flipeffect_decrease_stats_pickups(Extra);
+		}
+	}
 	else {
 		SendToLog("WARNING: Flipeffect trigger number %d has not been handled in cbFlipEffectMine() function", FlipIndex);
 	}
@@ -994,7 +1014,6 @@ bool RequireMyCallBacks(void)
 	GET_CALLBACK(CB_NUMERIC_TRNG_PATCH, CBT_FIRST, 0x136, cbNumericTrngPatch);
 
 	GET_CALLBACK(CB_STATISTICS_MANAGER, CBT_REPLACE, 0, cbStatisticsManager);
-	//GET_CALLBACK(CB_FLIPEFFECT, CBT_REPLACE, 53, cbFlipEffect);
 
 
 	return true;
