@@ -865,19 +865,42 @@ void draw_stats()
 	stream_time << std::setfill('0') << std::setw(2) << s;
 	draw_text(std::string(stream_time.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
-	// Distance Travelled
+	// Secrets Found
 	text_y += line_height;
-	draw_text(script::ScriptString(script::StringIndex::DISTANCE_TRAVELLED).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
-	const auto distance_meters = statistics.distance_travelled_meters;
-	
-	std::ostringstream stream_distance;
-	if (distance_meters < 1000) {
-		stream_distance << distance_meters << "m";
+	draw_text(script::ScriptString(script::StringIndex::SECRETS_FOUND).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto secrets_found = statistics.secrets_found;
+
+	std::ostringstream stream_secrets;
+	stream_secrets << secrets_found;
+	stream_secrets << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
+	stream_secrets << Trng.pGlobTomb4->pBaseCustomize->SecretsAmount;
+	draw_text(std::string(stream_secrets.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Pickups
+	text_y += line_height;
+	draw_text("Pickups", text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto pickups = statistics.pickups;
+
+	std::ostringstream stream_pickups;
+	stream_pickups << pickups;
+	if (inventory_data->total_pickups >= 0) {
+		stream_pickups << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
+		stream_pickups << inventory_data->total_pickups;
 	}
-	else {
-		stream_distance << std::setprecision(2) << std::fixed << distance_meters / 1000.f << "km";
+	draw_text(std::string(stream_pickups.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+
+	// Kills
+	text_y += line_height;
+	draw_text("Kills", text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto kills = statistics.kills;
+
+	std::ostringstream stream_kills;
+	stream_kills << kills;
+	if (inventory_data->total_kills >= 0) {
+		stream_kills << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
+		stream_kills << inventory_data->total_kills;
 	}
-	draw_text(std::string(stream_distance.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+	draw_text(std::string(stream_kills.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
 	// Ammo Used
 	text_y += line_height;
@@ -897,32 +920,6 @@ void draw_stats()
 	stream_hits << hits;
 	draw_text(std::string(stream_hits.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
-	// Kills
-	text_y += line_height;
-	draw_text("Kills", text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
-	const auto kills = statistics.kills;
-
-	std::ostringstream stream_kills;
-	stream_kills << kills;
-	if (inventory_data->total_kills >= 0) {
-		stream_kills << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
-		stream_kills << inventory_data->total_kills;
-	}
-	draw_text(std::string(stream_kills.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
-
-	// Pickups
-	text_y += line_height;
-	draw_text("Pickups", text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
-	const auto pickups = statistics.pickups;
-
-	std::ostringstream stream_pickups;
-	stream_pickups << pickups;
-	if (inventory_data->total_pickups >= 0) {
-		stream_pickups << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
-		stream_pickups << inventory_data->total_pickups;
-	}
-	draw_text(std::string(stream_pickups.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
-
 	// Health Packs Used
 	text_y += line_height;
 	draw_text(script::ScriptString(script::StringIndex::HEALTH_PACKS_USED).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
@@ -941,16 +938,19 @@ void draw_stats()
 	stream_injuries << health_lost << " HP";
 	draw_text(std::string(stream_injuries.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 
-	// Secrets Found
+	// Distance Travelled
 	text_y += line_height;
-	draw_text(script::ScriptString(script::StringIndex::SECRETS_FOUND).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
-	const auto secrets_found = statistics.secrets_found;
-
-	std::ostringstream stream_secrets;
-	stream_secrets << secrets_found;
-	stream_secrets << " " << script::ScriptString(script::StringIndex::OF).get_string() << " ";
-	stream_secrets << Trng.pGlobTomb4->pBaseCustomize->SecretsAmount;
-	draw_text(std::string(stream_secrets.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
+	draw_text(script::ScriptString(script::StringIndex::DISTANCE_TRAVELLED).get_string(), text_x, text_y, font_size, enumFC.WHITE, enumFTS.ALIGN_LEFT);
+	const auto distance_meters = statistics.distance_travelled_meters;
+	
+	std::ostringstream stream_distance;
+	if (distance_meters < 1000) {
+		stream_distance << distance_meters << "m";
+	}
+	else {
+		stream_distance << std::setprecision(2) << std::fixed << distance_meters / 1000.f << "km";
+	}
+	draw_text(std::string(stream_distance.str()), text_x + div_width, text_y, font_size, enumFC.GOLD, enumFTS.ALIGN_LEFT);
 }
 
 }
